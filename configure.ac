@@ -20,5 +20,5 @@ AS_IF([test "x${hyprelib}" = xyes],[AC_DEFINE([HYPRE],[1],[Define to 1 if you ha
 AC_ARG_WITH([hyprelib-dir],[AS_HELP_STRING([--with-hyprelib-dir=DIR],[DIR is the top directory containing the hypre library if hyprelib is enabled])],\
 [hypredir=${withval}], [])
 AC_SUBST([hypredir])
-AC_CONFIG_FILES([Makefile lib/Makefile case1/Makefile])
+AC_CONFIG_FILES([Makefile case1/Makefile doc/Makefile lib/Makefile])
 AC_OUTPUT
