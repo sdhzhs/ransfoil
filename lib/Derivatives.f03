@@ -29,9 +29,6 @@ Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
 else if(scalar=='Tw') then
 F=Tw
 Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
-else if(scalar=='Rk') then
-F=rou*Tk
-Fwall=1.5*rou(Ib1:Ib2,1)*Tk(Ib1:Ib2,1)-0.5*rou(Ib1:Ib2,1)*Tk(Ib1:Ib2,2)
 else if(scalar=='mux') then
 F=(miu+miut)*Ux
 Fwall=1.5*(miu(Ib1:Ib2,1)+miut(Ib1:Ib2,1))*Ux(Ib1:Ib2,1)-0.5*(miu(Ib1:Ib2,2)+miut(Ib1:Ib2,2))*Ux(Ib1:Ib2,2)
@@ -99,9 +96,6 @@ Tky=Fy
 else if(scalar=='Tw') then
 Twx=Fx
 Twy=Fy
-else if(scalar=='Rk') then
-Rkx=Fx
-Rky=Fy
 else if(scalar=='mux') then
 muxx=Fx
 muxy=Fy

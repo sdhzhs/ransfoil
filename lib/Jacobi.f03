@@ -29,7 +29,7 @@ theta=180*acos(b1/sqrt(a1*y1))/Pi
 DO i=Ib1,Ib2
 Xw(i)=0.5*(Xg(i+1,1)+Xg(i,1))
 Yw(i)=0.5*(Yg(i+1,1)+Yg(i,1))
-Dyp(i)=sqrt((Xc(i,1)-Xw(i))**2+(Yc(i,1)-Yw(i))**2)
+Yp(i)=sqrt((Xc(i,1)-Xw(i))**2+(Yc(i,1)-Yw(i))**2)
 DR(i)=sqrt((Xg(i+1,1)-Xg(i,1))**2+(Yg(i+1,1)-Yg(i,1))**2)
 end DO
 Sw((Ib1+Ib2+1)/2)=sqrt((Xw((Ib1+Ib2+1)/2)-Xw((Ib1+Ib2-1)/2))**2+(Yw((Ib1+Ib2+1)/2)-Yw((Ib1+Ib2-1)/2))**2)/2

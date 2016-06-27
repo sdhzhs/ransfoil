@@ -6,7 +6,7 @@ Ep=9.793,Cks=0.5,Cb1=0.1355,Cb2=0.622,sigman=2.0/3,Cw2=0.3,Cw3=2.0,Cniu1=7.1,Cw1
 Cu=0.09,sigmak=1.0,sigmae=1.3,sigmak1=1.176,sigmak2=1.0,sigmaw1=2.0,sigmaw2=1.168,alpha1=0.31,betai1=0.075,betai2=0.0828,&
 alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,Mt0=0.25
 save
-integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Iwd,Iwu,maxs
+integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Iwd,Iwu,Ifd,maxs
 character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag
 character(64) filename(9),dir
 character(C_CHAR),bind(C)::cProctrl(8),cEnergy(8),cvisheat(8),cTurmod(8),cWalltreat(8),csolctrl(8),cDiscret(8),cdenface(8),&
@@ -17,9 +17,9 @@ ca,ka,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
 real(8),allocatable,target,dimension(:,:)::rou,miu,P,dP,U,V,T,Tn,Tk,Te,Tw,miut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auW,auE,auS,&
 auN,bu,bv,apP,apW,apE,apS,apN,bp,atP,atW,atE,atS,atN,bt,anP,anW,anE,anS,anN,bn,akP,akW,akE,akS,akN,bk,aeP,aeW,aeE,aeS,aeN,be,&
 awP,awW,awE,awS,awN,bw,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,d,Un,Vn,wdu,edu,sdv,ndv,Unw,Une,Vns,Vnn,Ux,Uy,Vx,Vy,Px,Py,dPx,&
-dPy,roux,rouy,Tnx,Tny,Tkx,Tky,Twx,Twy,Rkx,Rky,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,rouw,roue,rous,roun,Xi,fniu1,fai2,F2,St,&
-Ret,alphastar,sigmatk,sigmatw
-real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xw,Yw,Dyp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
+dPy,roux,rouy,Tnx,Tny,Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,rouw,roue,rous,roun,Xi,fniu1,fai2,F2,St,Ret,&
+alphastar,sigmatk,sigmatw
+real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
 real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:)
 type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy
 type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crou,cmiu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmiut

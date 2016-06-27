@@ -6,12 +6,12 @@ real(8) Cx,Cy,Ctx,Cty,Cpm
 DO i=Ib1,Ib2
 if(Turmod=='sa'.and.Walltreat=='lr'.or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
 if(Ta-Tf/=0) then
-hcv(i)=ca*(ka/ca+miut(i,1)/Prt)*(T(i,1)-Tf)/Dyp(i)/(Ta-Tf)
+hcv(i)=ca*(ka/ca+miut(i,1)/Prt)*(T(i,1)-Tf)/Yp(i)/(Ta-Tf)
 else
-hcv(i)=ca*(ka/ca+miut(i,1)/Prt)/Dyp(i)
+hcv(i)=ca*(ka/ca+miut(i,1)/Prt)/Yp(i)
 end if
-Ax(i)=(miu(i,1)+miut(i,1))*U(i,1)/Dyp(i)
-Ay(i)=(miu(i,1)+miut(i,1))*V(i,1)/Dyp(i)
+Ax(i)=(miu(i,1)+miut(i,1))*U(i,1)/Yp(i)
+Ay(i)=(miu(i,1)+miut(i,1))*V(i,1)/Yp(i)
 else if(Turmod=='ke'.or.(Turmod=='sa'.and.Walltreat=='wf').or.(Turmod=='sst'.and.Walltreat=='wf')) then
 if(Ta-Tf/=0) then
 hcv(i)=Q(i)/(Tf-Ta)

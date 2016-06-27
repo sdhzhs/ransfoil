@@ -280,10 +280,16 @@ write(4,*) 'File name for initialization: ',filename(9)
 else if(Init=='N') then
 write(4,*) 'Initializing using stagnation values: ',Stag
 end if
+write(4,*) 'Momentum relaxation factor:',Rau
+write(4,*) 'Pressure relaxation factor:',Rap
+if(Energy=='Y') then
+write(4,*) 'Energy relaxation factor:',Rae
+end if
 if(Proctrl=='com') then
-write(4,*) 'Relaxation factor:',Rau,Rap,Rae,Rar,Rat
-else if(Proctrl=='incom') then
-write(4,*) 'Relaxation factor:',Rau,Rap,Rae,Rat
+write(4,*) 'Density relaxation factor:',Rar
+end if
+if(Turmod/='inv'.and.Turmod/='lam') then
+write(4,*) 'Turbulence relaxation factor:',Rat
 end if
 write(4,*) '----------------------------------------------'
 write(4,*) 'The aerodynamic parameters of this airfoil are:'
@@ -298,7 +304,7 @@ end if
 write(4,*) 'Lift coefficient:',Cl
 write(4,*) 'Drag coefficient:',Cd
 write(4,*) 'Friction coefficient:',Cf
-write(4,*) 'Moment coefficient (1/4 chord):',Cm
+write(4,*) 'Pitching moment coefficient (1/4 chord):',Cm
 write(4,*) 'Pressure center (unit chord):',Xpc,Ypc
 close(4)
 end Subroutine Results

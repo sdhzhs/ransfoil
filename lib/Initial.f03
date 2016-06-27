@@ -190,8 +190,13 @@ end DO
 U0=U
 V0=V
 T0=T
+if(Turmod=='sa') then
 Tn0=Tn
+else if(Turmod=='ke') then
 Tk0=Tk
 Te0=Te
+else if(Turmod=='sst') then
+Tk0=Tk
 Tw0=Tw
+end if
 end Subroutine Initial

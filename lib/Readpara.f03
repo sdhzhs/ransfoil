@@ -61,6 +61,10 @@ end if
 read(10,*) ch
 read(10,*) fd
 read(10,*) ch
+read(10,*) Ifd
+read(10,*) ch
+read(10,*) Jp
+read(10,*) ch
 read(10,*) c
 read(10,*) ch
 read(10,*) Vfar
@@ -142,6 +146,10 @@ read *,Rat
 end if
 print *,'Input dimensionless near wall mesh spacing:'
 read *,fd
+print *,'Input layers of uniform near wall mesh:'
+read *,Ifd
+print *,'Input total number of grid points normal to the airfoil surface:'
+read *,Jp
 print *,'Input chord length(m):'
 read *,c
 print *,'Input velocity of free stream(m/s):'

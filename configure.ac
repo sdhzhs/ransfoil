@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([ransfoil], [1.5], [sdhzhs@gmail.com])
-AM_INIT_AUTOMAKE(ransfoil, 1.5, sdhzhs@gmail.com)
+AC_INIT([ransfoil], [1.6], [sdhzhs@gmail.com])
+AM_INIT_AUTOMAKE(ransfoil, 1.6, sdhzhs@gmail.com)
 LT_PREREQ([2.4])
 AC_CANONICAL_HOST
 AS_CASE([$host],[i?86-pc-mingw32], [LTIOP=win32-dll],[LTIOP=""])

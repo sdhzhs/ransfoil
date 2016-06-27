@@ -102,10 +102,10 @@ DO j=1,Jc-1
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
     aS(i,j)=0
     if((Turmod=='sa'.and.Walltreat=='lr').or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
-     if(scalar=='Tk'.and.ks(i)>1d-10) then
+     if(scalar=='Tk') then
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)
      else if(scalar=='Tn'.and.ks(i)>1d-10) then
-      aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+2*Ds(i,j)*Dyp(i)/(Dyp(i)+d(i,j))
+      aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+2*Ds(i,j)*Yp(i)/d(i,j)
      else if(scalar=='Tw') then
       aW(i,j)=0
       aE(i,j)=0
@@ -121,9 +121,9 @@ DO j=1,Jc-1
      else if(scalar=='Tn') then
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+2*Ds(i,j)
      else if(Turmod=='sst'.and.scalar=='Tk') then
-      aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+rou(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Dyp(i))
+      aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+rou(i,j)*ustar(i)**3*Jg(i,j)*dx*dy/(Tk(i,j)*kapa*Yp(i))
      else if(Turmod=='ke'.and.scalar=='Tk') then
-      aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+rou(i,j)*ustar(i)**3*Uplus(i)*dx*dy/(Tk(i,j)*Dyp(i))
+      aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+rou(i,j)*ustar(i)**3*Jg(i,j)*dx*dy/(Tk(i,j)*kapa*Yp(i))
      else if(scalar=='Te') then
       aW(i,j)=0
       aE(i,j)=0
@@ -244,9 +244,9 @@ DO j=1,Jc-1
    if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
     if(Proctrl=='com') then
     b(i,j)=g*miut(i,j)*rouy(i,j)*Jg(i,j)*dx*dy/(rou(i,j)*Prt)-2*rou(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)+&
-    rou(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*dx*dy/Dyp(i)
+    rou(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
     else if(Proctrl=='incom') then
-    b(i,j)=rou(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*dx*dy/Dyp(i)
+    b(i,j)=rou(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
     end if
    else
     if(Proctrl=='com') then
@@ -259,7 +259,7 @@ DO j=1,Jc-1
   else if(scalar=='Tk'.and.Turmod=='sst') then
    if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
     if(Walltreat=='wf') then
-      b(i,j)=rou(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/Dyp(i)
+      b(i,j)=rou(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
     else if(Walltreat=='lr') then
       b(i,j)=min(miut(i,j)*St(i,j)**2,10*rou(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j))*Jg(i,j)*dx*dy-&
       rou(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j)*Jg(i,j)*dx*dy

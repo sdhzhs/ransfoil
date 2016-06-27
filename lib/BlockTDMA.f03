@@ -1,7 +1,8 @@
 Subroutine BlockTDMA(Ap,Aw,Ae,B,X,M,N)
 implicit none
 integer i,k,M,N
-real(8) Ap(M,M,N),Aw(M,M,N),Ae(M,M,N),B(M,N),X(M,N),c(M,M,N),d(M,N),Dp(M,M,N),invAp(M,M,N),invDp(M,M,N),Awc(M,M,N),Awd(M,N),cX(M,N)
+real(8) Ap(M,M,N),Aw(M,M,N),Ae(M,M,N),B(M,N),X(M,N),c(M,M,N),d(M,N),Dp(M,M,N),invAp(M,M,N),invDp(M,M,N),Awc(M,M,N),Awd(M,N),&
+cX(M,N)
 c=0
 d=0
 DO k=1,N

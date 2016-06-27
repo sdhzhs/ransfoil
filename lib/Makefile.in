@@ -234,7 +234,7 @@ libaero2d_la_SOURCES = BlockTDMA.f03 COM.f03 Condiff.f03 \
 	Linearsolver.f03 PCEcoe.f03 Postprocess.f03 Readpara.f03 \
 	Results.f03 RMS.f03 Tanhline.f03 Velcorrect.f03 Wallfunc.f03 \
 	$(am__append_3)
-libaero2d_la_LDFLAGS = -release 1.5 $(am__append_1) $(am__append_4)
+libaero2d_la_LDFLAGS = -release 1.6 $(am__append_1) $(am__append_4)
 nodist_include_HEADERS = aero2dcom.mod
 all: all-am
 

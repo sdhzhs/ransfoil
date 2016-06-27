@@ -86,3 +86,17 @@ C language.
 Added control parameters to configure the relaxation factors for velocity,
 pressure, temperature, density and turbulence, separately.
 Updated the document `README' and `README_CHS'.
+
+Release of version 1.6
+----------------------
+
+ChangeLog
+
+Added two control parameters to configure mesh distribution in normal direction
+to the airfoil surface.
+Changed the expressions of turbulent production term when the wall adjacent cell is
+in log-law layer and the wall function method is selected as the wall treatment.
+The contents in original documentations `README' and `README_CHS' are typeset
+and printed in two PDF files named `UserGuide.pdf' and `UserGuide_CHS.pdf',
+respectively.
+Added a new subdirectory `doc' to store PDF documentations.
