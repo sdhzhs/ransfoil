@@ -88,20 +88,13 @@ a1(Ic,Jc),y1(Ic,Jc),b1(Ic,Jc),Un(Ic,Jc),Vn(Ic,Jc),Unw(Ic,Jc),Une(Ic,Jc),Vns(Ic,J
 ndv(Ic,Jc),Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),muxy(Ic,Jc),muyx(Ic,Jc),&
 mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),ww(Ic,Jc),we(Ic,Jc),ws(Ic,Jc),wn(Ic,Jc),rouw(Ic,Jc),roue(Ic,Jc),rous(Ic,Jc),roun(Ic,Jc),&
 d(Ic,Jc),St(Ic,Jc))
-if(Energy=='Y') then
- allocate(atP(Ic,Jc),atW(Ic,Jc),atE(Ic,Jc),atS(Ic,Jc),atN(Ic,Jc),bt(Ic,Jc))
-end if
-if(Turmod=='sa') then
- allocate(Tn0(Ic,Jc),Tn(Ic,Jc),anP(Ic,Jc),anW(Ic,Jc),anE(Ic,Jc),anS(Ic,Jc),anN(Ic,Jc),bn(Ic,Jc),Tnx(Ic,Jc),Tny(Ic,Jc),Xi(Ic,Jc),&
- fniu1(Ic,Jc))
-else if(Turmod=='ke') then
- allocate(Tk0(Ic,Jc),Te0(Ic,Jc),Tk(Ic,Jc),Te(Ic,Jc),akP(Ic,Jc),akW(Ic,Jc),akE(Ic,Jc),akS(Ic,Jc),akN(Ic,Jc),bk(Ic,Jc),aeP(Ic,Jc),&
- aeW(Ic,Jc),aeE(Ic,Jc),aeS(Ic,Jc),aeN(Ic,Jc),be(Ic,Jc),roux(Ic,Jc),rouy(Ic,Jc))
-else if(Turmod=='sst') then
- allocate(Tk0(Ic,Jc),Tw0(Ic,Jc),Tk(Ic,Jc),Tw(Ic,Jc),akP(Ic,Jc),akW(Ic,Jc),akE(Ic,Jc),akS(Ic,Jc),akN(Ic,Jc),bk(Ic,Jc),awP(Ic,Jc),&
- awW(Ic,Jc),awE(Ic,Jc),awS(Ic,Jc),awN(Ic,Jc),bw(Ic,Jc),Tkx(Ic,Jc),Tky(Ic,Jc),Twx(Ic,Jc),Twy(Ic,Jc),fai2(Ic,Jc),F2(Ic,Jc),&
- Ret(Ic,Jc),alphastar(Ic,Jc),sigmatk(Ic,Jc),sigmatw(Ic,Jc))
-end if
+allocate(atP(Ic,Jc),atW(Ic,Jc),atE(Ic,Jc),atS(Ic,Jc),atN(Ic,Jc),bt(Ic,Jc))
+allocate(Tn0(Ic,Jc),Tn(Ic,Jc),anP(Ic,Jc),anW(Ic,Jc),anE(Ic,Jc),anS(Ic,Jc),anN(Ic,Jc),bn(Ic,Jc),Tnx(Ic,Jc),Tny(Ic,Jc),Xi(Ic,Jc),&
+fniu1(Ic,Jc))
+allocate(Tk0(Ic,Jc),Te0(Ic,Jc),Tk(Ic,Jc),Te(Ic,Jc),akP(Ic,Jc),akW(Ic,Jc),akE(Ic,Jc),akS(Ic,Jc),akN(Ic,Jc),bk(Ic,Jc),aeP(Ic,Jc),&
+aeW(Ic,Jc),aeE(Ic,Jc),aeS(Ic,Jc),aeN(Ic,Jc),be(Ic,Jc),roux(Ic,Jc),rouy(Ic,Jc))
+allocate(Tw0(Ic,Jc),Tw(Ic,Jc),awP(Ic,Jc),awW(Ic,Jc),awE(Ic,Jc),awS(Ic,Jc),awN(Ic,Jc),bw(Ic,Jc),Tkx(Ic,Jc),Tky(Ic,Jc),Twx(Ic,Jc),&
+Twy(Ic,Jc),fai2(Ic,Jc),F2(Ic,Jc),Ret(Ic,Jc),alphastar(Ic,Jc),sigmatk(Ic,Jc),sigmatw(Ic,Jc))
 allocate(Xw(Ib1:Ib2),Yw(Ib1:Ib2),Yp(Ib1:Ib2),DR(Ib1:Ib2),Sw(Ib1:Ib2),ks(Ib1:Ib2),Q(Ib1:Ib2),Yplus(Ib1:Ib2),Ystar(Ib1:Ib2),&
 ustar(Ib1:Ib2),Uplus(Ib1:Ib2),Tplus(Ib1:Ib2),hcv(Ib1:Ib2),Ax(Ib1:Ib2),Ay(Ib1:Ib2))
 end Subroutine Allocarray

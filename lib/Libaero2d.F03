@@ -311,16 +311,9 @@ implicit none
 deallocate(U0,V0,T0,U,V,T,rou,miu,miut,P,dP,Pr,Pc,auP,auW,auE,auS,auN,bu,bv,apP,apW,apE,apS,apN,bp,&
 Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,Un,Vn,Unw,Une,Vns,Vnn,wdu,edu,sdv,ndv,Ux,Uy,Vx,Vy,Px,Py,&
 dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,rouw,roue,rous,roun,d,St)
-if(Energy=='Y') then
- deallocate(atP,atW,atE,atS,atN,bt)
-end if
-if(Turmod=='sa') then
- deallocate(Tn0,Tn,anP,anW,anE,anS,anN,bn,Tnx,Tny,Xi,fniu1)
-else if(Turmod=='ke') then
- deallocate(Tk0,Te0,Tk,Te,akP,akW,akE,akS,akN,bk,aeP,aeW,aeE,aeS,aeN,be,roux,rouy)
-else if(Turmod=='sst') then
- deallocate(Tk0,Tw0,Tk,Tw,akP,akW,akE,akS,akN,bk,awP,awW,awE,awS,awN,bw,Tkx,Tky,Twx,Twy,fai2,F2,Ret,&
- alphastar,sigmatk,sigmatw)
-end if
+deallocate(atP,atW,atE,atS,atN,bt)
+deallocate(Tn0,Tn,anP,anW,anE,anS,anN,bn,Tnx,Tny,Xi,fniu1)
+deallocate(Tk0,Te0,Tk,Te,akP,akW,akE,akS,akN,bk,aeP,aeW,aeE,aeS,aeN,be,roux,rouy)
+deallocate(Tw0,Tw,awP,awW,awE,awS,awN,bw,Tkx,Tky,Twx,Twy,fai2,F2,Ret,alphastar,sigmatk,sigmatw)
 deallocate(Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay)
 end Subroutine Deallocarray

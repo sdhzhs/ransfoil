@@ -17,11 +17,13 @@ Program libaero2dcaller
   Stag='N'
   maxs=2000
   delta=1d-5
-  Rau=7d-1
+  Rau=5d-1
   Rap=3d-1
   Rae=7d-1
   Rat=3d-1
   fd=1d-3
+  Ifd=10
+  Jp=75
   c=0.5334
   Vfar=75
   AoA=4
@@ -47,7 +49,6 @@ Program libaero2dcaller
   Iw2=Iw1+Iwd-1
   Iw3=Iw2+Iwu-1
   Ip=Iw3+Iw1-1
-  Jp=75
   Ic=Ip-1
   Jc=Jp-1
   Ib1=Iw1
