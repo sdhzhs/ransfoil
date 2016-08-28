@@ -100,3 +100,15 @@ The contents in original documentations `README' and `README_CHS' are typeset
 and printed in two PDF files named `UserGuide.pdf' and `UserGuide_CHS.pdf',
 respectively.
 Added a new subdirectory `doc' to store PDF documentations.
+
+Release of version 1.7
+----------------------
+
+ChangeLog
+
+Optimized memory structure and reduced memory usage.
+Changed the interface of `libaero2d' due to the optimization of memory usage.
+Implemented OpenMP parallelization for linear solver in source file
+`Linearsolver.f03'.
+Increased the number of nodes in sample file of airfoil coordinates.
+Updated the document `UserGuide.pdf' and `UserGuide_CHS.pdf'.

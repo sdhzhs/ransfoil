@@ -4,7 +4,7 @@ implicit none
 integer i,j
 real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,Dwplus,fai1,F1,betaistar,Fmt,alphaf,betai,fniu2,Sv,rm,gm
 real(8) Fwall(Ib1:Ib2)
-real(8) F(Ic,Jc),Ga(Ic,Jc),aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),b(Ic,Jc)
+real(8) F(Ic,Jc),Ga(Ic,Jc)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),DF(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 real(8) betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),C3e(Ic,Jc)
 character(*) scalar
@@ -155,7 +155,7 @@ if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
    F1=tanh(fai1**4)
    if(sqrt(2*Tk(i,j)/(gama*R*T(i,j)/Ma))<=Mt0) then
    Fmt=0
-   else if(sqrt(2*Tk(i,j)/(gama*R*T(i,j)/Ma))>Mt0) then
+   else
    Fmt=2*Tk(i,j)/(gama*R*T(i,j)/Ma)-Mt0**2
    end if
    betaistar=betastarf*(4./15+(Ret(i,j)/Rbeta)**4)/(1+(Ret(i,j)/Rbeta)**4)
@@ -180,7 +180,7 @@ else if(scalar=='Tn') then
    end DO
  end DO
 else if(scalar=='Te') then
- C3e=(exp(abs(V/U))-exp(-abs(V/U)))/(exp(abs(V/U))+exp(-abs(V/U)))
+ C3e=tanh(abs(V/U))
 end if
 b=F
 DO j=1,Jc-1
@@ -295,52 +295,6 @@ DO j=1,Jc-1
 end DO
 if(scalar=='U') then
 auP=aP
-auW=aW
-auE=aE
-auS=aS
-auN=aN
-bu=b
-else if(scalar=='V') then
-auP=aP
-auW=aW
-auE=aE
-auS=aS
-auN=aN
-bv=b
-else if(scalar=='T') then
-atP=aP
-atW=aW
-atE=aE
-atS=aS
-atN=aN
-bt=b
-else if(scalar=='Tn') then
-anP=aP
-anW=aW
-anE=aE
-anS=aS
-anN=aN
-bn=b
-else if(scalar=='Tk') then
-akP=aP
-akW=aW
-akE=aE
-akS=aS
-akN=aN
-bk=b
-else if(scalar=='Te') then
-aeP=aP
-aeW=aW
-aeE=aE
-aeS=aS
-aeN=aN
-be=b
-else if(scalar=='Tw') then
-awP=aP
-awW=aW
-awE=aE
-awS=aS
-awN=aN
-bw=b
+auNB=aW+aE+aS+aN
 end if
 end Subroutine Condiff

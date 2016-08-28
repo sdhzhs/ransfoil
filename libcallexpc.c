@@ -57,7 +57,7 @@ int main(void)
   jc=jp-1;
   ib1=iw1;
   ib2=iw3-1;
-  allocarray_();
+  allocarray_(mode,strlen(mode));
   prlv=1;
   aero2d_(mode,&prlv,"\0",strlen(mode),1);
   printf("%le,%le,%le,%le\n",cl,cd,cf,cm);
@@ -69,6 +69,6 @@ int main(void)
   for(i=0;i<ic*jc;i++)
   if(cp[i]<min) min=cp[i];
   printf("Maximum and minmum values of pressure are %le,%le.\n",max,min);
-  deallocarray_();
+  deallocarray_(mode,strlen(mode));
   return 0;
 }

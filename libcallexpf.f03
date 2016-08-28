@@ -53,7 +53,7 @@ Program libaero2dcaller
   Jc=Jp-1
   Ib1=Iw1
   Ib2=Iw3-1
-  Call Allocarray
+  Call Allocarray(mode)
   Call Aero2D(mode,0,'')
   print *,Cl,Cd,Cf,Cm
   print *,Xpc,Ypc
@@ -64,6 +64,6 @@ Program libaero2dcaller
   print *,Cl,Cd,Cf,Cm
   print *,Xpc,Ypc
   print *,maxval(hcv),minval(hcv)
-  Call Deallocarray
+  Call Deallocarray(mode)
   deallocate(Xwd,Ywd,Xwu,Ywu)
 end Program libaero2dcaller

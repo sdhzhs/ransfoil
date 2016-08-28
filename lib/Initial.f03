@@ -162,7 +162,6 @@ else if(Turmod=='lam'.or.Turmod=='inv') then
 miut=0
 end if
 dP=0
-bp=0
 DO j=1,Jc
    DO i=1,Ic
    Un(i,j)=U(i,j)*Yga(i,j)-V(i,j)*Xga(i,j)

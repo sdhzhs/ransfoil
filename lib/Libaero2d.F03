@@ -5,7 +5,7 @@ implicit none
 integer i,s
 integer(C_INT),bind(C)::prtl
 character(*) libmod,scptname
-real(8) time0,time1
+integer time0(8),time1(8)
 if(libmod=='S'.or.libmod=='I') then
 Call Readpara(libmod,scptname)
 else if(libmod=='C') then
@@ -94,7 +94,7 @@ write(2,*) 'U equation   ','V equation   ','T equation   ','c equation   ','Iter
 end if
 end if
 print *,'RANS equations iteration is beginning...'
-Call CPU_TIME(time0)
+Call DATE_AND_TIME(VALUES=time0)
 DO s=1,maxs
   Call Derivatives('mux')
   Call Derivatives('muy')
@@ -102,23 +102,26 @@ DO s=1,maxs
   Call Derivatives('mvy')
   Call Wallfunc
   Call Condiff('U')
+#ifdef HYPRE
+  Call hypresolve(aP,aW,aE,aS,aN,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,3,'U')
+#else
+  Call sor(aP,aW,aE,aS,aN,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+  !Call CGSTAB(aP,aW,aE,aS,aN,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+#endif
   Call Condiff('V')
 #ifdef HYPRE
-  Call hypresolve(auP,auW,auE,auS,auN,bu,U,U0,Rau,Ic,Jc,Ib1,Ib2,3,'U')
-  Call hypresolve(auP,auW,auE,auS,auN,bv,V,V0,Rau,Ic,Jc,Ib1,Ib2,3,'V')
+  Call hypresolve(aP,aW,aE,aS,aN,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,3,'V')
 #else
-  Call sor(auP,auW,auE,auS,auN,bu,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
-  Call sor(auP,auW,auE,auS,auN,bv,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
-  !Call CGSTAB(auP,auW,auE,auS,auN,bu,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
-  !Call CGSTAB(auP,auW,auE,auS,auN,bv,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+  Call sor(aP,aW,aE,aS,aN,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+  !Call CGSTAB(aP,aW,aE,aS,aN,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
 #endif
   Call PCEcoe
-  rmsm=sum(abs(bp))/(Ic*Jc)
+  rmsm=sum(abs(b))/(Ic*Jc)
 #ifdef HYPRE
-  Call hypresolve(apP,apW,apE,apS,apN,bp,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,3,'dP')
+  Call hypresolve(aP,aW,aE,aS,aN,b,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,3,'dP')
 #else
-  !Call sor(apP,apW,apE,apS,apN,bp,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,'dP')
-  Call CGSTAB(apP,apW,apE,apS,apN,bp,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,'dP')
+  !Call sor(aP,aW,aE,aS,aN,b,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,'dP')
+  Call CGSTAB(aP,aW,aE,aS,aN,b,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,'dP')
 #endif
   P=P+Rap*dP
   if(Proctrl=='com') then
@@ -134,10 +137,10 @@ DO s=1,maxs
   Call Wallfunc
   Call Condiff('T')
 #ifdef HYPRE
-  Call hypresolve(atP,atW,atE,atS,atN,bt,T,T0,Rae,Ic,Jc,Ib1,Ib2,3,'T')
+  Call hypresolve(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,3,'T')
 #else
-  Call sor(atP,atW,atE,atS,atN,bt,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
-  !Call CGSTAB(atP,atW,atE,atS,atN,bt,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+  Call sor(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+  !Call CGSTAB(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
 #endif
   if(Turmod/='inv') then
   miu=miu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
@@ -152,10 +155,10 @@ DO s=1,maxs
   Call Wallfunc
   Call Condiff('Tn')
 #ifdef HYPRE
-  Call hypresolve(anP,anW,anE,anS,anN,bn,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,3,'Tn')
+  Call hypresolve(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,3,'Tn')
 #else
-  Call sor(anP,anW,anE,anS,anN,bn,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
-  !Call CGSTAB(anP,anW,anE,anS,anN,bn,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+  Call sor(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+  !Call CGSTAB(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
 #endif
   if(Walltreat=='lr') then
   Xi=rou*Tn/miu+Cks*ksi/d
@@ -167,15 +170,18 @@ DO s=1,maxs
   else if(Turmod=='ke') then
   Call Wallfunc
   Call Condiff('Tk')
+#ifdef HYPRE
+  Call hypresolve(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
+#else
+  Call sor(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+  !Call CGSTAB(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+#endif
   Call Condiff('Te')
 #ifdef HYPRE
-  Call hypresolve(akP,akW,akE,akS,akN,bk,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
-  Call hypresolve(aeP,aeW,aeE,aeS,aeN,be,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,3,'Te')
+  Call hypresolve(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,3,'Te')
 #else
-  Call sor(akP,akW,akE,akS,akN,bk,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
-  Call sor(aeP,aeW,aeE,aeS,aeN,be,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
-  !Call CGSTAB(akP,akW,akE,akS,akN,bk,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
-  !Call CGSTAB(aeP,aeW,aeE,aeS,aeN,be,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+  Call sor(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+  !Call CGSTAB(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
 #endif
   miut=(1-Ram)*miut+Ram*(rou*Cu*Tk**2)/Te
   else if(Turmod=='sst') then
@@ -183,15 +189,18 @@ DO s=1,maxs
   Call Derivatives('Tw')
   Call Wallfunc
   Call Condiff('Tk')
+#ifdef HYPRE
+  Call hypresolve(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
+#else
+  Call sor(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+  !Call CGSTAB(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+#endif
   Call Condiff('Tw')
 #ifdef HYPRE
-  Call hypresolve(akP,akW,akE,akS,akN,bk,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
-  Call hypresolve(awP,awW,awE,awS,awN,bw,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,3,'Tw')
+  Call hypresolve(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,3,'Tw')
 #else
-  Call sor(akP,akW,akE,akS,akN,bk,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
-  Call sor(awP,awW,awE,awS,awN,bw,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
-  !Call CGSTAB(akP,akW,akE,akS,akN,bk,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
-  !Call CGSTAB(awP,awW,awE,awS,awN,bw,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+  Call sor(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+  !Call CGSTAB(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
 #endif
   fai2=max(2*sqrt(Tk)/(0.09*Tw*d),500*miu/(rou*d**2*Tw))
   F2=tanh(fai2**2)
@@ -265,8 +274,20 @@ DO s=1,maxs
   Tw0=Tw
   end if
 end DO
-Call CPU_TIME(time1)
-print *,'Iteration time:',time1-time0,'s'
+Call DATE_AND_TIME(VALUES=time1)
+if(time1(6)-time0(6)>=0) then
+if(time1(7)-time0(7)>=0) then
+print *,'Iteration time:',time1(6)-time0(6),'m',time1(7)-time0(7),'s'
+else
+print *,'Iteration time:',time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
+end if
+else
+if(time1(7)-time0(7)>=0) then
+print *,'Iteration time:',60+time1(6)-time0(6),'m',time1(7)-time0(7),'s'
+else
+print *,'Iteration time:',60+time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
+end if
+end if
 if(s==maxs+1) print *,'Reach maximum iteration steps!'
 if(libmod=='S'.or.libmod=='I') then
 close(2)
@@ -274,7 +295,7 @@ Call Results
 print *,'Save results successfully!'
 end if
 if(libmod=='S'.or.libmod=='I') then
-Call Deallocarray
+Call Deallocarray(libmod)
 deallocate(Xwd,Ywd,Xwu,Ywu)
 else if(libmod=='C') then
 cXw=C_LOC(Xw)
@@ -305,15 +326,29 @@ end if
 
 end Subroutine Aero2D
 
-Subroutine Deallocarray
+Subroutine Deallocarray(libmod)
 use Aero2DCOM
 implicit none
-deallocate(U0,V0,T0,U,V,T,rou,miu,miut,P,dP,Pr,Pc,auP,auW,auE,auS,auN,bu,bv,apP,apW,apE,apS,apN,bp,&
-Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,Un,Vn,Unw,Une,Vns,Vnn,wdu,edu,sdv,ndv,Ux,Uy,Vx,Vy,Px,Py,&
-dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,rouw,roue,rous,roun,d,St)
-deallocate(atP,atW,atE,atS,atN,bt)
-deallocate(Tn0,Tn,anP,anW,anE,anS,anN,bn,Tnx,Tny,Xi,fniu1)
-deallocate(Tk0,Te0,Tk,Te,akP,akW,akE,akS,akN,bk,aeP,aeW,aeE,aeS,aeN,be,roux,rouy)
-deallocate(Tw0,Tw,awP,awW,awE,awS,awN,bw,Tkx,Tky,Twx,Twy,fai2,F2,Ret,alphastar,sigmatk,sigmatw)
+integer i
+character(*) libmod
+if(libmod=='C') then
+DO i=1,8
+if(cTurmod(i)(1:1)/=C_NULL_CHAR) then
+Turmod(i:i)=cTurmod(i)(1:1)
+else
+Turmod(i:i)=' '
+end if
+end DO
+end if
+deallocate(U0,V0,T0,U,V,T,rou,miu,miut,P,dP,Pr,Pc,auP,auNB,aP,aW,aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,&
+Un,Vn,Unw,Une,Vns,Vnn,wdu,edu,sdv,ndv,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,&
+rouw,roue,rous,roun,d,St)
+if(Turmod=='sa') then
+deallocate(Tn0,Tn,Tnx,Tny,Xi,fniu1)
+else if(Turmod=='ke') then
+deallocate(Tk0,Te0,Tk,Te,roux,rouy)
+else if(Turmod=='sst') then
+deallocate(Tk0,Tw0,Tk,Tw,Tkx,Tky,Twx,Twy,fai2,F2,Ret,alphastar,sigmatk,sigmatw)
+end if
 deallocate(Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay)
 end Subroutine Deallocarray

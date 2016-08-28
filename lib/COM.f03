@@ -14,11 +14,10 @@ cInit(8),cStag(8)
 character(C_CHAR),bind(C)::cfilename(64),cdir(64)
 real(C_DOUBLE),bind(C)::dx,dy,fd,delta,Rau,Rap,Rae,Rar,Rat,Ram,Vfar,AoA,Ta,Tf,Po,ksi,Itur,tvr,c,Ui,Vi,roui,miui,Tki,Tei,Twi,Tni,&
 ca,ka,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
-real(8),allocatable,target,dimension(:,:)::rou,miu,P,dP,U,V,T,Tn,Tk,Te,Tw,miut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auW,auE,auS,&
-auN,bu,bv,apP,apW,apE,apS,apN,bp,atP,atW,atE,atS,atN,bt,anP,anW,anE,anS,anN,bn,akP,akW,akE,akS,akN,bk,aeP,aeW,aeE,aeS,aeN,be,&
-awP,awW,awE,awS,awN,bw,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,d,Un,Vn,wdu,edu,sdv,ndv,Unw,Une,Vns,Vnn,Ux,Uy,Vx,Vy,Px,Py,dPx,&
-dPy,roux,rouy,Tnx,Tny,Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,rouw,roue,rous,roun,Xi,fniu1,fai2,F2,St,Ret,&
-alphastar,sigmatk,sigmatw
+real(8),allocatable,target,dimension(:,:)::rou,miu,P,dP,U,V,T,Tn,Tk,Te,Tw,miut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,aP,aW,&
+aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,d,Un,Vn,wdu,edu,sdv,ndv,Unw,Une,Vns,Vnn,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,roux,rouy,&
+Tnx,Tny,Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,rouw,roue,rous,roun,Xi,fniu1,fai2,F2,St,Ret,alphastar,sigmatk,&
+sigmatw
 real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
 real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:)
 type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy
@@ -43,8 +42,8 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crou,cmiu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmi
 ! characters arrays
 ! identifier name        meaning
 ! filename               file name array
-! filename(1)            aerofoil coordinates file name
-! filename(9)            data file name for initialization
+! filename(1)            aerofoil coordinates filename
+! filename(9)            data filename for initialization
 ! --------------------------------------------------------
 ! integer variables
 ! identifier name        meaning
@@ -52,6 +51,7 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crou,cmiu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmi
 ! Ic,Jc                  number of gird cells in corresponding directions
 ! Ib1,Ib2                lower and upper index of gird cells on airfoil
 ! Iwd,Iwu                number of coordinate points on lower and upper airfoil
+! Ifd                    layers of near wall mesh
 ! maxs                   maximum iteration steps
 ! ----------------------------------------------
 ! floating-point variables

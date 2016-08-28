@@ -12,8 +12,8 @@ if(solctrl=='SIMPLE') then
 else if(solctrl=='SIMPLEC') then
     DO j=1,Jc-1
      DO i=2,Ic-1
-        U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*(auW(i,j)+auE(i,j)+auS(i,j)+auN(i,j)))
-        V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*(auW(i,j)+auE(i,j)+auS(i,j)+auN(i,j)))
+        U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
+        V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
      end DO
     end DO
 end if

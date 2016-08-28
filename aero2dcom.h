@@ -6,5 +6,5 @@ extern double *cxwd,*cywd,*cxwu,*cywu;
 extern double *cxw,*cyw,*csw,*cyplus,*cystar,*chcv,*cax,*cay;
 extern double *cxg,*cyg,*cxc,*cyc,*crou,*cmiu,*cp,*cvx,*cvy,*ct,*ctn,*ctk,*cte,*ctw,*cmiut;
 void aero2d_(char *mode,int *prlv,char *scptname,size_t nmod,size_t nscpt);
-void allocarray_(void);
-void deallocarray_(void);
+void allocarray_(char *mode,size_t nmod);
+void deallocarray_(char *mode,size_t nmod);

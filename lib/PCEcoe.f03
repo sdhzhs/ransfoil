@@ -18,10 +18,10 @@ real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
   else if(solctrl=='SIMPLEC') then
      DO j=1,Jc-1
        DO i=2,Ic-1
-        du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/(auP(i,j)-Rau*(auW(i,j)+auE(i,j)+auS(i,j)+auN(i,j)))
-        dv(i,j)=Rau*(Ygk(i,j)**2+Xgk(i,j)**2)*dx/(auP(i,j)-Rau*(auW(i,j)+auE(i,j)+auS(i,j)+auN(i,j)))
-        Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*(auW(i,j)+auE(i,j)+auS(i,j)+auN(i,j)))
-        Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*(auW(i,j)+auE(i,j)+auS(i,j)+auN(i,j)))
+        du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/(auP(i,j)-Rau*auNB(i,j))
+        dv(i,j)=Rau*(Ygk(i,j)**2+Xgk(i,j)**2)*dx/(auP(i,j)-Rau*auNB(i,j))
+        Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
+        Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
         Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
         Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
        end DO
@@ -72,47 +72,42 @@ real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
       end if
      end DO
   end DO
-  apP=1
-  apW=0
-  apE=0
-  apS=0
-  apN=0
   DO j=1,Jc-1
     DO i=2,Ic-1
       if(Proctrl=='incom') then
-      apE(i,j)=roue(i,j)*edu(i,j)*dy
-      apW(i,j)=rouw(i,j)*wdu(i,j)*dy
-      apN(i,j)=roun(i,j)*ndv(i,j)*dx
+      aE(i,j)=roue(i,j)*edu(i,j)*dy
+      aW(i,j)=rouw(i,j)*wdu(i,j)*dy
+      aN(i,j)=roun(i,j)*ndv(i,j)*dx
       if(j==1.and.i>=Ib1.and.i<=Ib2) then
-      apS(i,j)=0
+      aS(i,j)=0
       else
-      apS(i,j)=rous(i,j)*sdv(i,j)*dx
+      aS(i,j)=rous(i,j)*sdv(i,j)*dx
       end if
-      apP(i,j)=apE(i,j)+apW(i,j)+apN(i,j)+apS(i,j)
+      aP(i,j)=aE(i,j)+aW(i,j)+aN(i,j)+aS(i,j)
       else if(Proctrl=='com') then
-      apE(i,j)=roue(i,j)*edu(i,j)*dy-Rap*(0.5-we(i,j))*Une(i,j)*dy/(R*T(i+1,j)/Ma)
-      apW(i,j)=rouw(i,j)*wdu(i,j)*dy+Rap*(0.5+ww(i,j))*Unw(i,j)*dy/(R*T(i-1,j)/Ma)
-      apN(i,j)=roun(i,j)*ndv(i,j)*dx-Rap*(0.5-wn(i,j))*Vnn(i,j)*dx/(R*T(i,j+1)/Ma)
+      aE(i,j)=roue(i,j)*edu(i,j)*dy-Rap*(0.5-we(i,j))*Une(i,j)*dy/(R*T(i+1,j)/Ma)
+      aW(i,j)=rouw(i,j)*wdu(i,j)*dy+Rap*(0.5+ww(i,j))*Unw(i,j)*dy/(R*T(i-1,j)/Ma)
+      aN(i,j)=roun(i,j)*ndv(i,j)*dx-Rap*(0.5-wn(i,j))*Vnn(i,j)*dx/(R*T(i,j+1)/Ma)
       if(j==1.and.i>=Ib1.and.i<=Ib2) then
-      apS(i,j)=0
-      apP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+Rap*((0.5+we(i,j))*Une(i,j)*dy-&
+      aS(i,j)=0
+      aP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+Rap*((0.5+we(i,j))*Une(i,j)*dy-&
       (0.5-ww(i,j))*Unw(i,j)*dy+(0.5+wn(i,j))*Vnn(i,j)*dx)/(R*T(i,j)/Ma)
       else if(j==1) then
-      apS(i,j)=rous(i,j)*sdv(i,j)*dx+Rap*(0.5+ws(i,j))*Vns(i,j)*dx/(R*T(Ic+1-i,j)/Ma)
-      apP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+rous(i,j)*sdv(i,j)*dx+&
+      aS(i,j)=rous(i,j)*sdv(i,j)*dx+Rap*(0.5+ws(i,j))*Vns(i,j)*dx/(R*T(Ic+1-i,j)/Ma)
+      aP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+rous(i,j)*sdv(i,j)*dx+&
       Rap*((0.5+we(i,j))*Une(i,j)*dy-(0.5-ww(i,j))*Unw(i,j)*dy+(0.5+wn(i,j))*Vnn(i,j)*dx-(0.5-ws(i,j))*Vns(i,j)*dx)/(R*T(i,j)/Ma)
       else
-      apS(i,j)=rous(i,j)*sdv(i,j)*dx+Rap*(0.5+ws(i,j))*Vns(i,j)*dx/(R*T(i,j-1)/Ma)
-      apP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+rous(i,j)*sdv(i,j)*dx+&
+      aS(i,j)=rous(i,j)*sdv(i,j)*dx+Rap*(0.5+ws(i,j))*Vns(i,j)*dx/(R*T(i,j-1)/Ma)
+      aP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+rous(i,j)*sdv(i,j)*dx+&
       Rap*((0.5+we(i,j))*Une(i,j)*dy-(0.5-ww(i,j))*Unw(i,j)*dy+(0.5+wn(i,j))*Vnn(i,j)*dx-(0.5-ws(i,j))*Vns(i,j)*dx)/(R*T(i,j)/Ma)
       end if
       end if
     end DO
   end DO
-  bp=0
+  b=0
   DO j=1,Jc-1
     DO i=2,Ic-1
-      bp(i,j)=rouw(i,j)*Unw(i,j)*dy-roue(i,j)*Une(i,j)*dy+rous(i,j)*Vns(i,j)*dx-roun(i,j)*Vnn(i,j)*dx
+      b(i,j)=rouw(i,j)*Unw(i,j)*dy-roue(i,j)*Une(i,j)*dy+rous(i,j)*Vns(i,j)*dx-roun(i,j)*Vnn(i,j)*dx
     end DO
   end DO
 end Subroutine PCEcoe
