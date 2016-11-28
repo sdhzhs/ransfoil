@@ -3,7 +3,7 @@ implicit none
 integer i,l,maxl,M
 real(8) err,lenth,fb,alpha,alpha0,B,s(M)
 maxl=100
-err=1d-15
+err=1e-15
 B=lenth/((M-1)*fb)
 alpha=5
 DO l=1,maxl

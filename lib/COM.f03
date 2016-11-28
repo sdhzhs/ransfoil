@@ -12,7 +12,7 @@ character(64) filename(9),dir
 character(C_CHAR),bind(C)::cProctrl(8),cEnergy(8),cvisheat(8),cTurmod(8),cWalltreat(8),csolctrl(8),cDiscret(8),cdenface(8),&
 cInit(8),cStag(8)
 character(C_CHAR),bind(C)::cfilename(64),cdir(64)
-real(C_DOUBLE),bind(C)::dx,dy,fd,delta,Rau,Rap,Rae,Rar,Rat,Ram,Vfar,AoA,Ta,Tf,Po,ksi,Itur,tvr,c,Ui,Vi,roui,miui,Tki,Tei,Twi,Tni,&
+real(C_DOUBLE),bind(C)::dx,dy,fd,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Po,ksi,Itur,tvr,c,Ui,Vi,roui,miui,Tki,Tei,Twi,Tni,&
 ca,ka,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
 real(8),allocatable,target,dimension(:,:)::rou,miu,P,dP,U,V,T,Tn,Tk,Te,Tw,miut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,aP,aW,&
 aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,d,Un,Vn,wdu,edu,sdv,ndv,Unw,Une,Vns,Vnn,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,roux,rouy,&
@@ -62,7 +62,6 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crou,cmiu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmi
 ! Rau                    relaxation factor of velocity
 ! Rap                    relaxation factor of pressure
 ! Rae                    relaxation factor of temperature
-! Rar                    relaxation factor of density
 ! Rat                    relaxation factor of turbulence
 ! Vfar                   free stream velocity
 ! AoA                    angle of attack

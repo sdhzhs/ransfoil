@@ -12,12 +12,12 @@ miui=miu0*(Ta/Ti)**1.5*(Ti+Si)/(Ta+Si)
 Re=roui*Vfar*c/miui
 Mach=Vfar/sqrt(gama*R*Ta/Ma)
 if(Turmod=='sa') then
-Tni=1d-3
+Tni=1e-3
 DO i=1,100
  Tni0=Tni
  Tni=Tni-((roui/miui)**3*Tni**4-tvr*(roui/miui)**2*Tni**3-miui*tvr*Cniu1**3/roui)/(4*(roui/miui)**3*Tni**3-&
  3*tvr*(roui/miui)**2*Tni**2)
- if(abs(Tni-Tni0)<1d-8) exit
+ if(abs(Tni-Tni0)<1e-8) exit
 end DO
 else if(Turmod=='ke') then
 Tki=1.5*(Vfar*Itur)**2
@@ -48,8 +48,8 @@ close(1)
 print *,'Read initial data completed!'
 else if(Init=='N') then
 if(Stag=='N') then
-U=Ui+1d-15
-V=Vi+1d-15
+U=Ui+1e-15
+V=Vi+1e-15
 P=0
 T=Ta
 else if(Stag=='Y') then

@@ -5,10 +5,10 @@ real(8) err,omiga,a,aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),b(Ic,Jc),F
 character(*) scalar
 maxl=1000
 if(scalar=='dP') then
-err=1d-4
+err=1e-4
 omiga=1.9
 else
-err=1d-8
+err=1e-8
 omiga=1
 end if
 !$OMP PARALLEL
@@ -39,7 +39,7 @@ DO k=1,maxl
    !$OMP DO
    DO j=1,Jc
     DO i=1,Ic
-     if(abs(Fo(i,j))>1d-15) then
+     if(abs(Fo(i,j))>1e-15) then
      rms(i,j)=abs(F(i,j)-Fo(i,j))/abs(Fo(i,j))
      else
      rms(i,j)=abs(F(i,j)-Fo(i,j))/(abs(Fo(i,j))+1)
@@ -61,9 +61,9 @@ real(8) rmsi(Ic,Jc),rms(Ic,Jc),p(Ic,Jc),v(Ic,Jc),s(Ic,Jc),t(Ic,Jc),pt(Ic,Jc),y(I
 character(*) scalar
 maxl=1000
 if(scalar=='dP') then
-err=1d-8
+err=1e-8
 else
-err=1d-12
+err=1e-10
 end if
 rms=0
    DO j=1,Jc-1

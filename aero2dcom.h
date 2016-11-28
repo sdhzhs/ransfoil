@@ -1,5 +1,5 @@
 extern int iwd,iwu,ip,jp,ic,jc,ib1,ib2,ifd,maxs;
-extern double fd,delta,rau,rap,rae,rar,rat,c,vfar,aoa,ta,tf,po,itur,tvr,ksi,cl,cd,cf,cm,xpc,ypc;
+extern double fd,delta,rau,rap,rae,rat,c,vfar,aoa,ta,tf,po,itur,tvr,ksi,cl,cd,cf,cm,xpc,ypc;
 extern char cproctrl[8],cenergy[8],cvisheat[8],cturmod[8],cwalltreat[8],csolctrl[8],cdiscret[8],cinit[8],cstag[8];
 extern char cfilename[64],cdir[64];
 extern double *cxwd,*cywd,*cxwu,*cywu;

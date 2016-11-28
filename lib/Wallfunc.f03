@@ -19,7 +19,7 @@ DO i=Ib1,Ib2
   ksplus(i)=rou(i,1)*ks(i)*ustar(i)/miu(i,1)
   if(Turmod=='sa'.or.Turmod=='sst') then
   Yplus(i)=rou(i,1)*Yp(i)*ustar(i)/miu(i,1)
-  if(Walltreat=='wf'.and.ks(i)>1d-10) then
+  if(Walltreat=='wf'.and.ks(i)>1e-10) then
   Yplus(i)=max(Yplus(i),ksplus(i)/2,2.5)
   end if
   else if(Turmod=='ke') then
@@ -33,7 +33,7 @@ DO i=Ib1,Ib2
   else
   deltaB(i)=log(1+Cks*ksplus(i))/kapa
   end if
-  if(ks(i)<1d-10) then
+  if(ks(i)<1e-10) then
   Prough(i)=Pc(i,1)
   else
   Prough(i)=3.15*Pr(i,1)**0.695*(exp(kapa*deltaB(i))/Ep-1/Ep)**0.359+(1/exp(kapa*deltaB(i)))**0.6*Pc(i,1)
@@ -76,10 +76,11 @@ DO i=Ib1,Ib2
  end if
 end DO
 end if
+Tplus=max(Tplus,0.1)
 if(Turmod=='sst') then
 DO j=1,Jc-1
   DO i=2,Ic-1
-   Dwplus=max(2*rou(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1d-10)
+   Dwplus=max(2*rou(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
    fai1=min(max(sqrt(Tk(i,j))/(0.09*Tw(i,j)*d(i,j)),500*miu(i,j)/(rou(i,j)*d(i,j)**2*Tw(i,j))),&
    4*rou(i,j)*Tk(i,j)/(sigmaw2*Dwplus*d(i,j)**2))
    F1=tanh(fai1**4)
@@ -103,7 +104,7 @@ Twplust=1/(sqrt(betastarf)*kapa*Yplus)
 Twplus=exp(lamda)*Twplusl+exp(1./lamda)*Twplust
 else if(Walltreat=='lr') then
 DO i=Ib1,Ib2
- if(ksplus(i)>1d-10) then
+ if(ksplus(i)>1e-10) then
  ksplus(i)=max(1.0,ksplus(i))
  if(ksplus(i)<25) then
  Twplusl(i)=(50/ksplus(i))**2

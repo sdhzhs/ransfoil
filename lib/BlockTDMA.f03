@@ -52,9 +52,10 @@ end DO
 DO k=1,N
 invA(N,k)=B(N,k)/A(N,N)
 DO i=N-1,1,-1
+invA(i,k)=B(i,k)
 iq=i+1
 DO j=iq,N
-invA(i,k)=B(i,k)-A(i,j)*invA(j,k)
+invA(i,k)=invA(i,k)-A(i,j)*invA(j,k)
 end DO
 invA(i,k)=invA(i,k)/A(i,i)
 end DO

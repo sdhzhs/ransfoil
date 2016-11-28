@@ -16,12 +16,12 @@ Program libaero2dcaller
   Init='N'
   Stag='N'
   maxs=2000
-  delta=1d-5
-  Rau=5d-1
-  Rap=3d-1
-  Rae=7d-1
-  Rat=3d-1
-  fd=1d-3
+  delta=1e-5
+  Rau=7e-1
+  Rap=3e-1
+  Rae=7e-1
+  Rat=3e-1
+  fd=1e-3
   Ifd=10
   Jp=75
   c=0.5334
@@ -30,7 +30,7 @@ Program libaero2dcaller
   Ta=263.15
   Tf=273.15
   Po=100000
-  tvr=50
+  tvr=10
   ksi=0
   open(unit=1,file=filenamei,status='old')
   read(1,*) Iwd

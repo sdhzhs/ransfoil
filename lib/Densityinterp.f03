@@ -5,10 +5,10 @@ integer i,j
 real(8) rwp,rwm,rep,rem,rsp,rsm,rnp,rnm,Psiwp,Psiwm,Psiep,Psiem,Psisp,Psism,Psinp,Psinm
   DO j=1,Jc-1
    DO i=2,Ic-1
-   we(i,j)=sign(5d-1,Une(i,j))
-   ww(i,j)=sign(5d-1,Unw(i,j))
-   wn(i,j)=sign(5d-1,Vnn(i,j))
-   ws(i,j)=sign(5d-1,Vns(i,j))
+   we(i,j)=sign(0.5,Une(i,j))
+   ww(i,j)=sign(0.5,Unw(i,j))
+   wn(i,j)=sign(0.5,Vnn(i,j))
+   ws(i,j)=sign(0.5,Vns(i,j))
    end DO
   end DO
   DO j=1,Jc-1
@@ -104,54 +104,54 @@ real(8) rwp,rwm,rep,rem,rsp,rsm,rnp,rnm,Psiwp,Psiwm,Psiep,Psiem,Psisp,Psism,Psin
    rous(i,j)=(0.5-ws(i,j))*(6*rou(i,j)+3*rou(i,j-1)-rou(i,j+1))/8+(0.5+ws(i,j))*(6*rou(i,j-1)+3*rou(i,j)-rou(i,j-2))/8
    end if
    else if(denface=='tvd') then
-   if(i==2.or.abs(rou(i,j)-rou(i-1,j))<1d-30) then
+   if(i==2.or.abs(rou(i,j)-rou(i-1,j))<1e-30) then
    rwp=0
    else
    rwp=(rou(i-1,j)-rou(i-2,j))/(rou(i,j)-rou(i-1,j))
    end if
-   if(abs(rou(i,j)-rou(i-1,j))<1d-30) then
+   if(abs(rou(i,j)-rou(i-1,j))<1e-30) then
    rwm=0
    else
    rwm=(rou(i+1,j)-rou(i,j))/(rou(i,j)-rou(i-1,j))
    end if
-   if(abs(rou(i+1,j)-rou(i,j))<1d-30) then
+   if(abs(rou(i+1,j)-rou(i,j))<1e-30) then
    rep=0
    else
    rep=(rou(i,j)-rou(i-1,j))/(rou(i+1,j)-rou(i,j))
    end if
-   if(i==Ic-1.or.abs(rou(i+1,j)-rou(i,j))<1d-30) then
+   if(i==Ic-1.or.abs(rou(i+1,j)-rou(i,j))<1e-30) then
    rem=0
    else
    rem=(rou(i+2,j)-rou(i+1,j))/(rou(i+1,j)-rou(i,j))
    end if
-   if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(rou(i,j)-rou(Ic+1-i,j))<1d-30) then
+   if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(rou(i,j)-rou(Ic+1-i,j))<1e-30) then
    rsp=0
    else if(j==1) then
    rsp=(rou(Ic+1-i,j)-rou(Ic+1-i,j+1))/(rou(i,j)-rou(Ic+1-i,j))
-   else if(j==2.and.(i>=Ib1.and.i<=Ib2).or.abs(rou(i,j)-rou(i,j-1))<1d-30) then
+   else if(j==2.and.(i>=Ib1.and.i<=Ib2).or.abs(rou(i,j)-rou(i,j-1))<1e-30) then
    rsp=0
    else if(j==2) then
    rsp=(rou(i,j-1)-rou(Ic+1-i,j-1))/(rou(i,j)-rou(i,j-1))
    else
    rsp=(rou(i,j-1)-rou(i,j-2))/(rou(i,j)-rou(i,j-1))
    end if
-   if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(rou(i,j)-rou(Ic+1-i,j))<1d-30) then
+   if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(rou(i,j)-rou(Ic+1-i,j))<1e-30) then
    rsm=0
    else if(j==1) then
    rsm=(rou(i,j+1)-rou(i,j))/(rou(i,j)-rou(Ic+1-i,j))
-   else if(abs(rou(i,j)-rou(i,j-1))<1d-30) then
+   else if(abs(rou(i,j)-rou(i,j-1))<1e-30) then
    rsm=0
    else
    rsm=(rou(i,j+1)-rou(i,j))/(rou(i,j)-rou(i,j-1))
    end if
-   if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(rou(i,j+1)-rou(i,j))<1d-30) then
+   if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(rou(i,j+1)-rou(i,j))<1e-30) then
    rnp=0
    else if(j==1) then
    rnp=(rou(i,j)-rou(Ic+1-i,j))/(rou(i,j+1)-rou(i,j))
    else
    rnp=(rou(i,j)-rou(i,j-1))/(rou(i,j+1)-rou(i,j))
    end if
-   if(j==Jc-1.or.abs(rou(i,j+1)-rou(i,j))<1d-30) then
+   if(j==Jc-1.or.abs(rou(i,j+1)-rou(i,j))<1e-30) then
    rnm=0
    else
    rnm=(rou(i,j+2)-rou(i,j+1))/(rou(i,j+1)-rou(i,j))

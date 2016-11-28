@@ -151,7 +151,7 @@ prlv = 0
 if(scalar=='dP') then
 tol = 1.0D-3
 else
-tol = 1.0D-8
+tol = 1.0D-6
 end if
 
 if(solid==1) then

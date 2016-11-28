@@ -66,54 +66,54 @@ DO j=1,Jc-1
   (3*Fcc-2*Fcs-Fcss)*max(Fs(i,j),0.0)/8+(Fcs+2*Fcc-3*Fcn)*max(Fn(i,j),0.0)/8+&
   (3*Fcs-2*Fcc-Fcn)*max(-Fs(i,j),0.0)/8+(Fcnn+2*Fcn-3*Fcc)*max(-Fn(i,j),0.0)/8
  else if(Discret=='tvd') then
-  if(i==2.or.abs(F(i,j)-F(i-1,j))<1d-30) then
+  if(i==2.or.abs(F(i,j)-F(i-1,j))<1e-30) then
   rwp=0
   else
   rwp=(F(i-1,j)-F(i-2,j))/(F(i,j)-F(i-1,j))
   end if
-  if(abs(F(i,j)-F(i-1,j))<1d-30) then
+  if(abs(F(i,j)-F(i-1,j))<1e-30) then
   rwm=0
   else
   rwm=(F(i+1,j)-F(i,j))/(F(i,j)-F(i-1,j))
   end if
-  if(abs(F(i+1,j)-F(i,j))<1d-30) then
+  if(abs(F(i+1,j)-F(i,j))<1e-30) then
   rep=0
   else
   rep=(F(i,j)-F(i-1,j))/(F(i+1,j)-F(i,j))
   end if
-  if(i==Ic-1.or.abs(F(i+1,j)-F(i,j))<1d-30) then
+  if(i==Ic-1.or.abs(F(i+1,j)-F(i,j))<1e-30) then
   rem=0
   else
   rem=(F(i+2,j)-F(i+1,j))/(F(i+1,j)-F(i,j))
   end if
-  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(Ic+1-i,j))<1d-30) then
+  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(Ic+1-i,j))<1e-30) then
   rsp=0
   else if(j==1) then
   rsp=(F(Ic+1-i,j)-F(Ic+1-i,j+1))/(F(i,j)-F(Ic+1-i,j))
-  else if(j==2.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(i,j-1))<1d-30) then
+  else if(j==2.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(i,j-1))<1e-30) then
   rsp=0
   else if(j==2) then
   rsp=(F(i,j-1)-F(Ic+1-i,j-1))/(F(i,j)-F(i,j-1))
   else
   rsp=(F(i,j-1)-F(i,j-2))/(F(i,j)-F(i,j-1))
   end if
-  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(Ic+1-i,j))<1d-30) then
+  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(Ic+1-i,j))<1e-30) then
   rsm=0
   else if(j==1) then
   rsm=(F(i,j+1)-F(i,j))/(F(i,j)-F(Ic+1-i,j))
-  else if(abs(F(i,j)-F(i,j-1))<1d-30) then
+  else if(abs(F(i,j)-F(i,j-1))<1e-30) then
   rsm=0
   else
   rsm=(F(i,j+1)-F(i,j))/(F(i,j)-F(i,j-1))
   end if
-  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j+1)-F(i,j))<1d-30) then
+  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j+1)-F(i,j))<1e-30) then
   rnp=0
   else if(j==1) then
   rnp=(F(i,j)-F(Ic+1-i,j))/(F(i,j+1)-F(i,j))
   else
   rnp=(F(i,j)-F(i,j-1))/(F(i,j+1)-F(i,j))
   end if
-  if(j==Jc-1.or.abs(F(i,j+1)-F(i,j))<1d-30) then
+  if(j==Jc-1.or.abs(F(i,j+1)-F(i,j))<1e-30) then
   rnm=0
   else
   rnm=(F(i,j+2)-F(i,j+1))/(F(i,j+1)-F(i,j))

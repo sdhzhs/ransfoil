@@ -21,7 +21,7 @@ int main(void)
   strncpy(cstag,"N",1);
   maxs=2000;
   delta=1e-5;
-  rau=5e-1;
+  rau=7e-1;
   rap=3e-1;
   rae=7e-1;
   rat=3e-1;
@@ -34,7 +34,7 @@ int main(void)
   ta=263.15;
   tf=273.15;
   po=100000.;
-  tvr=50.;
+  tvr=10.;
   ksi=0.;
   fp=fopen("case1/NACA0012.xyz","rt");
   fscanf(fp,"%d",&iwd);

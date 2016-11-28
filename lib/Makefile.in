@@ -134,8 +134,9 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FC = @FC@
-FCFLAGS = -Wall -ffree-line-length-none -O3 -ffast-math \
-	-J$(top_srcdir)/lib $(am__append_2) $(am__append_5)
+FCFLAGS = -Wall -ffree-line-length-none -fdefault-real-8 \
+	-fdefault-double-8 -O3 -J$(top_srcdir)/lib $(am__append_2) \
+	$(am__append_5)
 FGREP = @FGREP@
 GREP = @GREP@
 INSTALL = @INSTALL@
@@ -236,7 +237,7 @@ libaero2d_la_SOURCES = BlockTDMA.f03 COM.f03 Condiff.f03 \
 	Linearsolver.f03 PCEcoe.f03 Postprocess.f03 Readpara.f03 \
 	Results.f03 RMS.f03 Tanhline.f03 Velcorrect.f03 Wallfunc.f03 \
 	$(am__append_3)
-libaero2d_la_LDFLAGS = -release 1.7 $(am__append_1) $(am__append_4) \
+libaero2d_la_LDFLAGS = -release 1.8 $(am__append_1) $(am__append_4) \
 	$(am__append_6)
 nodist_include_HEADERS = aero2dcom.mod
 all: all-am

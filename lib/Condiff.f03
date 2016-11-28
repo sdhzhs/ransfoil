@@ -104,7 +104,7 @@ DO j=1,Jc-1
     if((Turmod=='sa'.and.Walltreat=='lr').or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
      if(scalar=='Tk') then
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)
-     else if(scalar=='Tn'.and.ks(i)>1d-10) then
+     else if(scalar=='Tn'.and.ks(i)>1e-10) then
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+2*Ds(i,j)*Yp(i)/d(i,j)
      else if(scalar=='Tw') then
       aW(i,j)=0
@@ -140,16 +140,14 @@ DO j=1,Jc-1
     end if
   end DO
 end DO
-if(scalar/='Tk'.and.scalar/='Tw'.and.scalar/='Te') then
 Call Defercorrect(F,cor,Fw,Fe,Fs,Fn)
-end if
 if(scalar=='T'.or.scalar=='Tk'.or.scalar=='Tw'.or.scalar=='Te') then
 St=sqrt(2*(Ux**2+Vy**2)+(Uy+Vx)**2)
 end if
 if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
  DO j=1,Jc-1
    DO i=2,Ic-1
-   Dwplus=max(2*rou(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1d-10)
+   Dwplus=max(2*rou(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
    fai1=min(max(sqrt(Tk(i,j))/(0.09*Tw(i,j)*d(i,j)),500*miu(i,j)/(rou(i,j)*d(i,j)**2*Tw(i,j))),&
    4*rou(i,j)*Tk(i,j)/(sigmaw2*Dwplus*d(i,j)**2))
    F1=tanh(fai1**4)

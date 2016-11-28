@@ -74,7 +74,6 @@ dir(i:i)=' '
 end if
 end DO
 end if
-Ram=1
 Call Genmesh(libmod)
 Call Jacobi
 Call Initial
@@ -118,14 +117,15 @@ DO s=1,maxs
   Call PCEcoe
   rmsm=sum(abs(b))/(Ic*Jc)
 #ifdef HYPRE
-  Call hypresolve(aP,aW,aE,aS,aN,b,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,3,'dP')
+  Call hypresolve(aP,aW,aE,aS,aN,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,3,'dP')
 #else
-  !Call sor(aP,aW,aE,aS,aN,b,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,'dP')
-  Call CGSTAB(aP,aW,aE,aS,aN,b,dP,dP,1d+0,Ic,Jc,Ib1,Ib2,'dP')
+  !Call sor(aP,aW,aE,aS,aN,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
+  Call CGSTAB(aP,aW,aE,aS,aN,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
 #endif
   P=P+Rap*dP
+  P=min(max(P,1-Po),5e+10-Po)
   if(Proctrl=='com') then
-  rou=rou+Rar*dP*Ma/(R*T)
+  rou=rou+Rap*dP*Ma/(R*T)
   Call Densityinterp
   end if
   Call Derivatives('dP')
@@ -142,6 +142,7 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
 #endif
+  T=max(min(5e+3,T),1.0)
   if(Turmod/='inv') then
   miu=miu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
   end if
@@ -160,13 +161,14 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
 #endif
+  Tn=max(Tn,1e-15)
   if(Walltreat=='lr') then
   Xi=rou*Tn/miu+Cks*ksi/d
   else if(Walltreat=='wf') then
   Xi=rou*Tn/miu
   end if
   fniu1=Xi**3/(Xi**3+Cniu1**3)
-  miut=(1-Ram)*miut+Ram*rou*Tn*fniu1
+  miut=rou*Tn*fniu1
   else if(Turmod=='ke') then
   Call Wallfunc
   Call Condiff('Tk')
@@ -176,6 +178,7 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
 #endif
+  Tk=max(Tk,1e-15)
   Call Condiff('Te')
 #ifdef HYPRE
   Call hypresolve(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,3,'Te')
@@ -183,7 +186,8 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
 #endif
-  miut=(1-Ram)*miut+Ram*(rou*Cu*Tk**2)/Te
+  Te=max(Te,1e-15)
+  miut=(rou*Cu*Tk**2)/Te
   else if(Turmod=='sst') then
   Call Derivatives('Tk')
   Call Derivatives('Tw')
@@ -195,6 +199,7 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
 #endif
+  Tk=max(Tk,1e-15)
   Call Condiff('Tw')
 #ifdef HYPRE
   Call hypresolve(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,3,'Tw')
@@ -202,12 +207,14 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
 #endif
+  Tw=max(Tw,1e-15)
   fai2=max(2*sqrt(Tk)/(0.09*Tw*d),500*miu/(rou*d**2*Tw))
   F2=tanh(fai2**2)
   Ret=rou*Tk/(miu*Tw)
   alphastar=alphastarf*(0.024+Ret/Rk)/(1+Ret/Rk)
-  miut=(1-Ram)*miut+Ram*(rou*Tk)/(Tw*max(1./alphastar,St*F2/(alpha1*Tw)))
+  miut=(rou*Tk)/(Tw*max(1./alphastar,St*F2/(alpha1*Tw)))
   end if
+  miut=min(miut,1e+5*miu)
   Call Postprocess
   if((libmod=='S'.or.libmod=='I').and.mod(s,200)==0) then
   Call Results

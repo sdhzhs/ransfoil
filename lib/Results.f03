@@ -6,11 +6,20 @@ real(8) Ug(Ip,Jp),Vg(Ip,Jp),Pg(Ip,Jp),roug(Ip,Jp),Tg(Ip,Jp),Tng(Ip,Jp),Tkg(Ip,Jp
 DO j=1,Jc
   DO i=2,Ic
   if(j==1.and.i>=Ib1.and.i<=Ib2+1) then
+  if(Turmod/='inv') then
   Ug(i,j)=0
   Vg(i,j)=0
+  else
+  Ug(i,j)=0.5*(U(i,j)+U(i-1,j))
+  Vg(i,j)=0.5*(V(i,j)+V(i-1,j))
+  end if
   Pg(i,j)=0.5*(P(i,j)+P(i-1,j))
   Tg(i,j)=Tf
+  if(Proctrl=='com') then
   roug(i,j)=(Pg(i,j)+Po)*Ma/(R*Tg(i,j))
+  else if(Proctrl=='incom') then
+  roug(i,j)=roui
+  end if
   if(Turmod=='sa') then
   Tng(i,j)=0
   else if(Turmod=='ke') then
@@ -167,7 +176,7 @@ write(4,'(A10,1X,I4,1X,I4,1X,I4)') 'DIMENSIONS',Ip,Jp,1
 write(4,'(A6,1X,I6,1X,A6)') 'POINTS',Ip*Jp,'double'
 DO j=1,Jp
   DO i=1,Ip
-  write(4,*) Xg(i,j),Yg(i,j),0d+0
+  write(4,*) Xg(i,j),Yg(i,j),0.0
   end DO
 end DO
 write(4,'(A10,1X,I6)') 'POINT_DATA',Ip*Jp
@@ -234,7 +243,7 @@ end if
 write(4,'(A23)') 'VECTORS Velocity double'
 DO j=1,Jp
   DO i=1,Ip
-  write(4,*) Ug(i,j),Vg(i,j),0d+0
+  write(4,*) Ug(i,j),Vg(i,j),0.0
   end DO
 end DO
 close(4)
@@ -284,9 +293,6 @@ write(4,*) 'Momentum relaxation factor:',Rau
 write(4,*) 'Pressure relaxation factor:',Rap
 if(Energy=='Y') then
 write(4,*) 'Energy relaxation factor:',Rae
-end if
-if(Proctrl=='com') then
-write(4,*) 'Density relaxation factor:',Rar
 end if
 if(Turmod/='inv'.and.Turmod/='lam') then
 write(4,*) 'Turbulence relaxation factor:',Rat

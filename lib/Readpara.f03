@@ -50,10 +50,6 @@ if(Energy=='Y') then
 read(10,*) ch
 read(10,*) Rae
 end if
-if(Proctrl=='com') then
-read(10,*) ch
-read(10,*) Rar
-end if
 if(Turmod/='inv'.and.Turmod/='lam') then
 read(10,*) ch
 read(10,*) Rat
@@ -135,10 +131,6 @@ read *,Rap
 if(Energy=='Y') then
 print *,'Input relaxation factor of temperature:'
 read *,Rae
-end if
-if(Proctrl=='com') then
-print *,'Input relaxation factor of density:'
-read *,Rar
 end if
 if(Turmod/='inv'.and.Turmod/='lam') then
 print *,'Input relaxation factor of turbulence:'

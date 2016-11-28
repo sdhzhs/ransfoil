@@ -57,10 +57,10 @@ Yg(i,1)=Yg(Iw3,1)
 end DO
 Xg(1:Iw1-1,1)=Xg(Ip:Iw3+1:-1,1)
 Yg(1:Iw1-1,1)=Yg(Ip:Iw3+1:-1,1)
-lfar=1d+1
+lfar=10
 ratio=2.0
 maxl=100
-err=1d-10
+err=1e-10
 DO l=1,maxl
 ratio0=ratio
 ratio=ratio-(1-ratio**(Jp-Ifd)-(lfar/fd-Ifd+1)*(1-ratio))/(-(Jp-Ifd)*ratio**(Jp-Ifd-1)+lfar/fd-Ifd+1)
