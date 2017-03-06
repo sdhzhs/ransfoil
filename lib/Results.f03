@@ -1,100 +1,21 @@
-Subroutine Results
+Subroutine Saveresults
 use Aero2DCOM
 implicit none
 integer i,j,ioerr
 real(8) Ug(Ip,Jp),Vg(Ip,Jp),Pg(Ip,Jp),roug(Ip,Jp),Tg(Ip,Jp),Tng(Ip,Jp),Tkg(Ip,Jp),Teg(Ip,Jp),Twg(Ip,Jp)
-DO j=1,Jc
-  DO i=2,Ic
-  if(j==1.and.i>=Ib1.and.i<=Ib2+1) then
-  if(Turmod/='inv') then
-  Ug(i,j)=0
-  Vg(i,j)=0
-  else
-  Ug(i,j)=0.5*(U(i,j)+U(i-1,j))
-  Vg(i,j)=0.5*(V(i,j)+V(i-1,j))
-  end if
-  Pg(i,j)=0.5*(P(i,j)+P(i-1,j))
-  Tg(i,j)=Tf
-  if(Proctrl=='com') then
-  roug(i,j)=(Pg(i,j)+Po)*Ma/(R*Tg(i,j))
-  else if(Proctrl=='incom') then
-  roug(i,j)=roui
-  end if
-  if(Turmod=='sa') then
-  Tng(i,j)=0
-  else if(Turmod=='ke') then
-  Tkg(i,j)=0
-  Teg(i,j)=0.5*(Te(i,j)+Te(i-1,j))
-  else if(Turmod=='sst') then
-  Tkg(i,j)=0
-  Twg(i,j)=0.5*(Tw(i,j)+Tw(i-1,j))
-  end if
-  else if(j==1) then
-  Ug(i,j)=(U(i,j)+U(i-1,j)+U(Ic+1-i,j)+U(Ic+2-i,j))/4
-  Vg(i,j)=(V(i,j)+V(i-1,j)+V(Ic+1-i,j)+V(Ic+2-i,j))/4
-  Pg(i,j)=(P(i,j)+P(i-1,j)+P(Ic+1-i,j)+P(Ic+2-i,j))/4
-  Tg(i,j)=(T(i,j)+T(i-1,j)+T(Ic+1-i,j)+T(Ic+2-i,j))/4
-  roug(i,j)=(rou(i,j)+rou(i-1,j)+rou(Ic+1-i,j)+rou(Ic+2-i,j))/4
-  if(Turmod=='sa') then
-  Tng(i,j)=(Tn(i,j)+Tn(i-1,j)+Tn(Ic+1-i,j)+Tn(Ic+2-i,j))/4
-  else if(Turmod=='ke') then
-  Tkg(i,j)=(Tk(i,j)+Tk(i-1,j)+Tk(Ic+1-i,j)+Tk(Ic+2-i,j))/4
-  Teg(i,j)=(Te(i,j)+Te(i-1,j)+Te(Ic+1-i,j)+Te(Ic+2-i,j))/4
-  else if(Turmod=='sst') then
-  Tkg(i,j)=(Tk(i,j)+Tk(i-1,j)+Tk(Ic+1-i,j)+Tk(Ic+2-i,j))/4
-  Twg(i,j)=(Tw(i,j)+Tw(i-1,j)+Tw(Ic+1-i,j)+Tw(Ic+2-i,j))/4
-  end if
-  else
-  Ug(i,j)=(U(i,j)+U(i-1,j)+U(i,j-1)+U(i-1,j-1))/4
-  Vg(i,j)=(V(i,j)+V(i-1,j)+V(i,j-1)+V(i-1,j-1))/4
-  Pg(i,j)=(P(i,j)+P(i-1,j)+P(i,j-1)+P(i-1,j-1))/4
-  Tg(i,j)=(T(i,j)+T(i-1,j)+T(i,j-1)+T(i-1,j-1))/4
-  roug(i,j)=(rou(i,j)+rou(i-1,j)+rou(i,j-1)+rou(i-1,j-1))/4
-  if(Turmod=='sa') then
-  Tng(i,j)=(Tn(i,j)+Tn(i-1,j)+Tn(i,j-1)+Tn(i-1,j-1))/4
-  else if(Turmod=='ke') then
-  Tkg(i,j)=(Tk(i,j)+Tk(i-1,j)+Tk(i,j-1)+Tk(i-1,j-1))/4
-  Teg(i,j)=(Te(i,j)+Te(i-1,j)+Te(i,j-1)+Te(i-1,j-1))/4
-  else if(Turmod=='sst') then
-  Tkg(i,j)=(Tk(i,j)+Tk(i-1,j)+Tk(i,j-1)+Tk(i-1,j-1))/4
-  Twg(i,j)=(Tw(i,j)+Tw(i-1,j)+Tw(i,j-1)+Tw(i-1,j-1))/4
-  end if
-  end if
-  end DO
-end DO
-  Ug(:,Jp)=Ui
-  Vg(:,Jp)=Vi
-  Pg(:,Jp)=0
-  Tg(:,Jp)=Ta
-  roug(:,Jp)=roui
-  Ug(1,:)=Ui
-  Ug(Ip,:)=Ui
-  Vg(1,:)=Vi
-  Vg(Ip,:)=Vi
-  Pg(1,:)=0
-  Pg(Ip,:)=0
-  Tg(1,:)=Ta
-  Tg(Ip,:)=Ta
-  roug(1,:)=roui
-  roug(Ip,:)=roui
+Call Cell2node(Ug,U,'U')
+Call Cell2node(Vg,V,'V')
+Call Cell2node(Pg,P,'P')
+Call Cell2node(roug,rou,'rou')
+Call Cell2node(Tg,T,'T')
 if(Turmod=='sa') then
-  Tng(:,Jp)=Tni
-  Tng(1,:)=Tni
-  Tng(Ip,:)=Tni
+Call Cell2node(Tng,Tn,'Tn')
 else if(Turmod=='ke') then
-  Tkg(:,Jp)=Tki
-  Teg(:,Jp)=Tei
-  Tkg(1,:)=Tki
-  Tkg(Ip,:)=Tki
-  Teg(1,:)=Tei
-  Teg(Ip,:)=Tei
+Call Cell2node(Tkg,Tk,'Tk')
+Call Cell2node(Teg,Te,'Te')
 else if(Turmod=='sst') then
-  Tkg(:,Jp)=Tki
-  Twg(:,Jp)=Twi
-  Tkg(1,:)=Tki
-  Tkg(Ip,:)=Tki
-  Twg(1,:)=Twi
-  Twg(Ip,:)=Twi
+Call Cell2node(Tkg,Tk,'Tk')
+Call Cell2node(Twg,Tw,'Tw')
 end if
 filename(3)=trim(dir)//'/Autosave.dat'
 filename(4)=trim(dir)//'/Grid.xyz'
@@ -313,4 +234,4 @@ write(4,*) 'Friction coefficient:',Cf
 write(4,*) 'Pitching moment coefficient (1/4 chord):',Cm
 write(4,*) 'Pressure center (unit chord):',Xpc,Ypc
 close(4)
-end Subroutine Results
+end Subroutine Saveresults

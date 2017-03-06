@@ -1,10 +1,10 @@
 AUTOMAKE_OPTIONS = foreign
 FCFLAGS = -Wall -ffree-line-length-none -fdefault-real-8 -fdefault-double-8 -O3 -J$(top_srcdir)/lib
 lib_LTLIBRARIES = libaero2d.la
-libaero2d_la_SOURCES = BlockTDMA.f03 COM.f03 Condiff.f03 Defercorrect.f03 Densityinterp.f03 Derivatives.f03 Genmesh.f03 Hypmesh.f03 \
+libaero2d_la_SOURCES = COM.f03 BlockTDMA.f03 Cell2node.f03 Condiff.f03 Defercorrect.f03 Densityinterp.f03 Derivatives.f03 Genmesh.f03 Hypmesh.f03 \
 Initial.f03 Jacobi.f03 Libaero2d.F03 Linearsolver.f03 PCEcoe.f03 Postprocess.f03 Readpara.f03 Results.f03 RMS.f03 Tanhline.f03 \
 Velcorrect.f03 Wallfunc.f03
-libaero2d_la_LDFLAGS = -release 1.8
+libaero2d_la_LDFLAGS = -release 2.0
 if BUILDDLL
 libaero2d_la_LDFLAGS += -no-undefined
 endif

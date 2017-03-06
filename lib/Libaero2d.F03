@@ -122,8 +122,10 @@ DO s=1,maxs
   !Call sor(aP,aW,aE,aS,aN,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
   Call CGSTAB(aP,aW,aE,aS,aN,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
 #endif
+  if(Proctrl=='com') then
+  dP=min(max(dP,(1-Po-P)/Rap),(5e+10-Po-P)/Rap)
+  end if
   P=P+Rap*dP
-  P=min(max(P,1-Po),5e+10-Po)
   if(Proctrl=='com') then
   rou=rou+Rap*dP*Ma/(R*T)
   Call Densityinterp
@@ -142,13 +144,13 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
 #endif
-  T=max(min(5e+3,T),1.0)
-  if(Turmod/='inv') then
-  miu=miu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
-  end if
   if(Proctrl=='com') then
+  T=max(min(5e+3,T),1.0)
   rou=(Po+P)*Ma/(R*T)
   Call Densityinterp
+  end if
+  if(Turmod/='inv') then
+  miu=miu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
   end if
   end if
   if(Turmod=='sa') then
@@ -161,7 +163,7 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
 #endif
-  Tn=max(Tn,1e-15)
+  Tn=min(max(Tn,1e-15),1e+5*miu/rou)
   if(Walltreat=='lr') then
   Xi=rou*Tn/miu+Cks*ksi/d
   else if(Walltreat=='wf') then
@@ -186,7 +188,7 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
 #endif
-  Te=max(Te,1e-15)
+  Te=max(Te,(rou*Cu*Tk**2)/(1e+5*miu))
   miut=(rou*Cu*Tk**2)/Te
   else if(Turmod=='sst') then
   Call Derivatives('Tk')
@@ -207,17 +209,16 @@ DO s=1,maxs
   Call sor(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
 #endif
-  Tw=max(Tw,1e-15)
+  Tw=max(Tw,(rou*Tk)/(1e+5*miu))
   fai2=max(2*sqrt(Tk)/(0.09*Tw*d),500*miu/(rou*d**2*Tw))
   F2=tanh(fai2**2)
   Ret=rou*Tk/(miu*Tw)
   alphastar=alphastarf*(0.024+Ret/Rk)/(1+Ret/Rk)
   miut=(rou*Tk)/(Tw*max(1./alphastar,St*F2/(alpha1*Tw)))
   end if
-  miut=min(miut,1e+5*miu)
   Call Postprocess
-  if((libmod=='S'.or.libmod=='I').and.mod(s,200)==0) then
-  Call Results
+  if((libmod=='S'.or.libmod=='I').and.mod(s,100)==0) then
+  Call Saveresults
   print *,'Output results completed!'
   end if
   Call RMS(U,U0,Ic,Jc,rmsu)
@@ -252,20 +253,36 @@ DO s=1,maxs
   print *,'RANS Equations converge!'
   exit
   end if
+  if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsn>1e+5) then
+  print *,'RANS Equations divergence!'
+  stop
+  end if
   else if(Turmod=='ke') then
   if(rmsm<delta.and.rmsu<delta.and.rmsv<delta.and.rmst<delta.and.rmsk<delta.and.rmse<delta) then
   print *,'RANS Equations converge!'
   exit
+  end if
+  if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmse>1e+5) then
+  print *,'RANS Equations divergence!'
+  stop
   end if
   else if(Turmod=='sst') then
   if(rmsm<delta.and.rmsu<delta.and.rmsv<delta.and.rmst<delta.and.rmsk<delta.and.rmsw<delta) then
   print *,'RANS Equations converge!'
   exit
   end if
+  if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmsw>1e+5) then
+  print *,'RANS Equations divergence!'
+  stop
+  end if
   else if(Turmod=='lam'.or.Turmod=='inv') then
   if(rmsm<delta.and.rmsu<delta.and.rmsv<delta.and.rmst<delta) then
   print *,'RANS Equations converge!'
   exit
+  end if
+  if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5) then
+  print *,'RANS Equations divergence!'
+  stop
   end if
   end if
   U0=U
@@ -298,7 +315,7 @@ end if
 if(s==maxs+1) print *,'Reach maximum iteration steps!'
 if(libmod=='S'.or.libmod=='I') then
 close(2)
-Call Results
+Call Saveresults
 print *,'Save results successfully!'
 end if
 if(libmod=='S'.or.libmod=='I') then
@@ -347,9 +364,8 @@ Turmod(i:i)=' '
 end if
 end DO
 end if
-deallocate(U0,V0,T0,U,V,T,rou,miu,miut,P,dP,Pr,Pc,auP,auNB,aP,aW,aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,&
-Un,Vn,Unw,Une,Vns,Vnn,wdu,edu,sdv,ndv,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,&
-rouw,roue,rous,roun,d,St)
+deallocate(U0,V0,T0,U,V,T,rou,miu,miut,P,dP,Pr,Pc,auP,auNB,aP,aW,aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,&
+Un,Vn,Unk,Vna,duk,dva,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rouk,roua,d,St)
 if(Turmod=='sa') then
 deallocate(Tn0,Tn,Tnx,Tny,Xi,fniu1)
 else if(Turmod=='ke') then

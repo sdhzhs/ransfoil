@@ -21,19 +21,32 @@ Please report bugs or errors to sdhzhs@gmail.com. For any comments or
 suggestions, please also email sdhzhs@gmail.com or discuss in the
 forum: Discussion.
 
+Release of version 2.0
+----------------------
+
+ChangeLog
+
+Added a new source file `Cell2node.f03' in the `lib' directory for better
+modularity.
+Optimized memory structure using different variable declaration and reduced
+memory usage.
+Changed the interpolation scheme on cell interface from algebraic average
+into weighted average which can adapt to bad mesh.
+
 Release of version 1.8
 ----------------------
 
 ChangeLog
 
-Deleted control parameters concerning the relaxation factor for density which
-is actually identical to the relaxation factor for pressure in this program.
-Changed the Fortran-conventional expressions of double precision floating-point
-constant (symbol `d' as exponent sign is changed back to `e') in the source files
-and added two options for GNU Fortran complier.
+Deleted control parameters concerning the relaxation factor for density
+which is actually identical to the relaxation factor for pressure in this
+program.
+Changed the Fortran-conventional expressions of double precision
+floating-point constant (symbol `d' as exponent sign is changed back to `e')
+in the source files and added two options for GNU Fortran complier.
 Added some codes for limitation of field variables' value and improved the
-stability and robustness of the iteration. Now the relaxation factors can be set
-to a relatively large value at the beginning of iteration.
+stability and robustness of the iteration. Now the relaxation factors
+can be set to a relatively large value at the beginning of iteration.
 Added two sample files of airfoil coordinates `GA(W)-1.xyz' and `whitcomb.xyz'
 in subdirectory `case1' which can be used for testing.
 Updated the document `UserGuide.pdf' and `UserGuide_CHS.pdf'.A new section

@@ -2,7 +2,7 @@ Subroutine PCEcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Up,Vp,Unpw,Unpe,Vnps,Vnpn
+real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn
 real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
   if(solctrl=='SIMPLE') then
      DO j=1,Jc-1
@@ -28,78 +28,69 @@ real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
      end DO
   end if
   DO j=1,Jc-1
-     DO i=2,Ic-1
-      if(i==2) then
-          wdu(i,j)=0.5*du(i,j)
-          Unpw=0.5*(Unp(i,j)+Un(i-1,j))
-      else
-          wdu(i,j)=0.5*(du(i,j)+du(i-1,j))
-          Unpw=0.5*(Unp(i,j)+Unp(i-1,j))
-      end if
-      if(i==Ic-1) then
-          edu(i,j)=0.5*du(i,j)
-          Unpe=0.5*(Unp(i,j)+Un(i+1,j))
-      else
-          edu(i,j)=0.5*(du(i,j)+du(i+1,j))
-          Unpe=0.5*(Unp(i,j)+Unp(i+1,j))
-      end if
-      if(j==1.and.(i>Ib2.or.i<Ib1)) then
-          sdv(i,j)=0.5*(dv(i,j)+dv(Ic+1-i,j))
-          Vnps=0.5*(Vnp(i,j)-Vnp(Ic+1-i,j))
-      else if(j==1) then
-          sdv(i,j)=dv(i,j)
-          Vnps=Vnp(i,j)
-      else
-          sdv(i,j)=0.5*(dv(i,j)+dv(i,j-1))
-          Vnps=0.5*(Vnp(i,j)+Vnp(i,j-1))
-      end if
-      if(j==Jc-1) then
-          ndv(i,j)=0.5*dv(i,j)
-          Vnpn=0.5*(Vnp(i,j)+Vn(i,j+1))
-      else
-          ndv(i,j)=0.5*(dv(i,j)+dv(i,j+1))
-          Vnpn=0.5*(Vnp(i,j)+Vnp(i,j+1))
-      end if
-      Unw(i,j)=Unpw+wdu(i,j)*(P(i-1,j)-P(i,j))+(1-Rau)*(Unw(i,j)-0.5*(Un(i,j)+Un(i-1,j)))
-      Une(i,j)=Unpe+edu(i,j)*(P(i,j)-P(i+1,j))+(1-Rau)*(Une(i,j)-0.5*(Un(i,j)+Un(i+1,j)))
-      Vnn(i,j)=Vnpn+ndv(i,j)*(P(i,j)-P(i,j+1))+(1-Rau)*(Vnn(i,j)-0.5*(Vn(i,j)+Vn(i,j+1)))
-      if(j==1.and.(i>Ib2.or.i<Ib1)) then
-      Vns(i,j)=Vnps+sdv(i,j)*(P(Ic+1-i,j)-P(i,j))+(1-Rau)*(Vns(i,j)-0.5*(Vn(i,j)-Vn(Ic+1-i,j)))
-      else if(j==1) then
-      Vns(i,j)=0
-      else
-      Vns(i,j)=Vnps+sdv(i,j)*(P(i,j-1)-P(i,j))+(1-Rau)*(Vns(i,j)-0.5*(Vn(i,j)+Vn(i,j-1)))
-      end if
-     end DO
+    DO i=2,Ic
+    if(i==2) then
+    duk(i,j)=interpl(du(i,j),0.0,dk(i,j),dk(i-1,j))
+    Unpk=interpl(Unp(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
+    else if(i==Ic) then
+    duk(i,j)=interpl(0.0,du(i-1,j),dk(i,j),dk(i-1,j))
+    Unpk=interpl(Unp(i-1,j),Un(i,j),dk(i-1,j),dk(i,j))
+    else
+    duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i-1,j))
+    Unpk=interpl(Unp(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
+    end if
+    Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j)))
+    end DO
+  end DO
+  DO j=1,Jc
+    DO i=2,Ic-1
+    if(j==1.and.(i>Ib2.or.i<Ib1)) then
+    dva(i,j)=interpl(dv(i,j),dv(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
+    Vnpa=interpl(Vnp(i,j),-Vnp(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
+    Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j)))
+    else if(j==1) then
+    dva(i,j)=0
+    Vnpa=0
+    Vna(i,j)=0
+    else if(j==Jc) then
+    dva(i,j)=interpl(0.0,dv(i,j-1),da(i,j),da(i,j-1))
+    Vnpa=interpl(Vnp(i,j-1),Vn(i,j),da(i,j-1),da(i,j))
+    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
+    else
+    dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j-1))
+    Vnpa=interpl(Vnp(i,j),Vnp(i,j-1),da(i,j),da(i,j-1))
+    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
+    end if
+    end DO
   end DO
   DO j=1,Jc-1
     DO i=2,Ic-1
       if(Proctrl=='incom') then
-      aE(i,j)=roue(i,j)*edu(i,j)*dy
-      aW(i,j)=rouw(i,j)*wdu(i,j)*dy
-      aN(i,j)=roun(i,j)*ndv(i,j)*dx
-      if(j==1.and.i>=Ib1.and.i<=Ib2) then
-      aS(i,j)=0
-      else
-      aS(i,j)=rous(i,j)*sdv(i,j)*dx
-      end if
+      aE(i,j)=rouk(i+1,j)*duk(i+1,j)*dy
+      aW(i,j)=rouk(i,j)*duk(i,j)*dy
+      aN(i,j)=roua(i,j+1)*dva(i,j+1)*dx
+      aS(i,j)=roua(i,j)*dva(i,j)*dx
       aP(i,j)=aE(i,j)+aW(i,j)+aN(i,j)+aS(i,j)
       else if(Proctrl=='com') then
-      aE(i,j)=roue(i,j)*edu(i,j)*dy-Rap*(0.5-we(i,j))*Une(i,j)*dy/(R*T(i+1,j)/Ma)
-      aW(i,j)=rouw(i,j)*wdu(i,j)*dy+Rap*(0.5+ww(i,j))*Unw(i,j)*dy/(R*T(i-1,j)/Ma)
-      aN(i,j)=roun(i,j)*ndv(i,j)*dx-Rap*(0.5-wn(i,j))*Vnn(i,j)*dx/(R*T(i,j+1)/Ma)
+      ww=sign(0.5,Unk(i,j))
+      we=sign(0.5,Unk(i+1,j))
+      ws=sign(0.5,Vna(i,j))
+      wn=sign(0.5,Vna(i,j+1))
+      aE(i,j)=rouk(i+1,j)*duk(i+1,j)*dy-Rap*(0.5-we)*Unk(i+1,j)*dy/(R*T(i+1,j)/Ma)
+      aW(i,j)=rouk(i,j)*duk(i,j)*dy+Rap*(0.5+ww)*Unk(i,j)*dy/(R*T(i-1,j)/Ma)
+      aN(i,j)=roua(i,j+1)*dva(i,j+1)*dx-Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
       if(j==1.and.i>=Ib1.and.i<=Ib2) then
       aS(i,j)=0
-      aP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+Rap*((0.5+we(i,j))*Une(i,j)*dy-&
-      (0.5-ww(i,j))*Unw(i,j)*dy+(0.5+wn(i,j))*Vnn(i,j)*dx)/(R*T(i,j)/Ma)
+      aP(i,j)=rouk(i+1,j)*duk(i+1,j)*dy+rouk(i,j)*duk(i,j)*dy+roua(i,j+1)*dva(i,j+1)*dx+Rap*((0.5+we)*Unk(i+1,j)*dy-&
+      (0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx)/(R*T(i,j)/Ma)
       else if(j==1) then
-      aS(i,j)=rous(i,j)*sdv(i,j)*dx+Rap*(0.5+ws(i,j))*Vns(i,j)*dx/(R*T(Ic+1-i,j)/Ma)
-      aP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+rous(i,j)*sdv(i,j)*dx+&
-      Rap*((0.5+we(i,j))*Une(i,j)*dy-(0.5-ww(i,j))*Unw(i,j)*dy+(0.5+wn(i,j))*Vnn(i,j)*dx-(0.5-ws(i,j))*Vns(i,j)*dx)/(R*T(i,j)/Ma)
+      aS(i,j)=roua(i,j)*dva(i,j)*dx+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(Ic+1-i,j)/Ma)
+      aP(i,j)=rouk(i+1,j)*duk(i+1,j)*dy+rouk(i,j)*duk(i,j)*dy+roua(i,j+1)*dva(i,j+1)*dx+roua(i,j)*dva(i,j)*dx+&
+      Rap*((0.5+we)*Unk(i+1,j)*dy-(0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx-(0.5-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)
       else
-      aS(i,j)=rous(i,j)*sdv(i,j)*dx+Rap*(0.5+ws(i,j))*Vns(i,j)*dx/(R*T(i,j-1)/Ma)
-      aP(i,j)=roue(i,j)*edu(i,j)*dy+rouw(i,j)*wdu(i,j)*dy+roun(i,j)*ndv(i,j)*dx+rous(i,j)*sdv(i,j)*dx+&
-      Rap*((0.5+we(i,j))*Une(i,j)*dy-(0.5-ww(i,j))*Unw(i,j)*dy+(0.5+wn(i,j))*Vnn(i,j)*dx-(0.5-ws(i,j))*Vns(i,j)*dx)/(R*T(i,j)/Ma)
+      aS(i,j)=roua(i,j)*dva(i,j)*dx+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(i,j-1)/Ma)
+      aP(i,j)=rouk(i+1,j)*duk(i+1,j)*dy+rouk(i,j)*duk(i,j)*dy+roua(i,j+1)*dva(i,j+1)*dx+roua(i,j)*dva(i,j)*dx+&
+      Rap*((0.5+we)*Unk(i+1,j)*dy-(0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx-(0.5-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)
       end if
       end if
     end DO
@@ -107,7 +98,7 @@ real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
   b=0
   DO j=1,Jc-1
     DO i=2,Ic-1
-      b(i,j)=rouw(i,j)*Unw(i,j)*dy-roue(i,j)*Une(i,j)*dy+rous(i,j)*Vns(i,j)*dx-roun(i,j)*Vnn(i,j)*dx
+      b(i,j)=rouk(i,j)*Unk(i,j)*dy-rouk(i+1,j)*Unk(i+1,j)*dy+roua(i,j)*Vna(i,j)*dx-roua(i,j+1)*Vna(i,j+1)*dx
     end DO
   end DO
 end Subroutine PCEcoe

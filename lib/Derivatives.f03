@@ -55,15 +55,15 @@ DO j=1,Jc-1
  Xgkn=(Xg(i+1,j+1)-Xg(i,j+1))/dx
  Ygkn=(Yg(i+1,j+1)-Yg(i,j+1))/dx
  Jgc=Jg(i,j)
- Fw=0.5*(F(i,j)+F(i-1,j))
- Fe=0.5*(F(i,j)+F(i+1,j))
- Fn=0.5*(F(i,j)+F(i,j+1))
+ Fw=interpl(F(i,j),F(i-1,j),dk(i,j),dk(i-1,j))
+ Fe=interpl(F(i,j),F(i+1,j),dk(i,j),dk(i+1,j))
+ Fn=interpl(F(i,j),F(i,j+1),da(i,j),da(i,j+1))
  if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
   Fs=Fwall(i)
  else if(j==1) then
-  Fs=0.5*(F(i,j)+F(Ic+1-i,j))
+  Fs=interpl(F(i,j),F(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
  else
-  Fs=0.5*(F(i,j)+F(i,j-1))
+  Fs=interpl(F(i,j),F(i,j-1),da(i,j),da(i,j-1))
  end if
  Fx(i,j)=((Fe*Ygae-Fw*Ygaw)/dx-(Fn*Ygkn-Fs*Ygks)/dy)/Jgc
  Fy(i,j)=(-(Fe*Xgae-Fw*Xgaw)/dx+(Fn*Xgkn-Fs*Xgks)/dy)/Jgc

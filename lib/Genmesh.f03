@@ -94,10 +94,10 @@ end DO
 end if
 allocate(U0(Ic,Jc),V0(Ic,Jc),T0(Ic,Jc),U(Ic,Jc),V(Ic,Jc),T(Ic,Jc),rou(Ic,Jc),miu(Ic,Jc),P(Ic,Jc),dP(Ic,Jc),miut(Ic,Jc),&
 Pr(Ic,Jc),Pc(Ic,Jc),auP(Ic,Jc),auNB(Ic,Jc),aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),b(Ic,Jc),Xg(Ip,Jp),Yg(Ip,Jp),&
-Xc(Ic,Jc),Yc(Ic,Jc),Xga(Ic,Jc),Xgk(Ic,Jc),Yga(Ic,Jc),Ygk(Ic,Jc),Jg(Ic,Jc),a1(Ic,Jc),y1(Ic,Jc),b1(Ic,Jc),Un(Ic,Jc),Vn(Ic,Jc),&
-Unw(Ic,Jc),Une(Ic,Jc),Vns(Ic,Jc),Vnn(Ic,Jc),wdu(Ic,Jc),edu(Ic,Jc),sdv(Ic,Jc),ndv(Ic,Jc),Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),&
-Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),muxy(Ic,Jc),muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),ww(Ic,Jc),&
-we(Ic,Jc),ws(Ic,Jc),wn(Ic,Jc),rouw(Ic,Jc),roue(Ic,Jc),rous(Ic,Jc),roun(Ic,Jc),d(Ic,Jc),St(Ic,Jc))
+Xc(Ic,Jc),Yc(Ic,Jc),Xga(Ic,Jc),Xgk(Ic,Jc),Yga(Ic,Jc),Ygk(Ic,Jc),dk(Ic,Jc),da(Ic,Jc),Jg(Ic,Jc),a1(Ic,Jc),y1(Ic,Jc),b1(Ic,Jc),&
+Un(Ic,Jc),Vn(Ic,Jc),Unk(Ip,Jc),Vna(Ic,Jp),duk(Ip,Jc),dva(Ic,Jp),Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),&
+dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),muxy(Ic,Jc),muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),rouk(Ip,Jc),roua(Ic,Jp),&
+d(Ic,Jc),St(Ic,Jc))
 if(Turmod=='sa') then
 allocate(Tn0(Ic,Jc),Tn(Ic,Jc),Tnx(Ic,Jc),Tny(Ic,Jc),Xi(Ic,Jc),fniu1(Ic,Jc))
 else if(Turmod=='ke') then

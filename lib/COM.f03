@@ -15,13 +15,22 @@ character(C_CHAR),bind(C)::cfilename(64),cdir(64)
 real(C_DOUBLE),bind(C)::dx,dy,fd,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Po,ksi,Itur,tvr,c,Ui,Vi,roui,miui,Tki,Tei,Twi,Tni,&
 ca,ka,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
 real(8),allocatable,target,dimension(:,:)::rou,miu,P,dP,U,V,T,Tn,Tk,Te,Tw,miut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,aP,aW,&
-aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,Jg,a1,y1,b1,d,Un,Vn,wdu,edu,sdv,ndv,Unw,Une,Vns,Vnn,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,roux,rouy,&
-Tnx,Tny,Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,ww,we,ws,wn,rouw,roue,rous,roun,Xi,fniu1,fai2,F2,St,Ret,alphastar,sigmatk,&
-sigmatw
+aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,d,Un,Vn,duk,dva,Unk,Vna,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,roux,rouy,Tnx,Tny,&
+Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rouk,roua,Xi,fniu1,fai2,F2,St,Ret,alphastar,sigmatk,sigmatw
 real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
 real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:)
 type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy
 type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crou,cmiu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmiut
+
+contains
+
+real(8) function interpl(phi0,phi1,d0,d1)
+implicit none
+real(8) phi0,phi1,d0,d1
+
+interpl=(d1*phi0+d0*phi1)/(d0+d1)
+
+end function interpl
 
 ! Below is a list of common identifiers in aero2dcom module
 ! =========================================================

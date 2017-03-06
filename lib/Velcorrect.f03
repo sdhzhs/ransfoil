@@ -18,27 +18,21 @@ else if(solctrl=='SIMPLEC') then
     end DO
 end if
 DO j=1,Jc-1
-  DO i=2,Ic-1
-   Unw(i,j)=Unw(i,j)+wdu(i,j)*(dP(i-1,j)-dP(i,j))
-   Une(i,j)=Une(i,j)+edu(i,j)*(dP(i,j)-dP(i+1,j))
-   if(j==1.and.(i>Ib2.or.i<Ib1)) then
-   Vns(i,j)=Vns(i,j)+sdv(i,j)*(dP(Ic+1-i,j)-dP(i,j))
-   else if(j==1) then
-   Vns(i,j)=Vns(i,j)
-   else
-   Vns(i,j)=Vns(i,j)+sdv(i,j)*(dP(i,j-1)-dP(i,j))
-   end if
-   Vnn(i,j)=Vnn(i,j)+ndv(i,j)*(dP(i,j)-dP(i,j+1))
+  DO i=2,Ic
+   Unk(i,j)=Unk(i,j)+duk(i,j)*(dP(i-1,j)-dP(i,j))
   end DO
 end DO
 DO j=1,Jc
-   DO i=1,Ic
-   Un(i,j)=U(i,j)*Yga(i,j)-V(i,j)*Xga(i,j)
-   end DO
+  DO i=2,Ic-1
+   if(j==1.and.(i>Ib2.or.i<Ib1)) then
+   Vna(i,j)=Vna(i,j)+dva(i,j)*(dP(Ic+1-i,j)-dP(i,j))
+   else if(j==1) then
+   Vna(i,j)=Vna(i,j)
+   else
+   Vna(i,j)=Vna(i,j)+dva(i,j)*(dP(i,j-1)-dP(i,j))
+   end if
+  end DO
 end DO
-DO j=1,Jc
-   DO i=1,Ic
-   Vn(i,j)=V(i,j)*Xgk(i,j)-U(i,j)*Ygk(i,j)
-   end DO
-end DO
+Un=U*Yga-V*Xga
+Vn=V*Xgk-U*Ygk
 end Subroutine Velcorrect

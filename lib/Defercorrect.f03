@@ -66,57 +66,45 @@ DO j=1,Jc-1
   (3*Fcc-2*Fcs-Fcss)*max(Fs(i,j),0.0)/8+(Fcs+2*Fcc-3*Fcn)*max(Fn(i,j),0.0)/8+&
   (3*Fcs-2*Fcc-Fcn)*max(-Fs(i,j),0.0)/8+(Fcnn+2*Fcn-3*Fcc)*max(-Fn(i,j),0.0)/8
  else if(Discret=='tvd') then
-  if(i==2.or.abs(F(i,j)-F(i-1,j))<1e-30) then
+  if(abs(Fcc-Fcw)<1e-30) then
   rwp=0
   else
-  rwp=(F(i-1,j)-F(i-2,j))/(F(i,j)-F(i-1,j))
+  rwp=(Fcw-Fcww)/(Fcc-Fcw)
   end if
-  if(abs(F(i,j)-F(i-1,j))<1e-30) then
+  if(abs(Fcc-Fcw)<1e-30) then
   rwm=0
   else
-  rwm=(F(i+1,j)-F(i,j))/(F(i,j)-F(i-1,j))
+  rwm=(Fce-Fcc)/(Fcc-Fcw)
   end if
-  if(abs(F(i+1,j)-F(i,j))<1e-30) then
+  if(abs(Fce-Fcc)<1e-30) then
   rep=0
   else
-  rep=(F(i,j)-F(i-1,j))/(F(i+1,j)-F(i,j))
+  rep=(Fcc-Fcw)/(Fce-Fcc)
   end if
-  if(i==Ic-1.or.abs(F(i+1,j)-F(i,j))<1e-30) then
+  if(abs(Fce-Fcc)<1e-30) then
   rem=0
   else
-  rem=(F(i+2,j)-F(i+1,j))/(F(i+1,j)-F(i,j))
+  rem=(Fcee-Fce)/(Fce-Fcc)
   end if
-  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(Ic+1-i,j))<1e-30) then
+  if(abs(Fcc-Fcs)<1e-30) then
   rsp=0
-  else if(j==1) then
-  rsp=(F(Ic+1-i,j)-F(Ic+1-i,j+1))/(F(i,j)-F(Ic+1-i,j))
-  else if(j==2.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(i,j-1))<1e-30) then
-  rsp=0
-  else if(j==2) then
-  rsp=(F(i,j-1)-F(Ic+1-i,j-1))/(F(i,j)-F(i,j-1))
   else
-  rsp=(F(i,j-1)-F(i,j-2))/(F(i,j)-F(i,j-1))
+  rsp=(Fcs-Fcss)/(Fcc-Fcs)
   end if
-  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j)-F(Ic+1-i,j))<1e-30) then
-  rsm=0
-  else if(j==1) then
-  rsm=(F(i,j+1)-F(i,j))/(F(i,j)-F(Ic+1-i,j))
-  else if(abs(F(i,j)-F(i,j-1))<1e-30) then
+  if(abs(Fcc-Fcs)<1e-30) then
   rsm=0
   else
-  rsm=(F(i,j+1)-F(i,j))/(F(i,j)-F(i,j-1))
+  rsm=(Fcn-Fcc)/(Fcc-Fcs)
   end if
-  if(j==1.and.(i>=Ib1.and.i<=Ib2).or.abs(F(i,j+1)-F(i,j))<1e-30) then
+  if(abs(Fcn-Fcc)<1e-30) then
   rnp=0
-  else if(j==1) then
-  rnp=(F(i,j)-F(Ic+1-i,j))/(F(i,j+1)-F(i,j))
   else
-  rnp=(F(i,j)-F(i,j-1))/(F(i,j+1)-F(i,j))
+  rnp=(Fcc-Fcs)/(Fcn-Fcc)
   end if
-  if(j==Jc-1.or.abs(F(i,j+1)-F(i,j))<1e-30) then
+  if(abs(Fcn-Fcc)<1e-30) then
   rnm=0
   else
-  rnm=(F(i,j+2)-F(i,j+1))/(F(i,j+1)-F(i,j))
+  rnm=(Fcnn-Fcn)/(Fcn-Fcc)
   end if
   Psiwp=(rwp+rwp**2)/(1+rwp**2)
   Psiwm=(rwm+rwm**2)/(1+rwm**2)
@@ -126,18 +114,9 @@ DO j=1,Jc-1
   Psism=(rsm+rsm**2)/(1+rsm**2)
   Psinp=(rnp+rnp**2)/(1+rnp**2)
   Psinm=(rnm+rnm**2)/(1+rnm**2)
-  if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-  cor(i,j)=-(max(-Fe(i,j),0.0)*Psiem+max(Fe(i,j),0.0)*Psiep)*(F(i+1,j)-F(i,j))/2+(max(Fw(i,j),0.0)*Psiwp+&
-  max(-Fw(i,j),0.0)*Psiwm)*(F(i,j)-F(i-1,j))/2-(max(-Fn(i,j),0.0)*Psinm+max(Fn(i,j),0.0)*Psinp)*(F(i,j+1)-F(i,j))/2
-  else if(j==1) then
-  cor(i,j)=-(max(-Fe(i,j),0.0)*Psiem+max(Fe(i,j),0.0)*Psiep)*(F(i+1,j)-F(i,j))/2+(max(Fw(i,j),0.0)*Psiwp+&
-  max(-Fw(i,j),0.0)*Psiwm)*(F(i,j)-F(i-1,j))/2-(max(-Fn(i,j),0.0)*Psinm+max(Fn(i,j),0.0)*Psinp)*(F(i,j+1)-F(i,j))/2+&
-  (max(Fs(i,j),0.0)*Psisp+max(-Fs(i,j),0.0)*Psism)*(F(i,j)-F(Ic+1-i,j))/2
-  else
-  cor(i,j)=-(max(-Fe(i,j),0.0)*Psiem+max(Fe(i,j),0.0)*Psiep)*(F(i+1,j)-F(i,j))/2+(max(Fw(i,j),0.0)*Psiwp+&
-  max(-Fw(i,j),0.0)*Psiwm)*(F(i,j)-F(i-1,j))/2-(max(-Fn(i,j),0.0)*Psinm+max(Fn(i,j),0.0)*Psinp)*(F(i,j+1)-F(i,j))/2+&
-  (max(Fs(i,j),0.0)*Psisp+max(-Fs(i,j),0.0)*Psism)*(F(i,j)-F(i,j-1))/2
-  end if
+  cor(i,j)=-(max(-Fe(i,j),0.0)*Psiem+max(Fe(i,j),0.0)*Psiep)*(Fce-Fcc)/2+(max(Fw(i,j),0.0)*Psiwp+&
+  max(-Fw(i,j),0.0)*Psiwm)*(Fcc-Fcw)/2-(max(-Fn(i,j),0.0)*Psinm+max(Fn(i,j),0.0)*Psinp)*(Fcn-Fcc)/2+&
+  (max(Fs(i,j),0.0)*Psisp+max(-Fs(i,j),0.0)*Psism)*(Fcc-Fcs)/2
  end if
  end DO
 end DO

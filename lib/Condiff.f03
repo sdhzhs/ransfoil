@@ -43,19 +43,19 @@ Ga=miu+miut/sigmatw
 end if
 DO j=1,Jc-1
   DO i=2,Ic-1
-   Dw(i,j)=0.5*(a1(i,j)*Ga(i,j)+a1(i-1,j)*Ga(i-1,j))*dy/dx
-   De(i,j)=0.5*(a1(i,j)*Ga(i,j)+a1(i+1,j)*Ga(i+1,j))*dy/dx
-   Dn(i,j)=0.5*(y1(i,j)*Ga(i,j)+y1(i,j+1)*Ga(i,j+1))*dx/dy
-   Dnow=0.5*(b1(i,j)*Ga(i,j)+b1(i-1,j)*Ga(i-1,j))*dy
-   Dnoe=0.5*(b1(i,j)*Ga(i,j)+b1(i+1,j)*Ga(i+1,j))*dy
-   Dnon=0.5*(b1(i,j)*Ga(i,j)+b1(i,j+1)*Ga(i,j+1))*dx
+   Dw(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy/dx
+   De(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy/dx
+   Dn(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j+1)*Ga(i,j+1),da(i,j),da(i,j+1))*dx/dy
+   Dnow=interpl(b1(i,j)*Ga(i,j),b1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy
+   Dnoe=interpl(b1(i,j)*Ga(i,j),b1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy
+   Dnon=interpl(b1(i,j)*Ga(i,j),b1(i,j+1)*Ga(i,j+1),da(i,j),da(i,j+1))*dx
    if(j==1.and.(i<Ib1.or.i>Ib2)) then
-   Ds(i,j)=0.5*(y1(i,j)*Ga(i,j)+y1(Ic+1-i,j)*Ga(Ic+1-i,j))*dx/dy
-   Dnos=0.5*(b1(i,j)*Ga(i,j)+b1(Ic+1-i,j)*Ga(Ic+1-i,j))*dx
-   Faw=0.5*(F(i-1,j+1)+F(i,j+1)-F(Ic+2-i,j)-F(Ic+1-i,j))/(2*dy)
-   Fae=0.5*(F(i+1,j+1)+F(i,j+1)-F(Ic-i,j)-F(Ic+1-i,j))/(2*dy)
-   Fks=0.5*(F(Ic-i,j)+F(i+1,j)-F(Ic+2-i,j)-F(i-1,j))/(2*dx)
-   Fkn=0.5*(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(2*dx)
+   Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(Ic+1-i,j)*Ga(Ic+1-i,j),da(i,j),da(Ic+1-i,j))*dx/dy
+   Dnos=interpl(b1(i,j)*Ga(i,j),b1(Ic+1-i,j)*Ga(Ic+1-i,j),da(i,j),da(Ic+1-i,j))*dx
+   Faw=(F(i-1,j+1)+F(i,j+1)-F(Ic+2-i,j)-F(Ic+1-i,j))/(4*dy)
+   Fae=(F(i+1,j+1)+F(i,j+1)-F(Ic-i,j)-F(Ic+1-i,j))/(4*dy)
+   Fks=(F(Ic-i,j)+F(i+1,j)-F(Ic+2-i,j)-F(i-1,j))/(4*dx)
+   Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
    else if(j==1) then
    Ds(i,j)=y1(i,j)*Ga(i,j)*dx/dy
    Dnos=b1(i,j)*Ga(i,j)*dx
@@ -72,14 +72,14 @@ DO j=1,Jc-1
    Faw=(0.25*(F(i-1,j+1)+F(i,j+1)+F(i-1,j)+F(i,j))-Fwallw)/dy
    Fae=(0.25*(F(i+1,j+1)+F(i,j+1)+F(i+1,j)+F(i,j))-Fwalle)/dy
    Fks=(Fwalle-Fwallw)/dx
-   Fkn=0.5*(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(2*dx)
+   Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
    else
-   Ds(i,j)=0.5*(y1(i,j)*Ga(i,j)+y1(i,j-1)*Ga(i,j-1))*dx/dy
-   Dnos=0.5*(b1(i,j)*Ga(i,j)+b1(i,j-1)*Ga(i,j-1))*dx
-   Faw=0.5*(F(i-1,j+1)+F(i,j+1)-F(i-1,j-1)-F(i,j-1))/(2*dy)
-   Fae=0.5*(F(i+1,j+1)+F(i,j+1)-F(i+1,j-1)-F(i,j-1))/(2*dy)
-   Fks=0.5*(F(i+1,j-1)+F(i+1,j)-F(i-1,j-1)-F(i-1,j))/(2*dx)
-   Fkn=0.5*(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(2*dx)
+   Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx/dy
+   Dnos=interpl(b1(i,j)*Ga(i,j),b1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx
+   Faw=(F(i-1,j+1)+F(i,j+1)-F(i-1,j-1)-F(i,j-1))/(4*dy)
+   Fae=(F(i+1,j+1)+F(i,j+1)-F(i+1,j-1)-F(i,j-1))/(4*dy)
+   Fks=(F(i+1,j-1)+F(i+1,j)-F(i-1,j-1)-F(i-1,j))/(4*dx)
+   Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
    end if
    bno(i,j)=Dnow*Faw-Dnoe*Fae+Dnos*Fks-Dnon*Fkn
   end DO
@@ -91,10 +91,10 @@ aS=0
 aN=0
 DO j=1,Jc-1
   DO i=2,Ic-1
-    Fw(i,j)=dy*rouw(i,j)*Unw(i,j)
-    Fe(i,j)=dy*roue(i,j)*Une(i,j)
-    Fs(i,j)=dx*rous(i,j)*Vns(i,j)
-    Fn(i,j)=dx*roun(i,j)*Vnn(i,j)
+    Fw(i,j)=dy*rouk(i,j)*Unk(i,j)
+    Fe(i,j)=dy*rouk(i+1,j)*Unk(i+1,j)
+    Fs(i,j)=dx*roua(i,j)*Vna(i,j)
+    Fn(i,j)=dx*roua(i,j+1)*Vna(i,j+1)
     DF(i,j)=Fe(i,j)-Fw(i,j)+Fn(i,j)-Fs(i,j)
     aW(i,j)=Dw(i,j)+max(Fw(i,j),0.0)
     aE(i,j)=De(i,j)+max(-Fe(i,j),0.0)
@@ -284,7 +284,9 @@ DO j=1,Jc-1
     b(i,j)=rou(i,j)*alpha(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-rou(i,j)*beta(i,j)*Tw(i,j)**2*Jg(i,j)*dx*dy+Dwt(i,j)*Jg(i,j)*dx*dy
    end if
   end if
-  if(scalar=='Tk'.or.scalar=='Tw'.or.scalar=='Te') then
+  if((scalar=='Te'.or.scalar=='Tw').and.j==1.and.(i>=Ib1.and.i<=Ib2)) then
+   b(i,j)=b(i,j)
+  else if(scalar=='Tk'.or.scalar=='Te'.or.scalar=='Tw') then
    b(i,j)=b(i,j)+bno(i,j)
   else
    b(i,j)=b(i,j)+bno(i,j)+cor(i,j)

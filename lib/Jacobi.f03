@@ -9,19 +9,17 @@ Xg=Xg*c
 Yg=Yg*c
 DO j=1,Jc
   DO i=1,Ic
-  Xc(i,j)=(Xg(i,j)+Xg(i+1,j)+Xg(i,j+1)+Xg(i+1,j+1))/4
-  Yc(i,j)=(Yg(i,j)+Yg(i+1,j)+Yg(i,j+1)+Yg(i+1,j+1))/4
-  end DO
-end DO
-DO j=1,Jc
-   DO i=1,Ic
+   Xc(i,j)=(Xg(i,j)+Xg(i+1,j)+Xg(i,j+1)+Xg(i+1,j+1))/4
+   Yc(i,j)=(Yg(i,j)+Yg(i+1,j)+Yg(i,j+1)+Yg(i+1,j+1))/4
    Xgk(i,j)=((Xg(i+1,j)+Xg(i+1,j+1))-(Xg(i,j)+Xg(i,j+1)))/(2*dx)
    Ygk(i,j)=((Yg(i+1,j)+Yg(i+1,j+1))-(Yg(i,j)+Yg(i,j+1)))/(2*dx)
    Xga(i,j)=((Xg(i,j+1)+Xg(i+1,j+1))-(Xg(i,j)+Xg(i+1,j)))/(2*dy)
    Yga(i,j)=((Yg(i,j+1)+Yg(i+1,j+1))-(Yg(i,j)+Yg(i+1,j)))/(2*dy)
-   end DO
+  end DO
 end DO
 Jg=Xgk*Yga-Xga*Ygk
+dk=sqrt(Xgk**2+Ygk**2)
+da=sqrt(Xga**2+Yga**2)
 a1=(Xga**2+Yga**2)/Jg
 y1=(Xgk**2+Ygk**2)/Jg
 b1=(Xgk*Xga+Ygk*Yga)/Jg

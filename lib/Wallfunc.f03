@@ -76,10 +76,9 @@ DO i=Ib1,Ib2
  end if
 end DO
 end if
-Tplus=max(Tplus,0.1)
 if(Turmod=='sst') then
-DO j=1,Jc-1
-  DO i=2,Ic-1
+DO j=1,Jc
+  DO i=1,Ic
    Dwplus=max(2*rou(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
    fai1=min(max(sqrt(Tk(i,j))/(0.09*Tw(i,j)*d(i,j)),500*miu(i,j)/(rou(i,j)*d(i,j)**2*Tw(i,j))),&
    4*rou(i,j)*Tk(i,j)/(sigmaw2*Dwplus*d(i,j)**2))
@@ -91,12 +90,6 @@ DO j=1,Jc-1
    end if
   end DO
 end DO
-sigmatk(1,:)=sigmatk(2,:)
-sigmatk(Ic,:)=sigmatk(Ic-1,:)
-sigmatk(:,Jc)=sigmatk(:,Jc-1)
-sigmatw(1,:)=sigmatw(2,:)
-sigmatw(Ic,:)=sigmatw(Ic-1,:)
-sigmatw(:,Jc)=sigmatw(:,Jc-1)
 if(Walltreat=='wf') then
 lamda=-0.01*Yplus**4/(1+5.*Yplus)
 Twplusl=6./(betai*Yplus**2)

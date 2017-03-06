@@ -137,6 +137,7 @@ miu=miu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
 end if
 Pr=miu*ca/ka
 Pc=9.24*((Pr/Prt)**0.75-1)*(1+0.28*exp(-0.007*Pr/Prt))
+dP=0
 Call Derivatives('U')
 Call Derivatives('V')
 Call Derivatives('P')
@@ -161,28 +162,21 @@ miut=(rou*Tk)/(Tw*max(1./alphastar,St*F2/(alpha1*Tw)))
 else if(Turmod=='lam'.or.Turmod=='inv') then
 miut=0
 end if
-dP=0
-DO j=1,Jc
-   DO i=1,Ic
-   Un(i,j)=U(i,j)*Yga(i,j)-V(i,j)*Xga(i,j)
-   end DO
-end DO
-DO j=1,Jc
-   DO i=1,Ic
-   Vn(i,j)=V(i,j)*Xgk(i,j)-U(i,j)*Ygk(i,j)
-   end DO
-end DO
+Un=U*Yga-V*Xga
+Vn=V*Xgk-U*Ygk
 DO j=1,Jc-1
+   DO i=2,Ic
+   Unk(i,j)=interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
+   end DO
+end DO
+DO j=1,Jc
    DO i=2,Ic-1
-   Unw(i,j)=0.5*(Un(i,j)+Un(i-1,j))
-   Une(i,j)=0.5*(Un(i,j)+Un(i+1,j))
-   Vnn(i,j)=0.5*(Vn(i,j)+Vn(i,j+1))
    if(j==1.and.i>=Ib1.and.i<=Ib2) then
-   Vns(i,j)=0
+   Vna(i,j)=0
    else if(j==1) then
-   Vns(i,j)=0.5*(Vn(i,j)-Vn(Ic+1-i,j))
+   Vna(i,j)=interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
    else
-   Vns(i,j)=0.5*(Vn(i,j)+Vn(i,j-1))
+   Vna(i,j)=interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1))
    end if
    end DO
 end DO
