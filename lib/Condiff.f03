@@ -124,11 +124,7 @@ DO j=1,Jc-1
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+rou(i,j)*ustar(i)**3*Jg(i,j)*dx*dy/(Tk(i,j)*kapa*Yp(i))
      else if(Turmod=='ke'.and.scalar=='Tk') then
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+rou(i,j)*ustar(i)**3*Jg(i,j)*dx*dy/(Tk(i,j)*kapa*Yp(i))
-     else if(scalar=='Te') then
-      aW(i,j)=0
-      aE(i,j)=0
-      aN(i,j)=0
-     else if(scalar=='Tw') then
+     else if(scalar=='Te'.or.scalar=='Tw') then
       aW(i,j)=0
       aE(i,j)=0
       aN(i,j)=0
@@ -268,7 +264,7 @@ DO j=1,Jc-1
    end if
   else if(scalar=='Te') then
    if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-    b(i,j)=Te(i,j)
+    cycle
    else
     if(Proctrl=='com') then
     b(i,j)=Te(i,j)*(C1e*((miu(i,j)+miut(i,j))*St(i,j)**2+C3e(i,j)*g*miut(i,j)*rouy(i,j)/(rou(i,j)*Prt))-&
@@ -279,14 +275,12 @@ DO j=1,Jc-1
    end if
   else if(scalar=='Tw') then
    if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-    b(i,j)=Tw(i,j)
+    cycle
    else
     b(i,j)=rou(i,j)*alpha(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-rou(i,j)*beta(i,j)*Tw(i,j)**2*Jg(i,j)*dx*dy+Dwt(i,j)*Jg(i,j)*dx*dy
    end if
   end if
-  if((scalar=='Te'.or.scalar=='Tw').and.j==1.and.(i>=Ib1.and.i<=Ib2)) then
-   b(i,j)=b(i,j)
-  else if(scalar=='Tk'.or.scalar=='Te'.or.scalar=='Tw') then
+  if(scalar=='Tk'.or.scalar=='Te'.or.scalar=='Tw') then
    b(i,j)=b(i,j)+bno(i,j)
   else
    b(i,j)=b(i,j)+bno(i,j)+cor(i,j)

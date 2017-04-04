@@ -5,37 +5,32 @@ include 'HYPREf.h'
 integer  i,j,k,l,Ic,Jc,Ib1,Ib2,solid
 integer  ierr,ndims,nentries,nparts,nvars,part,var,object_type,itmax,prlv,iter,nb
 integer  ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
-real*8  Ra,tol,res
-real*8  aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),ba(Ic,Jc),aR(Ic,Jc),br(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
-real*8  values(5*Ic*Jc)
+real(8)  Ra,tol,res
+real(8)  aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),ba(Ic,Jc),aR(Ic,Jc),br(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
+real(8)  values(5*Ic*Jc)
 character(*) scalar
 
-integer*8  grid
-integer*8  stencil
-integer*8  graph
-integer*8  A
-integer*8  b
-integer*8  x
-integer*8  parA
-integer*8  parb
-integer*8  parx
-integer*8  solver
+integer(8)  grid
+integer(8)  stencil
+integer(8)  graph
+integer(8)  A
+integer(8)  b
+integer(8)  x
+integer(8)  parA
+integer(8)  parb
+integer(8)  parx
+integer(8)  solver
 
-integer*8  MPI_COMM_WORLD
+integer(8)  MPI_COMM_WORLD
 
 integer,parameter::HYPRE_SSTRUCT_VARIABLE_CELL = 0
 
 DO j=1,Jc
  DO i=1,Ic
   if(i>1.and.i<Ic.and.j<Jc) then
-   if(j==1.and.i>=Ib1.and.i<=Ib2) then
-    if(scalar=='Te'.or.scalar=='Tw') then
+   if(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw')) then
     aR(i,j)=aP(i,j)
     br(i,j)=ba(i,j)
-    else
-    aR(i,j)=aP(i,j)/Ra
-    br(i,j)=ba(i,j)+(1-Ra)*aP(i,j)*F0(i,j)/Ra
-    end if
    else
     aR(i,j)=aP(i,j)/Ra
     br(i,j)=ba(i,j)+(1-Ra)*aP(i,j)*F0(i,j)/Ra

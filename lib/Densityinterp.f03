@@ -4,7 +4,6 @@ implicit none
 integer i,j
 real(8) rouc,rouw,roue,rous,roun,rouww,rouss,dkc,dkw,dke,dkww,dac,das,dan,dass
 real(8) wk,wa,rwp,rwm,rsp,rsm,Psiwp,Psiwm,Psisp,Psism
-
   DO j=1,Jc-1
    DO i=2,Ic
    wk=sign(0.5,Unk(i,j))

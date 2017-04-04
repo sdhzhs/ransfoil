@@ -101,7 +101,7 @@ p=rms+beta*(p-omiga*v)
 !y=a*p/aP
 !v=y
 !$OMP END WORKSHARE
-Call Sorprecond(aP/a,aW,aE,aS,aN,p,y,Ic,Jc,Ib1,Ib2,scalar)
+Call Sorprecond(aP/a,aW,aE,aS,aN,p,y,Ic,Jc,Ib1,Ib2)
 !$OMP WORKSHARE
 v=y
 !$OMP END WORKSHARE
@@ -113,11 +113,7 @@ v=y
       else if(j==1.and.(i>Ib2.or.i<Ib1)) then
         v(i,j)=aP(i,j)*y(i,j)/a-aE(i,j)*y(i+1,j)-aW(i,j)*y(i-1,j)-aS(i,j)*y(Ic+1-i,j)-aN(i,j)*y(i,j+1)
       else
-        if(scalar=='Te'.or.scalar=='Tw') then
-        cycle
-        else
         v(i,j)=aP(i,j)*y(i,j)/a-aE(i,j)*y(i+1,j)-aW(i,j)*y(i-1,j)-aS(i,j)*y(i,j)-aN(i,j)*y(i,j+1)
-        end if
       end if
      end DO
    end DO
@@ -131,7 +127,7 @@ s=rms-alpha*v
 !z=a*s/aP
 !t=z
 !$OMP END WORKSHARE
-Call Sorprecond(aP/a,aW,aE,aS,aN,s,z,Ic,Jc,Ib1,Ib2,scalar)
+Call Sorprecond(aP/a,aW,aE,aS,aN,s,z,Ic,Jc,Ib1,Ib2)
 !$OMP WORKSHARE
 t=z
 !$OMP END WORKSHARE
@@ -143,11 +139,7 @@ t=z
       else if(j==1.and.(i>Ib2.or.i<Ib1)) then
         t(i,j)=aP(i,j)*z(i,j)/a-aE(i,j)*z(i+1,j)-aW(i,j)*z(i-1,j)-aS(i,j)*z(Ic+1-i,j)-aN(i,j)*z(i,j+1)
       else
-        if(scalar=='Te'.or.scalar=='Tw') then
-        cycle
-        else
         t(i,j)=aP(i,j)*z(i,j)/a-aE(i,j)*z(i+1,j)-aW(i,j)*z(i-1,j)-aS(i,j)*z(i,j)-aN(i,j)*z(i,j+1)
-        end if
       end if
      end DO
    end DO
@@ -155,7 +147,7 @@ t=z
 !!$OMP WORKSHARE
 !pt=a*t/aP
 !!$OMP END WORKSHARE
-Call Sorprecond(aP/a,aW,aE,aS,aN,t,pt,Ic,Jc,Ib1,Ib2,scalar)
+Call Sorprecond(aP/a,aW,aE,aS,aN,t,pt,Ic,Jc,Ib1,Ib2)
 !$OMP WORKSHARE
 sumptz=sum(pt*z)
 sumpts=sum(pt**2)
@@ -170,13 +162,12 @@ end DO
 !$OMP END PARALLEL
 end Subroutine CGSTAB
 
-Subroutine Sorprecond(aP,aW,aE,aS,aN,b,F,Ic,Jc,Ib1,Ib2,scalar)
+Subroutine Sorprecond(aP,aW,aE,aS,aN,b,F,Ic,Jc,Ib1,Ib2)
 implicit none
 integer i,j,Ic,Jc,Ib1,Ib2
 real(8) aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),b(Ic,Jc),F(Ic,Jc)
 real(8) omiga
 real(8),allocatable,save,dimension(:,:)::u,v
-character(*) scalar
 omiga=1.5
 !$OMP WORKSHARE
 u=b
@@ -191,11 +182,7 @@ DO j=1,Jc-1
   else if(j==1.and.i>Ib2) then
     u(i,j)=omiga*(b(i,j)+aW(i,j)*u(i-1,j)+aS(i,j)*u(Ic+1-i,j))/aP(i,j)
   else
-    if(scalar=='Te'.or.scalar=='Tw') then
-    cycle
-    else
     u(i,j)=omiga*(b(i,j)+aW(i,j)*u(i-1,j)+aS(i,j)*u(i,j))/aP(i,j)
-    end if
   end if
   end DO
 end DO
@@ -206,11 +193,7 @@ v=u
 !$OMP DO
 DO j=1,Jc-1
   DO i=2,Ic-1
-  if(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw')) then
-  cycle
-  else
   v(i,j)=(2-omiga)*aP(i,j)*u(i,j)/omiga
-  end if
   end DO
 end DO
 !$OMP END DO
@@ -221,11 +204,7 @@ F=v
 DO j=Jc-1,1,-1
   DO i=Ic-1,2,-1
   if(j>1.or.(j==1.and.i>=Ib1)) then
-    if(j==1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw')) then
-    cycle
-    else
     F(i,j)=omiga*(v(i,j)+aE(i,j)*F(i+1,j)+aN(i,j)*F(i,j+1))/aP(i,j)
-    end if
   else
     F(i,j)=omiga*(v(i,j)+aE(i,j)*F(i+1,j)+aN(i,j)*F(i,j+1)+aS(i,j)*F(Ic+1-i,j))/aP(i,j)
   end if
