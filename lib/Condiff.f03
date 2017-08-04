@@ -117,7 +117,11 @@ DO j=1,Jc-1
      if(scalar=='U'.or.scalar=='V') then
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+rou(i,j)*ustar(i)*DR(i)/Uplus(i)
      else if(scalar=='T') then
+      if(minval(Tplus)<0) then
+	aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)
+	else
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+rou(i,j)*ustar(i)*DR(i)/Tplus(i)
+	end if
      else if(scalar=='Tn') then
       aP(i,j)=aW(i,j)+aE(i,j)+aS(i,j)+aN(i,j)+DF(i,j)+2*Ds(i,j)
      else if(Turmod=='sst'.and.scalar=='Tk') then
@@ -210,9 +214,17 @@ DO j=1,Jc-1
      end if
     else if(Turmod=='sst'.and.Walltreat=='wf'.or.(Turmod=='sa'.and.Walltreat=='wf').or.Turmod=='ke') then
      if(Proctrl=='com') then
+      if(minval(Tplus)<0) then
+	b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+rou(i,j)*ustar(i)*(Tf-T(i,j))*DR(i)/Tplus(i)
+	else
       b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+rou(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
+	end if
      else if(Proctrl=='incom') then
+      if(minval(Tplus)<0) then
+	b(i,j)=rou(i,j)*ustar(i)*(Tf-T(i,j))*DR(i)/Tplus(i)
+	else
       b(i,j)=rou(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
+	end if
      end if
     end if
    else
