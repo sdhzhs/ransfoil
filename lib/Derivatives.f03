@@ -6,41 +6,41 @@ real(8) Fw,Fe,Fs,Fn,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Jgc
 real(8) F(Ic,Jc),Fwall(Ib1:Ib2),Fx(Ic,Jc),Fy(Ic,Jc)
 character(*) scalar
 if(scalar=='U') then
-F=U
-Fwall=0
+ F=U
+ Fwall=0
 else if(scalar=='V') then
-F=V
-Fwall=0
+ F=V
+ Fwall=0
 else if(scalar=='P') then
-F=P
-Fwall=P(Ib1:Ib2,1)
+ F=P
+ Fwall=P(Ib1:Ib2,1)
 else if(scalar=='dP') then
-F=dP
-Fwall=dP(Ib1:Ib2,1)
-else if(scalar=='rou') then
-F=rou
-Fwall=1.5*rou(Ib1:Ib2,1)-0.5*rou(Ib1:Ib2,2)
+ F=dP
+ Fwall=dP(Ib1:Ib2,1)
+else if(scalar=='rho') then
+ F=rho
+ Fwall=1.5*rho(Ib1:Ib2,1)-0.5*rho(Ib1:Ib2,2)
 else if(scalar=='Tn') then
-F=Tn
-Fwall=1.5*Tn(Ib1:Ib2,1)-0.5*Tn(Ib1:Ib2,2)
+ F=Tn
+ Fwall=1.5*Tn(Ib1:Ib2,1)-0.5*Tn(Ib1:Ib2,2)
 else if(scalar=='Tk') then
-F=Tk
-Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
+ F=Tk
+ Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
 else if(scalar=='Tw') then
-F=Tw
-Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
+ F=Tw
+ Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
 else if(scalar=='mux') then
-F=(miu+miut)*Ux
-Fwall=1.5*(miu(Ib1:Ib2,1)+miut(Ib1:Ib2,1))*Ux(Ib1:Ib2,1)-0.5*(miu(Ib1:Ib2,2)+miut(Ib1:Ib2,2))*Ux(Ib1:Ib2,2)
+ F=(mu+mut)*Ux
+ Fwall=1.5*(mu(Ib1:Ib2,1)+mut(Ib1:Ib2,1))*Ux(Ib1:Ib2,1)-0.5*(mu(Ib1:Ib2,2)+mut(Ib1:Ib2,2))*Ux(Ib1:Ib2,2)
 else if(scalar=='muy') then
-F=(miu+miut)*Uy
-Fwall=1.5*(miu(Ib1:Ib2,1)+miut(Ib1:Ib2,1))*Uy(Ib1:Ib2,1)-0.5*(miu(Ib1:Ib2,2)+miut(Ib1:Ib2,2))*Uy(Ib1:Ib2,2)
+ F=(mu+mut)*Uy
+ Fwall=1.5*(mu(Ib1:Ib2,1)+mut(Ib1:Ib2,1))*Uy(Ib1:Ib2,1)-0.5*(mu(Ib1:Ib2,2)+mut(Ib1:Ib2,2))*Uy(Ib1:Ib2,2)
 else if(scalar=='mvx') then
-F=(miu+miut)*Vx
-Fwall=1.5*(miu(Ib1:Ib2,1)+miut(Ib1:Ib2,1))*Vx(Ib1:Ib2,1)-0.5*(miu(Ib1:Ib2,2)+miut(Ib1:Ib2,2))*Vx(Ib1:Ib2,2)
+ F=(mu+mut)*Vx
+ Fwall=1.5*(mu(Ib1:Ib2,1)+mut(Ib1:Ib2,1))*Vx(Ib1:Ib2,1)-0.5*(mu(Ib1:Ib2,2)+mut(Ib1:Ib2,2))*Vx(Ib1:Ib2,2)
 else if(scalar=='mvy') then
-F=(miu+miut)*Vy
-Fwall=1.5*(miu(Ib1:Ib2,1)+miut(Ib1:Ib2,1))*Vy(Ib1:Ib2,1)-0.5*(miu(Ib1:Ib2,2)+miut(Ib1:Ib2,2))*Vy(Ib1:Ib2,2)
+ F=(mu+mut)*Vy
+ Fwall=1.5*(mu(Ib1:Ib2,1)+mut(Ib1:Ib2,1))*Vy(Ib1:Ib2,1)-0.5*(mu(Ib1:Ib2,2)+mut(Ib1:Ib2,2))*Vy(Ib1:Ib2,2)
 end if
 Fx=0
 Fy=0
@@ -70,38 +70,38 @@ DO j=1,Jc-1
  end DO
 end DO
 if(scalar=='U') then
-Ux=Fx
-Uy=Fy
+ Ux=Fx
+ Uy=Fy
 else if(scalar=='V') then
-Vx=Fx
-Vy=Fy
+ Vx=Fx
+ Vy=Fy
 else if(scalar=='P') then
-Px=Fx
-Py=Fy
+ Px=Fx
+ Py=Fy
 else if(scalar=='dP') then
-dPx=Fx
-dPy=Fy
-else if(scalar=='rou') then
-roux=Fx
-rouy=Fy
+ dPx=Fx
+ dPy=Fy
+else if(scalar=='rho') then
+ rhox=Fx
+ rhoy=Fy
 else if(scalar=='Tn') then
-Tnx=Fx
-Tny=Fy
+ Tnx=Fx
+ Tny=Fy
 else if(scalar=='Tk') then
-Tkx=Fx
-Tky=Fy
+ Tkx=Fx
+ Tky=Fy
 else if(scalar=='Tw') then
-Twx=Fx
-Twy=Fy
+ Twx=Fx
+ Twy=Fy
 else if(scalar=='mux') then
-muxx=Fx
-muxy=Fy
+ muxx=Fx
+ muxy=Fy
 else if(scalar=='muy') then
-muyx=Fx
+ muyx=Fx
 else if(scalar=='mvx') then
-mvxy=Fy
+ mvxy=Fy
 else if(scalar=='mvy') then
-mvyx=Fx
-mvyy=Fy
+ mvyx=Fx
+ mvyy=Fy
 end if
 end Subroutine Derivatives

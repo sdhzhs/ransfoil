@@ -7,19 +7,19 @@ character(*) scalar
 DO j=1,Jc
   DO i=2,Ic
   if(j==1.and.i>=Ib1.and.i<=Ib2+1) then
-  if((scalar=='U'.or.scalar=='V').and.Turmod/='inv'.or.scalar=='Tn'.or.scalar=='Tk') then
-  Fg(i,j)=0
-  else if(scalar=='T') then
-  Fg(i,j)=Tf
-  else if(scalar=='rou'.and.Proctrl=='incom') then
-  Fg(i,j)=roui
-  else
-  Fg(i,j)=0.5*(Fc(i,j)+Fc(i-1,j))
-  end if
+   if((scalar=='U'.or.scalar=='V').and.Turmod/='inv'.or.scalar=='Tn'.or.scalar=='Tk') then
+    Fg(i,j)=0
+   else if(scalar=='T') then
+    Fg(i,j)=Tf
+   else if(scalar=='rho'.and.Proctrl=='incom') then
+    Fg(i,j)=rhoi
+   else
+    Fg(i,j)=0.5*(Fc(i,j)+Fc(i-1,j))
+   end if
   else if(j==1) then
-  Fg(i,j)=(Fc(i,j)+Fc(i-1,j)+Fc(Ic+1-i,j)+Fc(Ic+2-i,j))/4
+   Fg(i,j)=(Fc(i,j)+Fc(i-1,j)+Fc(Ic+1-i,j)+Fc(Ic+2-i,j))/4
   else
-  Fg(i,j)=(Fc(i,j)+Fc(i-1,j)+Fc(i,j-1)+Fc(i-1,j-1))/4
+   Fg(i,j)=(Fc(i,j)+Fc(i-1,j)+Fc(i,j-1)+Fc(i-1,j-1))/4
   end if
   end DO
 end DO
@@ -39,10 +39,10 @@ else if(scalar=='T') then
   Fg(:,Jp)=Ta
   Fg(1,:)=Ta
   Fg(Ip,:)=Ta
-else if(scalar=='rou') then
-  Fg(:,Jp)=roui
-  Fg(1,:)=roui
-  Fg(Ip,:)=roui
+else if(scalar=='rho') then
+  Fg(:,Jp)=rhoi
+  Fg(1,:)=rhoi
+  Fg(Ip,:)=rhoi
 else if(scalar=='Tn') then
   Fg(:,Jp)=Tni
   Fg(1,:)=Tni

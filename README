@@ -21,6 +21,20 @@ Please report bugs or errors to sdhzhs@gmail.com. For any comments or
 suggestions, please also email sdhzhs@gmail.com or discuss in the
 forum: Discussion.
 
+Release of version 2.1
+----------------------
+
+ChangeLog
+
+Added a new source file `Turvis.f03' and deleted the old source file `Tanhline.f03'
+in the `lib' directory.
+Changed some greek variable names for standardization, optimized memory structure 
+and reduced memory usage..
+Changed the wall function to reckon in the parallel velocity.
+Changed the source terms in the sst model to a new version, improved the boundary
+layer results when using low Reynolds method.
+Updated the document `UserGuide.pdf' and `UserGuide_CHS.pdf'.
+
 Release of version 2.0
 ----------------------
 
@@ -32,6 +46,7 @@ Optimized memory structure using different variable declaration and reduced
 memory usage.
 Changed the interpolation scheme on cell interface from algebraic average
 into weighted average which can adapt to bad mesh.
+Updated the document `UserGuide.pdf' and `UserGuide_CHS.pdf'.
 
 Release of version 1.8
 ----------------------

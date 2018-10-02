@@ -4,7 +4,7 @@ extern char cproctrl[8],cenergy[8],cvisheat[8],cturmod[8],cwalltreat[8],csolctrl
 extern char cfilename[64],cdir[64];
 extern double *cxwd,*cywd,*cxwu,*cywu;
 extern double *cxw,*cyw,*csw,*cyplus,*cystar,*chcv,*cax,*cay;
-extern double *cxg,*cyg,*cxc,*cyc,*crou,*cmiu,*cp,*cvx,*cvy,*ct,*ctn,*ctk,*cte,*ctw,*cmiut;
+extern double *cxg,*cyg,*cxc,*cyc,*crho,*cmu,*cp,*cvx,*cvy,*ct,*ctn,*ctk,*cte,*ctw,*cmut;
 void aero2d_(char *mode,int *prlv,char *scptname,size_t nmod,size_t nscpt);
 void allocarray_(char *mode,size_t nmod);
 void deallocarray_(char *mode,size_t nmod);

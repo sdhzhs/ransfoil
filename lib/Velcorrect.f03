@@ -25,11 +25,11 @@ end DO
 DO j=1,Jc
   DO i=2,Ic-1
    if(j==1.and.(i>Ib2.or.i<Ib1)) then
-   Vna(i,j)=Vna(i,j)+dva(i,j)*(dP(Ic+1-i,j)-dP(i,j))
+    Vna(i,j)=Vna(i,j)+dva(i,j)*(dP(Ic+1-i,j)-dP(i,j))
    else if(j==1) then
-   Vna(i,j)=Vna(i,j)
+    Vna(i,j)=Vna(i,j)
    else
-   Vna(i,j)=Vna(i,j)+dva(i,j)*(dP(i,j-1)-dP(i,j))
+    Vna(i,j)=Vna(i,j)+dva(i,j)*(dP(i,j-1)-dP(i,j))
    end if
   end DO
 end DO

@@ -8,6 +8,7 @@ int main(void)
   int i,prlv,iw1,iw2,iw3;
   char *mode;
   double max,min;
+
   FILE *fp;
   mode="C";
   strncpy(cproctrl,"incom",5);
@@ -26,7 +27,7 @@ int main(void)
   rae=7e-1;
   rat=3e-1;
   fd=1e-3;
-  ifd=10;
+  ifd=5;
   jp=75;
   c=0.5334;
   vfar=75.;
@@ -41,12 +42,12 @@ int main(void)
   cxwd=(double *) malloc(iwd*sizeof(double));
   cywd=(double *) malloc(iwd*sizeof(double));
   for(i=0;i<iwd;i++)
-  fscanf(fp,"%le %le",&cxwd[i],&cywd[i]);
+    fscanf(fp,"%le %le",&cxwd[i],&cywd[i]);
   fscanf(fp,"%d",&iwu);
   cxwu=(double *) malloc(iwu*sizeof(double));
   cywu=(double *) malloc(iwu*sizeof(double));
   for(i=0;i<iwu;i++)
-  fscanf(fp,"%le %le",&cxwu[i],&cywu[i]);
+    fscanf(fp,"%le %le",&cxwu[i],&cywu[i]);
   fclose(fp);
   printf("Read airfoil coordinates completed!\n");
   iw1=(iwd>iwu)?iwd:iwu;
@@ -64,11 +65,12 @@ int main(void)
   printf("%le,%le\n",xpc,ypc);
   max=0;
   for(i=0;i<ic*jc;i++)
-  if(cp[i]>max) max=cp[i];
+    if(cp[i]>max) max=cp[i];
   min=1e+5;
   for(i=0;i<ic*jc;i++)
-  if(cp[i]<min) min=cp[i];
+    if(cp[i]<min) min=cp[i];
   printf("Maximum and minmum values of pressure are %le,%le.\n",max,min);
   deallocarray_(mode,strlen(mode));
+  
   return 0;
 }

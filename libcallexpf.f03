@@ -22,7 +22,7 @@ Program libaero2dcaller
   Rae=7e-1
   Rat=3e-1
   fd=1e-3
-  Ifd=10
+  Ifd=5
   Jp=75
   c=0.5334
   Vfar=75

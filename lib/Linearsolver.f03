@@ -3,6 +3,8 @@ implicit none
 integer maxl,i,j,k,Ic,Jc,Ib1,Ib2
 real(8) err,omiga,a,aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc),Fo(Ic,Jc),rms(Ic,Jc)
 character(*) scalar
+!$OMP PARALLEL
+!$OMP SINGLE
 maxl=1000
 if(scalar=='dP') then
 err=1e-4
@@ -11,11 +13,11 @@ else
 err=1e-8
 omiga=1
 end if
-!$OMP PARALLEL
+!$OMP END SINGLE
 DO k=1,maxl
-   !$OMP SINGLE
+   !$OMP WORKSHARE
    Fo=F
-   !$OMP END SINGLE
+   !$OMP END WORKSHARE
    !$OMP DO
    DO j=1,Jc-1
      DO i=2,Ic-1
@@ -56,46 +58,54 @@ Subroutine CGSTAB(aP,aW,aE,aS,aN,b,F,F0,a,Ic,Jc,Ib1,Ib2,scalar)
 implicit none
 integer maxl,i,j,k,Ic,Jc,Ib1,Ib2
 real(8) err,a,aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
-real(8) alpha,beta,rou,omiga,rou0,sumrmsi,sumvrms,sumptz,sumpts
+real(8) alpha,beta,rho,omiga,rho0,sumrmsi,sumvrms,sumptz,sumpts
 real(8) rmsi(Ic,Jc),rms(Ic,Jc),p(Ic,Jc),v(Ic,Jc),s(Ic,Jc),t(Ic,Jc),pt(Ic,Jc),y(Ic,Jc),z(Ic,Jc)
 character(*) scalar
+!$OMP PARALLEL PRIVATE(alpha,beta,rho,omiga,rho0)
+!$OMP SINGLE
 maxl=1000
 if(scalar=='dP') then
 err=1e-8
 else
 err=1e-10
 end if
+!$OMP END SINGLE
+!$OMP WORKSHARE
 rms=0
+!$OMP END WORKSHARE
+   !$OMP DO
    DO j=1,Jc-1
      DO i=2,Ic-1
       if(j>1) then
-        rms(i,j)=aE(i,j)*F(i+1,j)+aW(i,j)*F(i-1,j)+aS(i,j)*F(i,j-1)+aN(i,j)*F(i,j+1)+b(i,j)+(1-a)*aP(i,j)*F0(i,j)/a-aP(i,j)*F(i,j)/a
+       rms(i,j)=aE(i,j)*F(i+1,j)+aW(i,j)*F(i-1,j)+aS(i,j)*F(i,j-1)+aN(i,j)*F(i,j+1)+b(i,j)+(1-a)*aP(i,j)*F0(i,j)/a-aP(i,j)*F(i,j)/a
       else if(j==1.and.(i>Ib2.or.i<Ib1)) then
-        rms(i,j)=aE(i,j)*F(i+1,j)+aW(i,j)*F(i-1,j)+aS(i,j)*F(Ic+1-i,j)+aN(i,j)*F(i,j+1)+b(i,j)+(1-a)*aP(i,j)*F0(i,j)/a-&
-        aP(i,j)*F(i,j)/a
+       rms(i,j)=aE(i,j)*F(i+1,j)+aW(i,j)*F(i-1,j)+aS(i,j)*F(Ic+1-i,j)+aN(i,j)*F(i,j+1)+b(i,j)+(1-a)*aP(i,j)*F0(i,j)/a-&
+       aP(i,j)*F(i,j)/a
       else
-        if(scalar=='Te'.or.scalar=='Tw') then
+       if(scalar=='Te'.or.scalar=='Tw') then
         cycle
-        else
+       else
         rms(i,j)=aE(i,j)*F(i+1,j)+aW(i,j)*F(i-1,j)+aS(i,j)*F(i,j)+aN(i,j)*F(i,j+1)+b(i,j)+(1-a)*aP(i,j)*F0(i,j)/a-aP(i,j)*F(i,j)/a
-        end if
+       end if
       end if
      end DO
    end DO
+   !$OMP END DO
+!$OMP WORKSHARE
 rmsi=rms
 p=0
 v=p
-!$OMP PARALLEL PRIVATE(alpha,beta,rou,omiga,rou0)
+!$OMP END WORKSHARE
 alpha=1
-rou=1
+rho=1
 omiga=1
 DO k=1,maxl
-rou0=rou
+rho0=rho
 !$OMP WORKSHARE
 sumrmsi=sum(rmsi*rms)
 !$OMP END WORKSHARE
-rou=sumrmsi
-beta=(rou*alpha)/(rou0*omiga)
+rho=sumrmsi
+beta=(rho*alpha)/(rho0*omiga)
 !$OMP WORKSHARE
 p=rms+beta*(p-omiga*v)
 !y=a*p/aP
@@ -121,7 +131,7 @@ v=y
 !$OMP WORKSHARE
 sumvrms=sum(v*rmsi)
 !$OMP END WORKSHARE
-alpha=rou/sumvrms
+alpha=rho/sumvrms
 !$OMP WORKSHARE
 s=rms-alpha*v
 !z=a*s/aP

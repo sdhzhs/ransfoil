@@ -79,14 +79,14 @@ am__libaero2d_la_SOURCES_DIST = COM.f03 BlockTDMA.f03 Cell2node.f03 \
 	Condiff.f03 Defercorrect.f03 Densityinterp.f03 Derivatives.f03 \
 	Genmesh.f03 Hypmesh.f03 Initial.f03 Jacobi.f03 Libaero2d.F03 \
 	Linearsolver.f03 PCEcoe.f03 Postprocess.f03 Readpara.f03 \
-	Results.f03 RMS.f03 Tanhline.f03 Velcorrect.f03 Wallfunc.f03 \
+	Results.f03 RMS.f03 Turvis.f03 Velcorrect.f03 Wallfunc.f03 \
 	Hypresolver.f03
 @LINKHYPRE_TRUE@am__objects_1 = Hypresolver.lo
 am_libaero2d_la_OBJECTS = COM.lo BlockTDMA.lo Cell2node.lo Condiff.lo \
 	Defercorrect.lo Densityinterp.lo Derivatives.lo Genmesh.lo \
 	Hypmesh.lo Initial.lo Jacobi.lo Libaero2d.lo Linearsolver.lo \
 	PCEcoe.lo Postprocess.lo Readpara.lo Results.lo RMS.lo \
-	Tanhline.lo Velcorrect.lo Wallfunc.lo $(am__objects_1)
+	Turvis.lo Velcorrect.lo Wallfunc.lo $(am__objects_1)
 libaero2d_la_OBJECTS = $(am_libaero2d_la_OBJECTS)
 libaero2d_la_LINK = $(LIBTOOL) --tag=FC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(FCLD) $(AM_FCFLAGS) $(FCFLAGS) \
@@ -235,9 +235,9 @@ libaero2d_la_SOURCES = COM.f03 BlockTDMA.f03 Cell2node.f03 Condiff.f03 \
 	Defercorrect.f03 Densityinterp.f03 Derivatives.f03 Genmesh.f03 \
 	Hypmesh.f03 Initial.f03 Jacobi.f03 Libaero2d.F03 \
 	Linearsolver.f03 PCEcoe.f03 Postprocess.f03 Readpara.f03 \
-	Results.f03 RMS.f03 Tanhline.f03 Velcorrect.f03 Wallfunc.f03 \
+	Results.f03 RMS.f03 Turvis.f03 Velcorrect.f03 Wallfunc.f03 \
 	$(am__append_3)
-libaero2d_la_LDFLAGS = -release 2.0 $(am__append_1) $(am__append_4) \
+libaero2d_la_LDFLAGS = -release 2.1 $(am__append_1) $(am__append_4) \
 	$(am__append_6)
 nodist_include_HEADERS = aero2dcom.mod
 all: all-am

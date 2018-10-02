@@ -1,26 +1,28 @@
 Module Aero2DCOM
 use ISO_C_BINDING
 implicit none
-real(8),parameter::Pi=3.1415926535897932d+0,R=8.31,Ma=0.029,miu0=1.716e-5,Ti=273.11,Si=110.56,g=9.8,gama=1.4,Prt=0.85,kapa=0.4187,&
-Ep=9.793,Cks=0.5,Cb1=0.1355,Cb2=0.622,sigman=2.0/3,Cw2=0.3,Cw3=2.0,Cniu1=7.1,Cw1=Cb1/kapa**2+(1+Cb2)/sigman,C1e=1.44,C2e=1.92,&
+
+real(8),parameter::Pi=3.1415926535897932d+0,R=8.31,Ma=0.029,mu0=1.716e-5,Ti=273.11,Si=110.56,g=9.8,gama=1.4,Prt=0.85,kapa=0.4187,&
+Ep=9.793,Cks=0.5,Cb1=0.1355,Cb2=0.622,sigman=2.0/3,Cw2=0.3,Cw3=2.0,Cnu1=7.1,Cw1=Cb1/kapa**2+(1+Cb2)/sigman,C1e=1.44,C2e=1.92,&
 Cu=0.09,sigmak=1.0,sigmae=1.3,sigmak1=1.176,sigmak2=1.0,sigmaw1=2.0,sigmaw2=1.168,alpha1=0.31,betai1=0.075,betai2=0.0828,&
 alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,Mt0=0.25
+
 save
 integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Iwd,Iwu,Ifd,maxs
 character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag
 character(64) filename(9),dir
+real(C_DOUBLE),bind(C)::dx,dy,fd,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
+ca,ka,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
+real(8),allocatable,target,dimension(:,:)::rho,mu,P,dP,U,V,T,Tn,Tk,Te,Tw,mut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,aP,aW,&
+aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,d,Un,Vn,duk,dva,Unk,Vna,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,rhox,rhoy,Tnx,Tny,&
+Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,sigmatk,sigmatw
+real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
 character(C_CHAR),bind(C)::cProctrl(8),cEnergy(8),cvisheat(8),cTurmod(8),cWalltreat(8),csolctrl(8),cDiscret(8),cdenface(8),&
 cInit(8),cStag(8)
 character(C_CHAR),bind(C)::cfilename(64),cdir(64)
-real(C_DOUBLE),bind(C)::dx,dy,fd,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Po,ksi,Itur,tvr,c,Ui,Vi,roui,miui,Tki,Tei,Twi,Tni,&
-ca,ka,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
-real(8),allocatable,target,dimension(:,:)::rou,miu,P,dP,U,V,T,Tn,Tk,Te,Tw,miut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,aP,aW,&
-aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,d,Un,Vn,duk,dva,Unk,Vna,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,roux,rouy,Tnx,Tny,&
-Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rouk,roua,Xi,fniu1,fai2,F2,St,Ret,alphastar,sigmatk,sigmatw
-real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
 real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:)
 type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy
-type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crou,cmiu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmiut
+type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 
 contains
 
@@ -100,8 +102,8 @@ end function interpl
 ! identifier name        meaning
 ! Xg,Yg                  X-Y coordinates of grid points in structured mesh
 ! Xc,Yc                  X-Y coordinates of cells center in structured mesh
-! rou                    density field
-! miu                    molecular viscosity field
+! rho                    density field
+! mu                     molecular viscosity field
 ! P                      pressure field
 ! dP                     correctional pressure field
 ! U,V                    X-Y components of velocity field
@@ -110,7 +112,7 @@ end function interpl
 ! Tk                     turbulence kinetic energy field
 ! Te                     turbulence dissipation rate field
 ! Tw                     turbulence specific dissipation rate field
-! miut                   turbulent viscosity field
+! mut                    turbulent viscosity field
 
 ! The identifiers with prefix `c' is the C partners of the corresponding Fortran variables
 
