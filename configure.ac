@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([ransfoil], [2.1], [sdhzhs@gmail.com])
-AM_INIT_AUTOMAKE(ransfoil, 2.1, sdhzhs@gmail.com)
+AC_INIT([ransfoil], [2.2], [sdhzhs@gmail.com])
+AM_INIT_AUTOMAKE(ransfoil, 2.2, sdhzhs@gmail.com)
 LT_PREREQ([2.4])
 AC_CANONICAL_HOST
 AS_CASE([$host],[i?86-pc-mingw32], [LTIOP=win32-dll],[LTIOP=""])
@@ -22,5 +22,5 @@ AC_ARG_WITH([hyprelib-dir],[AS_HELP_STRING([--with-hyprelib-dir=DIR],[DIR is the
 AC_SUBST([hypredir])
 AC_ARG_ENABLE([openmp],[AS_HELP_STRING([--enable-openmp],[enable openmp parallelization])],[openmp=${enableval}], [openmp=no])
 AM_CONDITIONAL([LINKOMP], [test "x${openmp}" = xyes])
-AC_CONFIG_FILES([Makefile case1/Makefile doc/Makefile lib/Makefile])
+AC_CONFIG_FILES([Makefile cases/Makefile doc/Makefile lib/Makefile])
 AC_OUTPUT

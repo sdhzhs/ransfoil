@@ -1,32 +1,25 @@
 Subroutine BlockTDMA(Ap,Aw,Ae,B,X,M,N)
 implicit none
-integer i,k,M,N
-real(8) Ap(M,M,N),Aw(M,M,N),Ae(M,M,N),B(M,N),X(M,N),c(M,M,N),d(M,N),Dp(M,M,N),invAp(M,M,N),invDp(M,M,N),Awc(M,M,N),Awd(M,N),&
-cX(M,N)
+integer k,M,N
+real(8) Ap(M,M,N),Aw(M,M,N),Ae(M,M,N),B(M,N),X(M,N),c(M,M,N),d(M,N),invAp(M,M),Dp(M,M),invDp(M,M),Awc(M,M),Awd(M),cX(M)
 
 c=0
 d=0
-DO k=1,N
- Call invmatrix(invAp(:,:,k),Ap(:,:,k),M)
-end DO
-Call Matrixmultiply(invAp(:,:,1),Ae(:,:,1),c(:,:,1),M,M)
+Call invmatrix(invAp,Ap(:,:,1),M)
+Call Matrixmultiply(invAp,Ae(:,:,1),c(:,:,1),M,M)
+Call Matrixmultiply(invAp,B(:,1),d(:,1),M,1)
 DO k=2,N
- Call Matrixmultiply(Aw(:,:,k),c(:,:,k-1),Awc(:,:,k),M,M)
- Dp(:,:,k)=Ap(:,:,k)-Awc(:,:,k)
- Call invmatrix(invDp(:,:,k),Dp(:,:,k),M)
- Call Matrixmultiply(invDp(:,:,k),Ae(:,:,k),c(:,:,k),M,M)
+ Call Matrixmultiply(Aw(:,:,k),c(:,:,k-1),Awc,M,M)
+ Call Matrixmultiply(Aw(:,:,k),d(:,k-1),Awd,M,1)
+ Dp=Ap(:,:,k)-Awc
+ Call invmatrix(invDp,Dp,M)
+ Call Matrixmultiply(invDp,Ae(:,:,k),c(:,:,k),M,M)
+ Call Matrixmultiply(invDp,B(:,k)+Awd,d(:,k),M,1)
 end DO
-Call Matrixmultiply(invAp(:,:,1),B(:,1),d(:,1),M,1)
-DO k=2,N
- Call Matrixmultiply(Aw(:,:,k),d(:,k-1),Awd(:,k),M,1)
- Call Matrixmultiply(invDp(:,:,k),B(:,k)+Awd(:,k),d(:,k),M,1)
-end DO
-DO i=1,M
- X(i,N)=d(i,N)
-end DO
+X(:,N)=d(:,N)
 DO k=N-1,1,-1
- Call Matrixmultiply(c(:,:,k),X(:,k+1),cX(:,k),M,1)
- X(:,k)=d(:,k)+cX(:,k)
+ Call Matrixmultiply(c(:,:,k),X(:,k+1),cX,M,1)
+ X(:,k)=d(:,k)+cX
 end DO
 
 end Subroutine BlockTDMA
@@ -73,8 +66,8 @@ real(8) A(N,N),B(N,M),C(N,M)
 
 C=0
 DO i=1,N
- DO k=1,N
-  DO j=1,M
+ DO j=1,M
+  DO k=1,N
    C(i,j)=C(i,j)+A(i,k)*B(k,j)
   end DO
  end DO

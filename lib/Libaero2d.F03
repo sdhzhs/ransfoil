@@ -11,6 +11,11 @@ if(libmod=='S'.or.libmod=='I') then
  Call Readpara(libmod,scptname)
 else if(libmod=='C') then
  DO i=1,8
+ if(cPntctrl(i)(1:1)/=C_NULL_CHAR) then
+  Pntctrl(i:i)=cPntctrl(i)(1:1)
+ else
+  Pntctrl(i:i)=' '
+ end if
  if(cProctrl(i)(1:1)/=C_NULL_CHAR) then
   Proctrl(i:i)=cProctrl(i)(1:1)
  else
@@ -310,6 +315,9 @@ end if
 if(libmod=='S'.or.libmod=='I') then
  Call Deallocarray(libmod)
  deallocate(Xwd,Ywd,Xwu,Ywu)
+ if(Pntctrl=='Y') then
+  deallocate(Xwp,Ywp,Xwp0,Ywp0)
+ end if
 else if(libmod=='C') then
  cXw=C_LOC(Xw)
  cYw=C_LOC(Yw)
@@ -334,7 +342,15 @@ else if(libmod=='C') then
  cTe=C_LOC(Te)
  cTw=C_LOC(Tw)
  cmut=C_LOC(mut)
- deallocate(Xwd,Ywd,Xwu,Ywu)
+ if(Pntctrl=='Y') then
+  cXwd=C_LOC(Xwd)
+  cYwd=C_LOC(Ywd)
+  cXwu=C_LOC(Xwu)
+  cYwu=C_LOC(Ywu)
+  deallocate(Xwp,Ywp,Xwp0,Ywp0)
+ else
+  deallocate(Xwd,Ywd,Xwu,Ywu)
+ end if
 end if
 
 end Subroutine Aero2D

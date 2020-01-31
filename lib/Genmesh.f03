@@ -2,35 +2,63 @@ Subroutine Genmesh(libmod)
 use Aero2DCOM
 implicit none
 integer i,j,l,Iw1,Iw2,Iw3,maxl
-real(8) err,fb,ltrail,lfar,ratio,ratio0
+real(8) err,ft,ltrail,lfar,ratio,ratio0
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
 
 if(libmod=='S'.or.libmod=='I') then
  open(unit=1,file=filename(1),status='old')
-  read(1,*) Iwd
-  allocate(Xwd(Iwd),Ywd(Iwd))
-  DO i=1,Iwd
-   read(1,*) Xwd(i),Ywd(i)
-  end DO
-  read(1,*) Iwu
-  allocate(Xwu(Iwu),Ywu(Iwu))
-  DO i=1,Iwu
-   read(1,*) Xwu(i),Ywu(i)
-  end DO
+  if(Pntctrl=='N') then
+   read(1,*) Iwd
+   allocate(Xwd(Iwd),Ywd(Iwd))
+   DO i=1,Iwd
+    read(1,*) Xwd(i),Ywd(i)
+   end DO
+   read(1,*) Iwu
+   allocate(Xwu(Iwu),Ywu(Iwu))
+   DO i=1,Iwu
+    read(1,*) Xwu(i),Ywu(i)
+   end DO
+  else
+   read(1,*) Iw0
+   allocate(Xwp0(Iw0),Ywp0(Iw0))
+   DO i=1,Iw0
+    read(1,*) Xwp0(i),Ywp0(i)
+   end DO
+  end if
  close(1)
  print *,'Read airfoil coordinates completed!'
 else if(libmod=='C') then
+ if(Pntctrl=='N') then
+  allocate(Xwd(Iwd),Ywd(Iwd))
+  allocate(Xwu(Iwu),Ywu(Iwu))
+  Call C_F_POINTER(cXwd,fXwd,(/Iwd/))
+  Call C_F_POINTER(cYwd,fYwd,(/Iwd/))
+  Call C_F_POINTER(cXwu,fXwu,(/Iwu/))
+  Call C_F_POINTER(cYwu,fYwu,(/Iwu/))
+  Xwd=fXwd
+  Ywd=fYwd
+  Xwu=fXwu
+  Ywu=fYwu
+ else
+  allocate(Xwp0(Iw0),Ywp0(Iw0))
+  Call C_F_POINTER(cXwp0,fXwp0,(/Iw0/))
+  Call C_F_POINTER(cYwp0,fYwp0,(/Iw0/))
+  Xwp0=fXwp0
+  Ywp0=fYwp0
+ end if
+end if
+if(Pntctrl=='Y') then
+ allocate(Xwp(Iw),Ywp(Iw))
+ Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0)
+ Iwd=(Iw+1)/2
+ Iwu=Iwd
  allocate(Xwd(Iwd),Ywd(Iwd))
  allocate(Xwu(Iwu),Ywu(Iwu))
- Call C_F_POINTER(cXwd,fXwd,(/Iwd/))
- Call C_F_POINTER(cYwd,fYwd,(/Iwd/))
- Call C_F_POINTER(cXwu,fXwu,(/Iwu/))
- Call C_F_POINTER(cYwu,fYwu,(/Iwu/))
- Xwd=fXwd
- Ywd=fYwd
- Xwu=fXwu
- Ywu=fYwu
+ Xwd=Xwp((Iw+1)/2:Iw)
+ Ywd=Ywp((Iw+1)/2:Iw)
+ Xwu=Xwp((Iw+1)/2:1:-1)
+ Ywu=Ywp((Iw+1)/2:1:-1)
 end if
 Iw1=max(Iwd,Iwu)
 Iw2=Iw1+Iwd-1
@@ -48,9 +76,9 @@ Xg(Iw2:Iw1:-1,1)=Xwd
 Yg(Iw2:Iw1:-1,1)=Ywd
 Xg(Iw2:Iw3,1)=Xwu
 Yg(Iw2:Iw3,1)=Ywu
-fb=sqrt((Xwd(Iwd)-Xwd(Iwd-1))**2+(Ywd(Iwd)-Ywd(Iwd-1))**2)
+ft=sqrt((Xwd(Iwd)-Xwd(Iwd-1))**2+(Ywd(Iwd)-Ywd(Iwd-1))**2)
 ltrail=11
-Call tanhgridline(ltrail,fb,Xt,Iw1)
+Call tanhgridline(ltrail,ft,Xt,Iw1)
 DO i=Iw3+1,Ip
  j=i-Iw3+1
  Xg(i,1)=Xg(Iw3,1)+Xt(j)

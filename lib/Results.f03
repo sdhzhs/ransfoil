@@ -190,10 +190,11 @@ open(unit=4,file=filename(7),status='replace')
 close(4)
 open(unit=4,file=filename(8),status='replace')
  write(4,*) 'File name of airfoil coordinates: ',filename(1)
+ write(4,*) 'Using control points based parametric spline? ',Pntctrl
  write(4,*) 'Property: ',Proctrl
- write(4,*) 'Solving energy equation: ',Energy
+ write(4,*) 'Solving energy equation? ',Energy
  if(Energy=='Y') then
-  write(4,*) 'Including viscous heating: ',visheat
+  write(4,*) 'Including viscous heating? ',visheat
  end if
  write(4,*) 'Turbulence model: ',Turmod
  if(Turmod=='sa'.or.Turmod=='sst') then
@@ -204,11 +205,11 @@ open(unit=4,file=filename(8),status='replace')
  if(Proctrl=='com') then
   write(4,*) 'Density interpolation scheme: ',denface
  end if
- write(4,*) 'Initializing from a file: ',Init
+ write(4,*) 'Initializing from a file? ',Init
  if(Init=='Y') then
   write(4,*) 'File name for initialization: ',filename(9)
  else if(Init=='N') then
-  write(4,*) 'Initializing using stagnation values: ',Stag
+  write(4,*) 'Initializing using stagnation values? ',Stag
  end if
  write(4,*) 'Momentum relaxation factor:',Rau
  write(4,*) 'Pressure relaxation factor:',Rap

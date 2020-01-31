@@ -5,7 +5,8 @@ Program libaero2dcaller
   character(1) mode
   character(64) filenamei
   mode='A'
-  filenamei='case1/NACA0012.xyz'
+  filenamei='cases/NACA0012.xyz'
+  Pntctrl='N'
   Proctrl='incom'
   Energy='Y'
   visheat='N'
@@ -16,7 +17,7 @@ Program libaero2dcaller
   Init='N'
   Stag='N'
   maxs=2000
-  delta=1e-5
+  delta=1e-4
   Rau=7e-1
   Rap=3e-1
   Rae=7e-1

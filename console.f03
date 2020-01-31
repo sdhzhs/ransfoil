@@ -9,8 +9,9 @@ Program RANSFOIL
   if(argc==0) then
    print *,"usage: ",trim(argv(1))," [options] [configuration file]"
    print *,"Console program to mainly calculate aerodynamic parameters of an airfoil by numerically solving the RANS equations. &
-   &Optionally the heat transfer coefficient on airfoil surface can also be obtained. This program reads airfoil coordinates from a 1D XYZ file, &
-   &then generates grid and solution files in 2D PLOT3D format to record grid and airflow data and a report file to show aerodynamic parameters."
+   &Optionally the heat transfer coefficient on airfoil surface can also be obtained. This program reads airfoil coordinates of grid points (or control points) &
+   &from a 1D XYZ file, then generates grid and solution files in 2D PLOT3D format to record grid and airflow data and a report file to show aerodynamic &
+   &parameters."
    print *,"More information can be found in the README file."
    print *,"Options:"
    print *,"--stdin        interactive mode, read parameters from standard input"

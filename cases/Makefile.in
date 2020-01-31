@@ -34,7 +34,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = case1
+subdir = cases
 DIST_COMMON = $(dist_data_DATA) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -189,7 +189,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-dist_data_DATA = NACA0012.xyz GA_W-1.xyz whitcomb.xyz
+dist_data_DATA = NACA0012.xyz GA_W-1.xyz whitcomb.xyz NACA001264.xyz NACA001264.cpt whitcomb.cpt
 all: all-am
 
 .SUFFIXES:
@@ -202,9 +202,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign case1/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign cases/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign case1/Makefile
+	  $(AUTOMAKE) --foreign cases/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

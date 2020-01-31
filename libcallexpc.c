@@ -11,6 +11,7 @@ int main(void)
 
   FILE *fp;
   mode="C";
+  strncpy(cpntctrl,"N",1);
   strncpy(cproctrl,"incom",5);
   strncpy(cenergy,"Y",1);
   strncpy(cvisheat,"N",1);
@@ -21,7 +22,7 @@ int main(void)
   strncpy(cinit,"N",1);
   strncpy(cstag,"N",1);
   maxs=2000;
-  delta=1e-5;
+  delta=1e-4;
   rau=7e-1;
   rap=3e-1;
   rae=7e-1;
@@ -37,7 +38,7 @@ int main(void)
   po=100000.;
   tvr=10.;
   ksi=0.;
-  fp=fopen("case1/NACA0012.xyz","rt");
+  fp=fopen("cases/NACA0012.xyz","rt");
   fscanf(fp,"%d",&iwd);
   cxwd=(double *) malloc(iwd*sizeof(double));
   cywd=(double *) malloc(iwd*sizeof(double));

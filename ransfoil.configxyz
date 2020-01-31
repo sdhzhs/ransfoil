@@ -1,5 +1,7 @@
 Input a name of airfoil coordinates file(1D XYZ):
-'case1/NACA0012.xyz'
+'cases/NACA0012.xyz'
+Using control points based parametric spline(Y/N)?
+N
 Select air property(com/incom):
 incom
 Solve Energy equation(Y/N)?
@@ -7,7 +9,7 @@ Y
 Include Viscous Heating(Y/N)?
 N
 Select turbulence model(inv/lam/sa/ke/sst):
-sst
+sa
 Select wall treatment method(wf/lr):
 wf
 Select coupling method(SIMPLE/SIMPLEC):
@@ -21,7 +23,7 @@ N
 Input maximum iteration steps:
 2000
 Input minimum residual of iteration:
-1e-5
+1e-4
 Input relaxation factor of velocity:
 7e-1
 Input relaxation factor of pressure:
@@ -49,10 +51,8 @@ Input temperature of wall(K):
 Input ambient pressure(Pa):
 100000
 Input turbulent viscosity ratio of free stream:
-1e-2
-Input turbulent viscosity ratio of free stream:
 10
 Input wall roughness(m):
 0
 Input a directory of export files:
-case1
+cases

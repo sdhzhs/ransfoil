@@ -2,8 +2,8 @@ Release notes
 =============
 
 ransfoil-x.x.tar.gz is a source package following open source standard
-(not strict GNU standard) for developers or users who want to build the
-program themselves.
+(not strict GNU standard) for developers or users who want to modify or 
+build the program.
 
 ransfoilxx_win64_binary.zip is a binary package (built by native
 MinGW-w64) target Windows X64 platform (Windows Vista, 7, 8 or 10, 64bit
@@ -21,6 +21,19 @@ Please report bugs or errors to sdhzhs@gmail.com. For any comments or
 suggestions, please also email sdhzhs@gmail.com or discuss in the
 forum: Discussion.
 
+Release of version 2.2
+----------------------
+
+ChangeLog
+
+Added parametric spline function for generating grid line on airfoil from control
+points.
+Added function of grid points distribution on the grid line.
+Added a new preprocess workflow in which a control points file like Selig format
+is used as only input and describe the whole airfoil.
+Added four new control parameters corresponding to the new preprocess workflow.
+Updated the document `UserGuide.pdf'.
+
 Release of version 2.1
 ----------------------
 
@@ -29,7 +42,7 @@ ChangeLog
 Added a new source file `Turvis.f03' and deleted the old source file `Tanhline.f03'
 in the `lib' directory.
 Changed some greek variable names for standardization, optimized memory structure 
-and reduced memory usage..
+and reduced memory usage.
 Changed the wall function to reckon in the parallel velocity.
 Changed the source terms in the sst model to a new version, improved the boundary
 layer results when using low Reynolds method.

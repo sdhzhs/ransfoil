@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = case1 doc lib
+SUBDIRS = cases doc lib
 FCFLAGS = -Wall -ffree-line-length-none -O3
 bin_PROGRAMS = ransfoil
 ransfoil_SOURCES = console.f03
@@ -9,5 +9,5 @@ EXTRA_PROGRAMS = libcallexp
 libcallexp_SOURCES = libcallexpf.f03 libcallexpc.c
 libcallexp_LDADD = $(top_srcdir)/lib/libaero2d.la
 dist_include_HEADERS = aero2dcom.h
-dist_data_DATA = ransfoil.config
+dist_data_DATA = ransfoil.configxyz ransfoil.configcpt
 dist_doc_DATA = COPYRIGHT INSTALL README

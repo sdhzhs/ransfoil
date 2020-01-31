@@ -8,6 +8,8 @@ if(libmod=='S') then
   read(10,*) ch
   read(10,*) filename(1)
   read(10,*) ch
+  read(10,*) Pntctrl
+  read(10,*) ch
   read(10,*) Proctrl
   read(10,*) ch
   read(10,*) Energy
@@ -54,6 +56,14 @@ if(libmod=='S') then
    read(10,*) ch
    read(10,*) Rat
   end if
+  if(Pntctrl=='Y') then
+   read(10,*) ch
+   read(10,*) Iw
+   read(10,*) ch
+   read(10,*) fb
+   read(10,*) ch
+   read(10,*) eb
+  end if
   read(10,*) ch
   read(10,*) fd
   read(10,*) ch
@@ -89,6 +99,8 @@ if(libmod=='S') then
 else if(libmod=='I') then
  print *,'Input a name of airfoil coordinates file(1D XYZ):'
  read *,filename(1)
+ print *,'Using control points based parametric spline(Y/N)?'
+ read *,Pntctrl
  print *,'Select air property(com/incom):'
  read *,Proctrl
  print *,'Solve Energy equation(Y/N)?'
@@ -135,6 +147,14 @@ else if(libmod=='I') then
  if(Turmod/='inv'.and.Turmod/='lam') then
   print *,'Input relaxation factor of turbulence:'
   read *,Rat
+ end if
+ if(Pntctrl=='Y') then
+   print *,'Input number of grid points on whole airfoil(interpolation based on parametric spline):'
+   read *,Iw
+   print *,'Input dimensionless mesh spacing near leading edge:'
+   read *,fb
+   print *,'Input dimensionless mesh spacing near trailing edge:'
+   read *,eb
  end if
  print *,'Input dimensionless near wall mesh spacing:'
  read *,fd

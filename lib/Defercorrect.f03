@@ -3,7 +3,7 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Fcc,Fcw,Fce,Fcs,Fcn,Fcww,Fcee,Fcss,Fcnn,dkc,dkw,dkww,dke,dkee,dac,das,dass,dan,dann
-real(8) rwp,rwm,rep,rem,rsp,rsm,rnp,rnm,Psiwp,Psiwm,Psiep,Psiem,Psisp,Psism,Psinp,Psinm
+real(8) rp,rm,Psip,Psim
 real(8) F(Ic,Jc),cor(Ic,Jc),Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc)
 DO j=1,Jc-1
  DO i=2,Ic-1
@@ -76,56 +76,45 @@ DO j=1,Jc-1
   dac*(3*(Fcs-Fcc)/(dac+das)+(Fcc-Fcn)/(dac+dan))*max(-Fs(i,j),0.0)/4+dan*(3*(Fcn-Fcc)/(dac+dan)+(Fcnn-Fcn)/(dan+dann))*max(-Fn(i,j),0.0)/4
  else if(Discret=='tvd') then
   if(abs(Fcc-Fcw)<1e-30) then
-  rwp=0
+   rp=0
+   rm=0
   else
-  rwp=(Fcw-Fcww)/(Fcc-Fcw)
+   rp=(Fcw-Fcww)/(Fcc-Fcw)
+   rm=(Fce-Fcc)/(Fcc-Fcw)
   end if
-  if(abs(Fcc-Fcw)<1e-30) then
-  rwm=0
-  else
-  rwm=(Fce-Fcc)/(Fcc-Fcw)
-  end if
+  Psip=(rp+rp**2)/(1+rp**2)
+  Psim=(rm+rm**2)/(1+rm**2)
+  cor(i,j)=(max(Fw(i,j),0.0)*Psip+max(-Fw(i,j),0.0)*Psim)*(Fcc-Fcw)/2
   if(abs(Fce-Fcc)<1e-30) then
-  rep=0
+   rp=0
+   rm=0
   else
-  rep=(Fcc-Fcw)/(Fce-Fcc)
+   rp=(Fcc-Fcw)/(Fce-Fcc)
+   rm=(Fcee-Fce)/(Fce-Fcc)
   end if
-  if(abs(Fce-Fcc)<1e-30) then
-  rem=0
-  else
-  rem=(Fcee-Fce)/(Fce-Fcc)
-  end if
+  Psip=(rp+rp**2)/(1+rp**2)
+  Psim=(rm+rm**2)/(1+rm**2)
+  cor(i,j)=cor(i,j)+(max(Fe(i,j),0.0)*Psip+max(-Fe(i,j),0.0)*Psim)*(Fcc-Fce)/2
   if(abs(Fcc-Fcs)<1e-30) then
-  rsp=0
+   rp=0
+   rm=0
   else
-  rsp=(Fcs-Fcss)/(Fcc-Fcs)
+   rp=(Fcs-Fcss)/(Fcc-Fcs)
+   rm=(Fcn-Fcc)/(Fcc-Fcs)
   end if
-  if(abs(Fcc-Fcs)<1e-30) then
-  rsm=0
-  else
-  rsm=(Fcn-Fcc)/(Fcc-Fcs)
-  end if
+  Psip=(rp+rp**2)/(1+rp**2)
+  Psim=(rm+rm**2)/(1+rm**2)
+  cor(i,j)=cor(i,j)+(max(Fs(i,j),0.0)*Psip+max(-Fs(i,j),0.0)*Psim)*(Fcc-Fcs)/2
   if(abs(Fcn-Fcc)<1e-30) then
-  rnp=0
+   rp=0
+   rm=0
   else
-  rnp=(Fcc-Fcs)/(Fcn-Fcc)
+   rp=(Fcc-Fcs)/(Fcn-Fcc)
+   rm=(Fcnn-Fcn)/(Fcn-Fcc)
   end if
-  if(abs(Fcn-Fcc)<1e-30) then
-  rnm=0
-  else
-  rnm=(Fcnn-Fcn)/(Fcn-Fcc)
-  end if
-  Psiwp=(rwp+rwp**2)/(1+rwp**2)
-  Psiwm=(rwm+rwm**2)/(1+rwm**2)
-  Psiep=(rep+rep**2)/(1+rep**2)
-  Psiem=(rem+rem**2)/(1+rem**2)
-  Psisp=(rsp+rsp**2)/(1+rsp**2)
-  Psism=(rsm+rsm**2)/(1+rsm**2)
-  Psinp=(rnp+rnp**2)/(1+rnp**2)
-  Psinm=(rnm+rnm**2)/(1+rnm**2)
-  cor(i,j)=-(max(-Fe(i,j),0.0)*Psiem+max(Fe(i,j),0.0)*Psiep)*(Fce-Fcc)/2+(max(Fw(i,j),0.0)*Psiwp+&
-  max(-Fw(i,j),0.0)*Psiwm)*(Fcc-Fcw)/2-(max(-Fn(i,j),0.0)*Psinm+max(Fn(i,j),0.0)*Psinp)*(Fcn-Fcc)/2+&
-  (max(Fs(i,j),0.0)*Psisp+max(-Fs(i,j),0.0)*Psism)*(Fcc-Fcs)/2
+  Psip=(rp+rp**2)/(1+rp**2)
+  Psim=(rm+rm**2)/(1+rm**2)
+  cor(i,j)=cor(i,j)+(max(Fn(i,j),0.0)*Psip+max(-Fn(i,j),0.0)*Psim)*(Fcc-Fcn)/2
  end if
  end DO
 end DO

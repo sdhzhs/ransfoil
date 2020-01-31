@@ -8,20 +8,20 @@ Cu=0.09,sigmak=1.0,sigmae=1.3,sigmak1=1.176,sigmak2=1.0,sigmaw1=2.0,sigmaw2=1.16
 alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,Mt0=0.25
 
 save
-integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Iwd,Iwu,Ifd,maxs
-character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag
+integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Iwd,Iwu,Iw,Iw0,Ifd,maxs
+character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag,Pntctrl
 character(64) filename(9),dir
-real(C_DOUBLE),bind(C)::dx,dy,fd,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
+real(C_DOUBLE),bind(C)::dx,dy,fd,fb,eb,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
 ca,ka,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
 real(8),allocatable,target,dimension(:,:)::rho,mu,P,dP,U,V,T,Tn,Tk,Te,Tw,mut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,aP,aW,&
 aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,d,Un,Vn,duk,dva,Unk,Vna,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,rhox,rhoy,Tnx,Tny,&
 Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,sigmatk,sigmatw
-real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
+real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xwp,Ywp,Xwp0,Ywp0,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
 character(C_CHAR),bind(C)::cProctrl(8),cEnergy(8),cvisheat(8),cTurmod(8),cWalltreat(8),csolctrl(8),cDiscret(8),cdenface(8),&
-cInit(8),cStag(8)
+cInit(8),cStag(8),cPntctrl(8)
 character(C_CHAR),bind(C)::cfilename(64),cdir(64)
-real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:)
-type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy
+real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:),fXwp0(:),fYwp0(:)
+type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXwp0,cYwp0,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy
 type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 
 contains
@@ -48,6 +48,7 @@ end function interpl
 ! denface                control parameter, configure the interpolation scheme of air density
 ! Init                   control parameter, configure whether using a data file for initialization
 ! Stag                   control parameter, configure whether using the stagnation values for initialization
+! Pntctrl                control parameter, configure whether using control points based parametric spline curve to decribe airfoil
 ! dir                    directory name of output files
 ! -----------------------------------------------------
 ! characters arrays
@@ -61,7 +62,9 @@ end function interpl
 ! Ip,Jp                  number of gird points in corresponding directions
 ! Ic,Jc                  number of gird cells in corresponding directions
 ! Ib1,Ib2                lower and upper index of gird cells on airfoil
-! Iwd,Iwu                number of coordinate points on lower and upper airfoil
+! Iwd,Iwu                number of gird points on lower and upper airfoil
+! Iw0                    number of control points on airfoil
+! Iw                     number of grid points on whole airfoil
 ! Ifd                    layers of near wall mesh
 ! maxs                   maximum iteration steps
 ! ----------------------------------------------
@@ -69,6 +72,8 @@ end function interpl
 ! identifier name        meaning
 ! dx,dy                  spatial step size in corresponding directions of computational space
 ! fd                     dimensionless near wall mesh spacing
+! fb                     dimensionless mesh spacing near leading edge
+! eb                     dimensionless mesh spacing near trailing edge
 ! delta                  minimum residual
 ! Rau                    relaxation factor of velocity
 ! Rap                    relaxation factor of pressure
@@ -92,6 +97,8 @@ end function interpl
 ! one-dimensional floating-point arrays
 ! identifier name        meaning
 ! Xwd,Ywd,Xwu,Ywu        X-Y coordinates of grid points on lower and upper airfoil
+! Xwp0,Ywp0              X-Y coordinates of control points on whole airfoil
+! Xwp,Ywp                X-Y coordinates of grid points on whole airfoil
 ! Xw,Yw                  X-Y coordinates of cells center on airfoil
 ! Sw                     curve length on airfoil
 ! Yplus,Ystar            dimensionless wall distance
