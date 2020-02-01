@@ -30,7 +30,7 @@ Added parametric spline function for generating grid line on airfoil from contro
 points.
 Added function of grid points distribution on the grid line.
 Added a new preprocess workflow in which a control points file like Selig format
-is used as only input and describe the whole airfoil.
+can be used as only input and describe the whole airfoil.
 Added four new control parameters corresponding to the new preprocess workflow.
 Updated the document `UserGuide.pdf'.
 
