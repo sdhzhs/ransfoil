@@ -1,5 +1,6 @@
 Subroutine Aero2D(libmod,prtl,scptname)
 #include <config.h>
+use ieee_arithmetic
 use Aero2DCOM
 implicit none
 integer i,s
@@ -247,7 +248,8 @@ DO s=1,maxs
     print *,'RANS Equations converge!'
     exit
    end if
-   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsn>1e+5) then
+   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsn>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
+   (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsn))) then
     print *,'RANS Equations divergence!'
     stop
    end if
@@ -256,7 +258,8 @@ DO s=1,maxs
     print *,'RANS Equations converge!'
     exit
    end if
-   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmse>1e+5) then
+   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmse>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
+   (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsk)).or.(.not.ieee_is_normal(rmse))) then
     print *,'RANS Equations divergence!'
     stop
    end if
@@ -265,7 +268,8 @@ DO s=1,maxs
     print *,'RANS Equations converge!'
     exit
    end if
-   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmsw>1e+5) then
+   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmsw>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
+   (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsk)).or.(.not.ieee_is_normal(rmsw))) then
     print *,'RANS Equations divergence!'
     stop
    end if
@@ -274,7 +278,8 @@ DO s=1,maxs
     print *,'RANS Equations converge!'
     exit
    end if
-   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5) then
+   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.(.not.ieee_is_normal(rmsv)).or.&
+   (.not.ieee_is_normal(rmst))) then
     print *,'RANS Equations divergence!'
     stop
    end if

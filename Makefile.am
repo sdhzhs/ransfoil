@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = cases doc lib
+SUBDIRS = cases doc lib scripts
 FCFLAGS = -Wall -ffree-line-length-none -O3
 bin_PROGRAMS = ransfoil
 ransfoil_SOURCES = console.f03

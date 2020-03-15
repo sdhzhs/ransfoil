@@ -15,8 +15,6 @@
 
 @SET_MAKE@
 
-
-
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -36,55 +34,19 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = ransfoil$(EXEEXT)
-EXTRA_PROGRAMS = libcallexp$(EXEEXT)
-subdir = .
-DIST_COMMON = README $(am__configure_deps) $(dist_data_DATA) \
-	$(dist_doc_DATA) $(dist_include_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure INSTALL config.guess config.sub \
-	depcomp install-sh ltmain.sh missing
+subdir = scripts
+DIST_COMMON = $(dist_data_DATA) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
- configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = config.h
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" \
-	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(includedir)"
-PROGRAMS = $(bin_PROGRAMS)
-am_libcallexp_OBJECTS = libcallexpf.$(OBJEXT) libcallexpc.$(OBJEXT)
-libcallexp_OBJECTS = $(am_libcallexp_OBJECTS)
-libcallexp_DEPENDENCIES = $(top_srcdir)/lib/libaero2d.la
-am_ransfoil_OBJECTS = console.$(OBJEXT)
-ransfoil_OBJECTS = $(am_ransfoil_OBJECTS)
-ransfoil_DEPENDENCIES = $(top_srcdir)/lib/libaero2d.la
-DEFAULT_INCLUDES = -I.@am__isrc@
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-FCCOMPILE = $(FC) $(AM_FCFLAGS) $(FCFLAGS)
-LTFCCOMPILE = $(LIBTOOL) --tag=FC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(FC) $(AM_FCFLAGS) $(FCFLAGS)
-FCLD = $(FC)
-FCLINK = $(LIBTOOL) --tag=FC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(FCLD) $(AM_FCFLAGS) $(FCFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-SOURCES = $(libcallexp_SOURCES) $(ransfoil_SOURCES)
-DIST_SOURCES = $(libcallexp_SOURCES) $(ransfoil_SOURCES)
+SOURCES =
+DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -113,23 +75,17 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-DATA = $(dist_data_DATA) $(dist_doc_DATA)
-HEADERS = $(dist_include_HEADERS)
+am__installdirs = "$(DESTDIR)$(datadir)"
+DATA = $(dist_data_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	$(RECURSIVE_CLEAN_TARGETS:-recursive=) tags TAGS ctags CTAGS \
-	distdir dist dist-all distcheck
+	distdir
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-distdir = $(PACKAGE)-$(VERSION)
-top_distdir = $(distdir)
-am__remove_distdir = \
-  { test ! -d "$(distdir)" \
-    || { find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' \
-         && rm -fr "$(distdir)"; }; }
 am__relativize = \
   dir0=`pwd`; \
   sed_first='s,^\([^/]*\)/.*$$,\1,'; \
@@ -155,10 +111,6 @@ am__relativize = \
     dir1=`echo "$$dir1" | sed -e "$$sed_rest"`; \
   done; \
   reldir="$$dir2"
-DIST_ARCHIVES = $(distdir).tar.gz
-GZIP_ENV = --best
-distuninstallcheck_listfiles = find . -type f -print
-distcleancheck_listfiles = find . -type f -print
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AR = @AR@
@@ -183,7 +135,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FC = @FC@
-FCFLAGS = -Wall -ffree-line-length-none -O3
+FCFLAGS = @FCFLAGS@
 FGREP = @FGREP@
 GREP = @GREP@
 INSTALL = @INSTALL@
@@ -278,166 +230,47 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = cases doc lib scripts
-ransfoil_SOURCES = console.f03
-ransfoil_LDADD = $(top_srcdir)/lib/libaero2d.la
-libcallexp_SOURCES = libcallexpf.f03 libcallexpc.c
-libcallexp_LDADD = $(top_srcdir)/lib/libaero2d.la
-dist_include_HEADERS = aero2dcom.h
-dist_data_DATA = ransfoil.configxyz ransfoil.configcpt
-dist_doc_DATA = COPYRIGHT INSTALL README
-all: config.h
-	$(MAKE) $(AM_MAKEFLAGS) all-recursive
+SUBDIRS = whitcomb1 subsonic transonic supersonic
+dist_data_DATA = runwhitcomb.bat
+all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .f03 .lo .o .obj
-am--refresh:
-	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
-	      echo ' cd $(srcdir) && $(AUTOMAKE) --foreign'; \
-	      $(am__cd) $(srcdir) && $(AUTOMAKE) --foreign \
-		&& exit 0; \
+	      ( cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh ) \
+	        && { if test -f $@; then exit 0; else break; fi; }; \
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign scripts/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign Makefile
+	  $(AUTOMAKE) --foreign scripts/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
-	    echo ' $(SHELL) ./config.status'; \
-	    $(SHELL) ./config.status;; \
+	    cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh;; \
 	  *) \
-	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe)'; \
-	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__depfiles_maybe);; \
+	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
+	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
 	esac;
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
-	$(SHELL) ./config.status --recheck
+	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
 $(top_srcdir)/configure:  $(am__configure_deps)
-	$(am__cd) $(srcdir) && $(AUTOCONF)
+	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
-	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
+	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-
-config.h: stamp-h1
-	@if test ! -f $@; then \
-	  rm -f stamp-h1; \
-	  $(MAKE) $(AM_MAKEFLAGS) stamp-h1; \
-	else :; fi
-
-stamp-h1: $(srcdir)/config.h.in $(top_builddir)/config.status
-	@rm -f stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status config.h
-$(srcdir)/config.h.in:  $(am__configure_deps) 
-	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
-	rm -f stamp-h1
-	touch $@
-
-distclean-hdr:
-	-rm -f config.h stamp-h1
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	for p in $$list; do echo "$$p $$p"; done | \
-	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p || test -f $$p1; \
-	  then echo "$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n;h' -e 's|.*|.|' \
-	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
-	sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
-	    else { print "f", $$3 "/" $$4, $$1; } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	    test -z "$$files" || { \
-	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
-	    } \
-	; done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
-	      -e 's/$$/$(EXEEXT)/' `; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bindir)" && rm -f $$files
-
-clean-binPROGRAMS:
-	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
-	echo " rm -f" $$list; \
-	rm -f $$list || exit $$?; \
-	test -n "$(EXEEXT)" || exit 0; \
-	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
-	echo " rm -f" $$list; \
-	rm -f $$list
-libcallexp$(EXEEXT): $(libcallexp_OBJECTS) $(libcallexp_DEPENDENCIES) 
-	@rm -f libcallexp$(EXEEXT)
-	$(FCLINK) $(libcallexp_OBJECTS) $(libcallexp_LDADD) $(LIBS)
-ransfoil$(EXEEXT): $(ransfoil_OBJECTS) $(ransfoil_DEPENDENCIES) 
-	@rm -f ransfoil$(EXEEXT)
-	$(FCLINK) $(ransfoil_OBJECTS) $(ransfoil_LDADD) $(LIBS)
-
-mostlyclean-compile:
-	-rm -f *.$(OBJEXT)
-
-distclean-compile:
-	-rm -f *.tab.c
-
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcallexpc.Po@am__quote@
-
-.c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
-
-.c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
-
-.c.lo:
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
-
-.f03.o:
-	$(FCCOMPILE) -c -o $@ $<
-
-.f03.obj:
-	$(FCCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.f03.lo:
-	$(LTFCCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
-
-distclean-libtool:
-	-rm -f libtool config.lt
 install-dist_dataDATA: $(dist_data_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(datadir)" || $(MKDIR_P) "$(DESTDIR)$(datadir)"
@@ -458,46 +291,6 @@ uninstall-dist_dataDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(datadir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(datadir)" && rm -f $$files
-install-dist_docDATA: $(dist_doc_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(docdir)" || $(MKDIR_P) "$(DESTDIR)$(docdir)"
-	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(docdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(docdir)" || exit $$?; \
-	done
-
-uninstall-dist_docDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(docdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(docdir)" && rm -f $$files
-install-dist_includeHEADERS: $(dist_include_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
-	@list='$(dist_include_HEADERS)'; test -n "$(includedir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(includedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(includedir)" || exit $$?; \
-	done
-
-uninstall-dist_includeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_include_HEADERS)'; test -n "$(includedir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(includedir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(includedir)" && rm -f $$files
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -579,7 +372,7 @@ ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	mkid -fID $$unique
 tags: TAGS
 
-TAGS: tags-recursive $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
+TAGS: tags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	set x; \
 	here=`pwd`; \
@@ -596,7 +389,7 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
 	      set "$$@" "$$include_option=$$here/$$subdir/TAGS"; \
 	  fi; \
 	done; \
-	list='$(SOURCES) $(HEADERS) config.h.in $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -614,9 +407,9 @@ TAGS: tags-recursive $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
 	  fi; \
 	fi
 ctags: CTAGS
-CTAGS: ctags-recursive $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
+CTAGS: ctags-recursive $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
-	list='$(SOURCES) $(HEADERS) config.h.in $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -635,8 +428,6 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
-	$(am__remove_distdir)
-	test -d "$(distdir)" || mkdir "$(distdir)"
 	@srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*]/\\\\&/g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's/[].[^$$\\*]/\\\\&/g'`; \
 	list='$(DISTFILES)'; \
@@ -694,127 +485,12 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-	-test -n "$(am__skip_mode_fix)" \
-	|| find "$(distdir)" -type d ! -perm -755 \
-		-exec chmod u+rwx,go+rx {} \; -o \
-	  ! -type d ! -perm -444 -links 1 -exec chmod a+r {} \; -o \
-	  ! -type d ! -perm -400 -exec chmod a+r {} \; -o \
-	  ! -type d ! -perm -444 -exec $(install_sh) -c -m a+r {} {} \; \
-	|| chmod -R a+r "$(distdir)"
-dist-gzip: distdir
-	tardir=$(distdir) && $(am__tar) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
-	$(am__remove_distdir)
-
-dist-bzip2: distdir
-	tardir=$(distdir) && $(am__tar) | bzip2 -9 -c >$(distdir).tar.bz2
-	$(am__remove_distdir)
-
-dist-lzma: distdir
-	tardir=$(distdir) && $(am__tar) | lzma -9 -c >$(distdir).tar.lzma
-	$(am__remove_distdir)
-
-dist-xz: distdir
-	tardir=$(distdir) && $(am__tar) | xz -c >$(distdir).tar.xz
-	$(am__remove_distdir)
-
-dist-tarZ: distdir
-	tardir=$(distdir) && $(am__tar) | compress -c >$(distdir).tar.Z
-	$(am__remove_distdir)
-
-dist-shar: distdir
-	shar $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).shar.gz
-	$(am__remove_distdir)
-
-dist-zip: distdir
-	-rm -f $(distdir).zip
-	zip -rq $(distdir).zip $(distdir)
-	$(am__remove_distdir)
-
-dist dist-all: distdir
-	tardir=$(distdir) && $(am__tar) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
-	$(am__remove_distdir)
-
-# This target untars the dist file and tries a VPATH configuration.  Then
-# it guarantees that the distribution is self-contained by making another
-# tarfile.
-distcheck: dist
-	case '$(DIST_ARCHIVES)' in \
-	*.tar.gz*) \
-	  GZIP=$(GZIP_ENV) gzip -dc $(distdir).tar.gz | $(am__untar) ;;\
-	*.tar.bz2*) \
-	  bzip2 -dc $(distdir).tar.bz2 | $(am__untar) ;;\
-	*.tar.lzma*) \
-	  lzma -dc $(distdir).tar.lzma | $(am__untar) ;;\
-	*.tar.xz*) \
-	  xz -dc $(distdir).tar.xz | $(am__untar) ;;\
-	*.tar.Z*) \
-	  uncompress -c $(distdir).tar.Z | $(am__untar) ;;\
-	*.shar.gz*) \
-	  GZIP=$(GZIP_ENV) gzip -dc $(distdir).shar.gz | unshar ;;\
-	*.zip*) \
-	  unzip $(distdir).zip ;;\
-	esac
-	chmod -R a-w $(distdir); chmod a+w $(distdir)
-	mkdir $(distdir)/_build
-	mkdir $(distdir)/_inst
-	chmod a-w $(distdir)
-	test -d $(distdir)/_build || exit 0; \
-	dc_install_base=`$(am__cd) $(distdir)/_inst && pwd | sed -e 's,^[^:\\/]:[\\/],/,'` \
-	  && dc_destdir="$${TMPDIR-/tmp}/am-dc-$$$$/" \
-	  && am__cwd=`pwd` \
-	  && $(am__cd) $(distdir)/_build \
-	  && ../configure --srcdir=.. --prefix="$$dc_install_base" \
-	    $(DISTCHECK_CONFIGURE_FLAGS) \
-	  && $(MAKE) $(AM_MAKEFLAGS) \
-	  && $(MAKE) $(AM_MAKEFLAGS) dvi \
-	  && $(MAKE) $(AM_MAKEFLAGS) check \
-	  && $(MAKE) $(AM_MAKEFLAGS) install \
-	  && $(MAKE) $(AM_MAKEFLAGS) installcheck \
-	  && $(MAKE) $(AM_MAKEFLAGS) uninstall \
-	  && $(MAKE) $(AM_MAKEFLAGS) distuninstallcheck_dir="$$dc_install_base" \
-	        distuninstallcheck \
-	  && chmod -R a-w "$$dc_install_base" \
-	  && ({ \
-	       (cd ../.. && umask 077 && mkdir "$$dc_destdir") \
-	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" install \
-	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" uninstall \
-	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" \
-	            distuninstallcheck_dir="$$dc_destdir" distuninstallcheck; \
-	      } || { rm -rf "$$dc_destdir"; exit 1; }) \
-	  && rm -rf "$$dc_destdir" \
-	  && $(MAKE) $(AM_MAKEFLAGS) dist \
-	  && rm -rf $(DIST_ARCHIVES) \
-	  && $(MAKE) $(AM_MAKEFLAGS) distcleancheck \
-	  && cd "$$am__cwd" \
-	  || exit 1
-	$(am__remove_distdir)
-	@(echo "$(distdir) archives ready for distribution: "; \
-	  list='$(DIST_ARCHIVES)'; for i in $$list; do echo $$i; done) | \
-	  sed -e 1h -e 1s/./=/g -e 1p -e 1x -e '$$p' -e '$$x'
-distuninstallcheck:
-	@$(am__cd) '$(distuninstallcheck_dir)' \
-	&& test `$(distuninstallcheck_listfiles) | wc -l` -le 1 \
-	   || { echo "ERROR: files left after uninstall:" ; \
-	        if test -n "$(DESTDIR)"; then \
-	          echo "  (check DESTDIR support)"; \
-	        fi ; \
-	        $(distuninstallcheck_listfiles) ; \
-	        exit 1; } >&2
-distcleancheck: distclean
-	@if test '$(srcdir)' = . ; then \
-	  echo "ERROR: distcleancheck can only run from a VPATH build" ; \
-	  exit 1 ; \
-	fi
-	@test `$(distcleancheck_listfiles) | wc -l` -eq 0 \
-	  || { echo "ERROR: files left in build directory after distclean:" ; \
-	       $(distcleancheck_listfiles) ; \
-	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(PROGRAMS) $(DATA) $(HEADERS) config.h
+all-am: Makefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(datadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -844,14 +520,11 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
-distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-hdr distclean-libtool distclean-tags
+distclean-am: clean-am distclean-generic distclean-tags
 
 dvi: dvi-recursive
 
@@ -865,14 +538,13 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dist_dataDATA install-dist_docDATA \
-	install-dist_includeHEADERS
+install-data-am: install-dist_dataDATA
 
 install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS
+install-exec-am:
 
 install-html: install-html-recursive
 
@@ -895,16 +567,12 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
 pdf: pdf-recursive
 
@@ -914,32 +582,25 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-dist_dataDATA \
-	uninstall-dist_docDATA uninstall-dist_includeHEADERS
+uninstall-am: uninstall-dist_dataDATA
 
-.MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all \
-	ctags-recursive install-am install-strip tags-recursive
+.MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) ctags-recursive \
+	install-am install-strip tags-recursive
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
-	all all-am am--refresh check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libtool ctags ctags-recursive dist \
-	dist-all dist-bzip2 dist-gzip dist-lzma dist-shar dist-tarZ \
-	dist-xz dist-zip distcheck distclean distclean-compile \
-	distclean-generic distclean-hdr distclean-libtool \
-	distclean-tags distcleancheck distdir distuninstallcheck dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am \
-	install-dist_dataDATA install-dist_docDATA \
-	install-dist_includeHEADERS install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-dist_dataDATA \
-	uninstall-dist_docDATA uninstall-dist_includeHEADERS
+	all all-am check check-am clean clean-generic clean-libtool \
+	ctags ctags-recursive distclean distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dist_dataDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-recursive uninstall uninstall-am \
+	uninstall-dist_dataDATA
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

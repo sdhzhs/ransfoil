@@ -1,66 +1,62 @@
 Input a name of airfoil coordinates file(1D XYZ):
-'cases/naca747a415.cpt'
+'whitcomb1/whitcomb.xyz'
 Using control points based parametric spline(Y/N)?
-Y
+N
 Select air property(com/incom):
 com
 Solve Energy equation(Y/N)?
 Y
 Include Viscous Heating(Y/N)?
-Y
+N
 Select turbulence model(inv/lam/sa/ke/sst):
-sa
+sst
 Select wall treatment method(wf/lr):
-wf
+lr
 Select coupling method(SIMPLE/SIMPLEC):
 SIMPLE
 Select discretization scheme(1upwind/2upwind/Quick/tvd):
-2upwind
+tvd
 Select discretization scheme(1upwind/2upwind/Quick/tvd):
-2upwind
+tvd
 Initialize from a file(Y/N)?
-Y
+N
 Initialize using stagnation values(Y/N)? (or Input a filename for initialization:)
-'cases/Autosave.dat'
+Y
 Input maximum iteration steps:
-1000
+800
 Input minimum residual of iteration:
 1e-4
 Input relaxation factor of velocity:
-7e-1
+2e-3
 Input relaxation factor of pressure:
-3e-1
+2e-3
 Input relaxation factor of temperature:
-3e-1
+1e-1
 Input relaxation factor of turbulence:
-3e-1
-Input number of grid points on whole airfoil(interpolation based on parametric spline):
-201
-Input dimensionless mesh spacing near leading edge:
-5e-4
-Input dimensionless mesh spacing near trailing edge:
-2e-2
+2e-3
 Input dimensionless near wall mesh spacing:
-1e-3
+1e-6
 Input layers of uniform near wall mesh:
 5
 Input total number of grid points normal to the airfoil surface:
-75
+90
 Input chord length(m):
 1.0
 Input velocity of free stream(m/s):
-262.9
+648.58
 Input angle of attack(deg):
 4
 Input temperature of free stream(K):
-263.15
+262.04
 Input temperature of wall(K):
 273.15
 Input ambient pressure(Pa):
 100000
 Input turbulent viscosity ratio of free stream:
+1e-2
+Input turbulent viscosity ratio of free stream:
 10
 Input wall roughness(m):
 0
 Input a directory of export files:
-cases
+whitcomb1

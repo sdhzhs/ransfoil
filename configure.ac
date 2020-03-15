@@ -22,5 +22,6 @@ AC_ARG_WITH([hyprelib-dir],[AS_HELP_STRING([--with-hyprelib-dir=DIR],[DIR is the
 AC_SUBST([hypredir])
 AC_ARG_ENABLE([openmp],[AS_HELP_STRING([--enable-openmp],[enable openmp parallelization])],[openmp=${enableval}], [openmp=no])
 AM_CONDITIONAL([LINKOMP], [test "x${openmp}" = xyes])
-AC_CONFIG_FILES([Makefile cases/Makefile doc/Makefile lib/Makefile])
+AC_CONFIG_FILES([Makefile cases/Makefile doc/Makefile lib/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile \
+scripts/transonic/Makefile scripts/whitcomb1/Makefile])
 AC_OUTPUT

@@ -14377,7 +14377,7 @@ else
   LINKOMP_FALSE=
 fi
 
-ac_config_files="$ac_config_files Makefile cases/Makefile doc/Makefile lib/Makefile"
+ac_config_files="$ac_config_files Makefile cases/Makefile doc/Makefile lib/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile scripts/transonic/Makefile scripts/whitcomb1/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -15504,6 +15504,11 @@ do
     "cases/Makefile") CONFIG_FILES="$CONFIG_FILES cases/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "lib/Makefile") CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
+    "scripts/Makefile") CONFIG_FILES="$CONFIG_FILES scripts/Makefile" ;;
+    "scripts/subsonic/Makefile") CONFIG_FILES="$CONFIG_FILES scripts/subsonic/Makefile" ;;
+    "scripts/supersonic/Makefile") CONFIG_FILES="$CONFIG_FILES scripts/supersonic/Makefile" ;;
+    "scripts/transonic/Makefile") CONFIG_FILES="$CONFIG_FILES scripts/transonic/Makefile" ;;
+    "scripts/whitcomb1/Makefile") CONFIG_FILES="$CONFIG_FILES scripts/whitcomb1/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;
   esac
