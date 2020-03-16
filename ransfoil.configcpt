@@ -1,13 +1,13 @@
 Input a name of airfoil coordinates file(1D XYZ):
-'cases/naca747a415.cpt'
+'cases/NACA001264.cpt'
 Using control points based parametric spline(Y/N)?
 Y
 Select air property(com/incom):
-com
+incom
 Solve Energy equation(Y/N)?
 Y
 Include Viscous Heating(Y/N)?
-Y
+N
 Select turbulence model(inv/lam/sa/ke/sst):
 sa
 Select wall treatment method(wf/lr):
@@ -16,14 +16,12 @@ Select coupling method(SIMPLE/SIMPLEC):
 SIMPLE
 Select discretization scheme(1upwind/2upwind/Quick/tvd):
 2upwind
-Select discretization scheme(1upwind/2upwind/Quick/tvd):
-2upwind
 Initialize from a file(Y/N)?
-Y
+N
 Initialize using stagnation values(Y/N)? (or Input a filename for initialization:)
-'cases/Autosave.dat'
+N
 Input maximum iteration steps:
-1000
+2000
 Input minimum residual of iteration:
 1e-4
 Input relaxation factor of velocity:
@@ -31,7 +29,7 @@ Input relaxation factor of velocity:
 Input relaxation factor of pressure:
 3e-1
 Input relaxation factor of temperature:
-3e-1
+7e-1
 Input relaxation factor of turbulence:
 3e-1
 Input number of grid points on whole airfoil(interpolation based on parametric spline):
@@ -47,9 +45,9 @@ Input layers of uniform near wall mesh:
 Input total number of grid points normal to the airfoil surface:
 75
 Input chord length(m):
-1.0
+0.5334
 Input velocity of free stream(m/s):
-262.9
+75
 Input angle of attack(deg):
 4
 Input temperature of free stream(K):
