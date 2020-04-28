@@ -8,7 +8,7 @@ real(8) Xi,fnu1,Dwplus,phi1,F1,betai,St,phi2,F2,Ret,alphastar
    if(Turmod=='sa') then
     if(Walltreat=='lr') then
      Xi=rho(i,j)*Tn(i,j)/mu(i,j)+Cks*ksi/d(i,j)
-    else if(Walltreat=='wf') then
+    else
      Xi=rho(i,j)*Tn(i,j)/mu(i,j)
     end if
     fnu1=Xi**3/(Xi**3+Cnu1**3)

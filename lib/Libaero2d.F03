@@ -109,25 +109,25 @@ DO s=1,maxs
   Call Wallfunc
   Call Condiff('U')
 #ifdef HYPRE
-  Call hypresolve(aP,aW,aE,aS,aN,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,3,'U')
+  Call hypresolve(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,3,'U')
 #else
-  Call sor(aP,aW,aE,aS,aN,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
-  !Call CGSTAB(aP,aW,aE,aS,aN,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+  Call sor(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+  !Call CGSTAB(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
 #endif
   Call Condiff('V')
 #ifdef HYPRE
-  Call hypresolve(aP,aW,aE,aS,aN,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,3,'V')
+  Call hypresolve(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,3,'V')
 #else
-  Call sor(aP,aW,aE,aS,aN,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
-  !Call CGSTAB(aP,aW,aE,aS,aN,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+  Call sor(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+  !Call CGSTAB(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
 #endif
   Call PCEcoe
   rmsm=sum(abs(b))/(Ic*Jc)
 #ifdef HYPRE
-  Call hypresolve(aP,aW,aE,aS,aN,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,3,'dP')
+  Call hypresolve(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,3,'dP')
 #else
-  !Call sor(aP,aW,aE,aS,aN,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
-  Call CGSTAB(aP,aW,aE,aS,aN,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
+  !Call sor(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
+  Call CGSTAB(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
 #endif
   if(Proctrl=='com') then
    dP=min(max(dP,(1-Po-P)/Rap),(5e+10-Po-P)/Rap)
@@ -146,10 +146,10 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('T')
 #ifdef HYPRE
-   Call hypresolve(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,3,'T')
+   Call hypresolve(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,3,'T')
 #else
-   Call sor(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
-   !Call CGSTAB(aP,aW,aE,aS,aN,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+   Call sor(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+   !Call CGSTAB(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
 #endif
    if(Proctrl=='com') then
     T=max(min(5e+3,T),1.0)
@@ -165,28 +165,28 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('Tn')
 #ifdef HYPRE
-   Call hypresolve(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,3,'Tn')
+   Call hypresolve(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,3,'Tn')
 #else
-   Call sor(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
-   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+   Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+   !Call CGSTAB(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
 #endif
    Tn=min(max(Tn,1e-15),1e+5*mu/rho)
   else if(Turmod=='ke') then
    Call Wallfunc
    Call Condiff('Tk')
 #ifdef HYPRE
-   Call hypresolve(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
+   Call hypresolve(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
 #else
-   Call sor(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
-   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
 #endif
    Tk=max(Tk,1e-15)
    Call Condiff('Te')
 #ifdef HYPRE
-   Call hypresolve(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,3,'Te')
+   Call hypresolve(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,3,'Te')
 #else
-   Call sor(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
-   !Call CGSTAB(aP,aW,aE,aS,aN,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+   Call sor(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+   !Call CGSTAB(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
 #endif
    Te=max(Te,(rho*Cu*Tk**2)/(1e+5*mu))
   else if(Turmod=='sst') then
@@ -195,18 +195,18 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('Tk')
 #ifdef HYPRE
-   Call hypresolve(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
+   Call hypresolve(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
 #else
-   Call sor(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
-   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
 #endif
    Tk=max(Tk,1e-15)
    Call Condiff('Tw')
 #ifdef HYPRE
-   Call hypresolve(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,3,'Tw')
+   Call hypresolve(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,3,'Tw')
 #else
-   Call sor(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
-   !Call CGSTAB(aP,aW,aE,aS,aN,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+   Call sor(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+   !Call CGSTAB(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
 #endif
    Tw=max(Tw,(rho*Tk)/(1e+5*mu))
   end if
@@ -375,7 +375,7 @@ if(libmod=='C') then
  end if
  end DO
 end if
-deallocate(U0,V0,T0,U,V,T,rho,mu,mut,P,dP,Pr,Pc,auP,auNB,aP,aW,aE,aS,aN,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,&
+deallocate(U0,V0,T0,U,V,T,rho,mu,mut,P,dP,Pr,Pc,auP,auNB,aM,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,&
 Un,Vn,Unk,Vna,duk,dva,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,d)
 if(Turmod=='sa') then
  deallocate(Tn0,Tn,Tnx,Tny)

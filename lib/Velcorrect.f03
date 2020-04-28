@@ -5,17 +5,17 @@ integer i,j
 if(solctrl=='SIMPLE') then
    DO j=1,Jc-1
      DO i=2,Ic-1
-        U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/auP(i,j)
-        V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/auP(i,j)
+       U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/auP(i,j)
+       V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/auP(i,j)
      end DO
    end DO
 else if(solctrl=='SIMPLEC') then
-    DO j=1,Jc-1
+   DO j=1,Jc-1
      DO i=2,Ic-1
-        U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
-        V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
+       U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
+       V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
      end DO
-    end DO
+   end DO
 end if
 DO j=1,Jc-1
   DO i=2,Ic

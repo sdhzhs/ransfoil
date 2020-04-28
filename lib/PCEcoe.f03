@@ -3,29 +3,30 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn
+real(8) aP,aW,aE,aS,aN
 real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
   if(solctrl=='SIMPLE') then
-     DO j=1,Jc-1
-       DO i=2,Ic-1
-        du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/auP(i,j)
-        dv(i,j)=Rau*(Ygk(i,j)**2+Xgk(i,j)**2)*dx/auP(i,j)
-        Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/auP(i,j)
-        Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/auP(i,j)
-        Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
-        Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
-       end DO
-     end DO
+    DO j=1,Jc-1
+      DO i=2,Ic-1
+       du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/auP(i,j)
+       dv(i,j)=Rau*(Ygk(i,j)**2+Xgk(i,j)**2)*dx/auP(i,j)
+       Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/auP(i,j)
+       Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/auP(i,j)
+       Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
+       Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
+      end DO
+    end DO
   else if(solctrl=='SIMPLEC') then
-     DO j=1,Jc-1
-       DO i=2,Ic-1
-        du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/(auP(i,j)-Rau*auNB(i,j))
-        dv(i,j)=Rau*(Ygk(i,j)**2+Xgk(i,j)**2)*dx/(auP(i,j)-Rau*auNB(i,j))
-        Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
-        Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
-        Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
-        Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
-       end DO
-     end DO
+    DO j=1,Jc-1
+      DO i=2,Ic-1
+       du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/(auP(i,j)-Rau*auNB(i,j))
+       dv(i,j)=Rau*(Ygk(i,j)**2+Xgk(i,j)**2)*dx/(auP(i,j)-Rau*auNB(i,j))
+       Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
+       Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
+       Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
+       Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
+      end DO
+    end DO
   end if
   DO j=1,Jc-1
     DO i=2,Ic
@@ -66,33 +67,38 @@ real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
   DO j=1,Jc-1
     DO i=2,Ic-1
      if(Proctrl=='incom') then
-      aE(i,j)=rhok(i+1,j)*duk(i+1,j)*dy
-      aW(i,j)=rhok(i,j)*duk(i,j)*dy
-      aN(i,j)=rhoa(i,j+1)*dva(i,j+1)*dx
-      aS(i,j)=rhoa(i,j)*dva(i,j)*dx
-      aP(i,j)=aE(i,j)+aW(i,j)+aN(i,j)+aS(i,j)
+      aE=rhok(i+1,j)*duk(i+1,j)*dy
+      aW=rhok(i,j)*duk(i,j)*dy
+      aN=rhoa(i,j+1)*dva(i,j+1)*dx
+      aS=rhoa(i,j)*dva(i,j)*dx
+      aP=aE+aW+aN+aS
      else if(Proctrl=='com') then
       ww=sign(0.5,Unk(i,j))
       we=sign(0.5,Unk(i+1,j))
       ws=sign(0.5,Vna(i,j))
       wn=sign(0.5,Vna(i,j+1))
-      aE(i,j)=rhok(i+1,j)*duk(i+1,j)*dy-Rap*(0.5-we)*Unk(i+1,j)*dy/(R*T(i+1,j)/Ma)
-      aW(i,j)=rhok(i,j)*duk(i,j)*dy+Rap*(0.5+ww)*Unk(i,j)*dy/(R*T(i-1,j)/Ma)
-      aN(i,j)=rhoa(i,j+1)*dva(i,j+1)*dx-Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
+      aE=rhok(i+1,j)*duk(i+1,j)*dy-Rap*(0.5-we)*Unk(i+1,j)*dy/(R*T(i+1,j)/Ma)
+      aW=rhok(i,j)*duk(i,j)*dy+Rap*(0.5+ww)*Unk(i,j)*dy/(R*T(i-1,j)/Ma)
+      aN=rhoa(i,j+1)*dva(i,j+1)*dx-Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
       if(j==1.and.i>=Ib1.and.i<=Ib2) then
-       aS(i,j)=0
-       aP(i,j)=rhok(i+1,j)*duk(i+1,j)*dy+rhok(i,j)*duk(i,j)*dy+rhoa(i,j+1)*dva(i,j+1)*dx+Rap*((0.5+we)*Unk(i+1,j)*dy-&
+       aS=0
+       aP=rhok(i+1,j)*duk(i+1,j)*dy+rhok(i,j)*duk(i,j)*dy+rhoa(i,j+1)*dva(i,j+1)*dx+Rap*((0.5+we)*Unk(i+1,j)*dy-&
        (0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx)/(R*T(i,j)/Ma)
       else if(j==1) then
-       aS(i,j)=rhoa(i,j)*dva(i,j)*dx+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(Ic+1-i,j)/Ma)
-       aP(i,j)=rhok(i+1,j)*duk(i+1,j)*dy+rhok(i,j)*duk(i,j)*dy+rhoa(i,j+1)*dva(i,j+1)*dx+rhoa(i,j)*dva(i,j)*dx+&
+       aS=rhoa(i,j)*dva(i,j)*dx+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(Ic+1-i,j)/Ma)
+       aP=rhok(i+1,j)*duk(i+1,j)*dy+rhok(i,j)*duk(i,j)*dy+rhoa(i,j+1)*dva(i,j+1)*dx+rhoa(i,j)*dva(i,j)*dx+&
        Rap*((0.5+we)*Unk(i+1,j)*dy-(0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx-(0.5-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)
       else
-       aS(i,j)=rhoa(i,j)*dva(i,j)*dx+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(i,j-1)/Ma)
-       aP(i,j)=rhok(i+1,j)*duk(i+1,j)*dy+rhok(i,j)*duk(i,j)*dy+rhoa(i,j+1)*dva(i,j+1)*dx+rhoa(i,j)*dva(i,j)*dx+&
+       aS=rhoa(i,j)*dva(i,j)*dx+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(i,j-1)/Ma)
+       aP=rhok(i+1,j)*duk(i+1,j)*dy+rhok(i,j)*duk(i,j)*dy+rhoa(i,j+1)*dva(i,j+1)*dx+rhoa(i,j)*dva(i,j)*dx+&
        Rap*((0.5+we)*Unk(i+1,j)*dy-(0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx-(0.5-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)
       end if
      end if
+     aM(1,i,j)=aP
+     aM(2,i,j)=aW
+     aM(3,i,j)=aE
+     aM(4,i,j)=aS
+     aM(5,i,j)=aN
     end DO
   end DO
   b=0

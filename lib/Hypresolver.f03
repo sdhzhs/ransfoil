@@ -1,12 +1,12 @@
-Subroutine hypresolve(aP,aW,aE,aS,aN,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,scalar)
+Subroutine hypresolve(aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,scalar)
 implicit none
 include 'HYPREf.h'
 
 integer  i,j,k,l,Ic,Jc,Ib1,Ib2,solid
-integer  ierr,ndims,nentries,nparts,nvars,part,var,object_type,itmax,prlv,iter,nb
+integer  ierr,ndims,nentries,nparts,nvars,part,var,object_type,itmax,prlv,iter,nb,precond_id
 integer  ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
 real(8)  Ra,tol,res
-real(8)  aP(Ic,Jc),aW(Ic,Jc),aE(Ic,Jc),aS(Ic,Jc),aN(Ic,Jc),ba(Ic,Jc),aR(Ic,Jc),br(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
+real(8)  aM(5,Ic,Jc),ba(Ic,Jc),aR(Ic,Jc),br(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 real(8)  values(5*Ic*Jc)
 character(*) scalar
 
@@ -19,7 +19,7 @@ integer(8)  x
 integer(8)  parA
 integer(8)  parb
 integer(8)  parx
-integer(8)  solver
+integer(8)  solver,precond
 
 integer(8)  MPI_COMM_WORLD
 
@@ -29,14 +29,14 @@ DO j=1,Jc
  DO i=1,Ic
   if(i>1.and.i<Ic.and.j<Jc) then
    if(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw')) then
-    aR(i,j)=aP(i,j)
+    aR(i,j)=aM(1,i,j)
     br(i,j)=ba(i,j)
    else
-    aR(i,j)=aP(i,j)/Ra
-    br(i,j)=ba(i,j)+(1-Ra)*aP(i,j)*F0(i,j)/Ra
+    aR(i,j)=aM(1,i,j)/Ra
+    br(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
    end if
   else
-   aR(i,j)=aP(i,j)
+   aR(i,j)=aM(1,i,j)
    br(i,j)=ba(i,j)
   end if
  end DO
@@ -112,13 +112,13 @@ Call HYPRE_SStructMatrixInitialize(A,ierr)
     if(k==1) then
     values(l)=aR(i,j)
     else if(k==2) then
-    values(l)=-aW(i,j)
+    values(l)=-aM(2,i,j)
     else if(k==3) then
-    values(l)=-aE(i,j)
+    values(l)=-aM(3,i,j)
     else if(k==4) then
-    values(l)=-aS(i,j)
+    values(l)=-aM(4,i,j)
     else if(k==5) then
-    values(l)=-aN(i,j)
+    values(l)=-aM(5,i,j)
     end if
     l=l+1
    end DO
@@ -144,35 +144,56 @@ Call HYPRE_SStructVectorGetObject(x, parx, ierr)
 itmax = 1000
 prlv = 0
 if(scalar=='dP') then
-tol = 1.0D-3
+ tol = 1.0D-3
 else
-tol = 1.0D-6
+ tol = 1.0D-5
 end if
 
 if(solid==1) then
-Call HYPRE_SStructBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
-Call HYPRE_SStructBiCGSTABSetTol(solver, tol, ierr)
-Call HYPRE_SStructBiCGSTABSetPrintLe(solver, prlv, ierr)
-Call HYPRE_SStructBiCGSTABSetMaxIter(solver, itmax, ierr)
-Call HYPRE_SStructBiCGSTABSetup(solver, A, b, x, ierr)
-Call HYPRE_SStructBiCGSTABSolve(solver, A, b, x, ierr)
+ Call HYPRE_SStructBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
+ Call HYPRE_SStructBiCGSTABSetTol(solver, tol, ierr)
+ Call HYPRE_SStructBiCGSTABSetPrintLe(solver, prlv, ierr)
+ Call HYPRE_SStructBiCGSTABSetMaxIter(solver, itmax, ierr)
+ Call HYPRE_SStructBiCGSTABSetup(solver, A, b, x, ierr)
+ Call HYPRE_SStructBiCGSTABSolve(solver, A, b, x, ierr)
 else if(solid==2) then
-Call HYPRE_SStructPCGCreate(MPI_COMM_WORLD, solver, ierr)
-Call HYPRE_SStructPCGSetTol(solver, tol, ierr)
-Call HYPRE_SStructPCGSetPrintLevel(solver, prlv, ierr)
-Call HYPRE_SStructPCGSetMaxIter(solver, itmax, ierr)
-Call HYPRE_SStructPCGSetup(solver, A, b, x, ierr)
-Call HYPRE_SStructPCGSolve(solver, A, b, x, ierr)
+ Call HYPRE_SStructPCGCreate(MPI_COMM_WORLD, solver, ierr)
+ Call HYPRE_SStructPCGSetTol(solver, tol, ierr)
+ Call HYPRE_SStructPCGSetPrintLevel(solver, prlv, ierr)
+ Call HYPRE_SStructPCGSetMaxIter(solver, itmax, ierr)
+ Call HYPRE_SStructPCGSetup(solver, A, b, x, ierr)
+ Call HYPRE_SStructPCGSolve(solver, A, b, x, ierr)
 else if(solid==3) then
-Call HYPRE_BoomerAMGCreate(solver, ierr)
-Call HYPRE_BoomerAMGSetTol(solver, tol, ierr)
-Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
-Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
-!Call HYPRE_BoomerAMGSetCoarsenType(solver, 10, ierr)
-!Call HYPRE_BoomerAMGSetInterpType(solver, 6, ierr)
-!Call HYPRE_BoomerAMGSetRelaxType(solver, 6, ierr)
-Call HYPRE_BoomerAMGSetup(solver, parA, parb, parx, ierr)
-Call HYPRE_BoomerAMGSolve(solver, parA, parb, parx, ierr)
+ Call HYPRE_BoomerAMGCreate(solver, ierr)
+ Call HYPRE_BoomerAMGSetTol(solver, tol, ierr)
+ Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
+ Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
+ if(scalar=='dP') then
+  Call HYPRE_BoomerAMGSetMaxLevels(solver, 25, ierr)
+ else
+  Call HYPRE_BoomerAMGSetMaxLevels(solver, 1, ierr)
+ end if
+ !Call HYPRE_BoomerAMGSetCoarsenType(solver, 10, ierr)
+ !Call HYPRE_BoomerAMGSetInterpType(solver, 6, ierr)
+ !Call HYPRE_BoomerAMGSetRelaxType(solver, 6, ierr)
+ Call HYPRE_BoomerAMGSetup(solver, parA, parb, parx, ierr)
+ Call HYPRE_BoomerAMGSolve(solver, parA, parb, parx, ierr)
+else if(solid==4) then
+ Call HYPRE_ParCSRBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
+ Call HYPRE_ParCSRBiCGSTABSetTol(solver, tol, ierr)
+ Call HYPRE_ParCSRBiCGSTABSetPrintLev(solver, prlv, ierr)
+ Call HYPRE_ParCSRBiCGSTABSetMaxIter(solver, itmax, ierr)
+ 
+ Call HYPRE_EuclidCreate(MPI_COMM_WORLD, precond, ierr)
+ Call HYPRE_EuclidSetLevel(precond, 0, ierr)
+ !Call HYPRE_EuclidSetSparseA(precond, 1d-3, ierr)
+ Call HYPRE_EuclidSetRowScale(precond, 1, ierr)
+ !Call HYPRE_EuclidSetBJ(precond, 1, ierr)
+ 
+ precond_id = 5
+ Call HYPRE_ParCSRBiCGSTABSetPrecond(solver, precond_id, precond, ierr)
+ Call HYPRE_ParCSRBiCGSTABSetup(solver, parA, parb, parx, ierr)
+ Call HYPRE_ParCSRBiCGSTABSolve(solver, parA, parb, parx, ierr)
 end if
 
 Call HYPRE_SStructVectorGather(x,ierr)
@@ -187,6 +208,9 @@ else if(solid==2) then
 else if(solid==3) then
  Call HYPRE_BoomerAMGGetNumIterations(solver, iter, ierr)
  Call HYPRE_BoomerAMGGetFinalReltvRes(solver, res, ierr)
+else if(solid==4) then
+ Call HYPRE_ParCSRBiCGSTABGetNumIter(solver, iter, ierr)
+ Call HYPRE_ParCSRBiCGSTABGetFinalRel(solver, res, ierr)
 end if
 
 Call HYPRE_SStructGridDestroy(grid, ierr)
@@ -196,11 +220,14 @@ Call HYPRE_SStructMatrixDestroy(A, ierr)
 Call HYPRE_SStructVectorDestroy(b, ierr)
 Call HYPRE_SStructVectorDestroy(x, ierr)
 if(solid==1) then
-Call HYPRE_SStructBiCGSTABDestroy(solver, ierr)
+ Call HYPRE_SStructBiCGSTABDestroy(solver, ierr)
 else if(solid==2) then
-Call HYPRE_SStructPCGDestroy(solver, ierr)
+ Call HYPRE_SStructPCGDestroy(solver, ierr)
 else if(solid==3) then
-Call HYPRE_BoomerAMGDestroy(solver, ierr)
+ Call HYPRE_BoomerAMGDestroy(solver, ierr)
+else if(solid==4) then
+ Call HYPRE_EuclidDestroy(precond, ierr)
+ Call HYPRE_ParCSRBiCGSTABDestroy(solver, ierr)
 end if
 
 end Subroutine hypresolve
