@@ -8,10 +8,10 @@ character(*) scalar
 !$OMP SINGLE
 maxl=1000
 if(scalar=='dP') then
- err=1e-4
+ err=1e-3
  omiga=1.9
 else
- err=1e-8
+ err=1e-5
  omiga=1
 end if
 !$OMP END SINGLE
@@ -67,9 +67,9 @@ character(*) scalar
 !$OMP SINGLE
 maxl=1000
 if(scalar=='dP') then
- err=1e-8
+ err=1e-7
 else
- err=1e-10
+ err=1e-8
 end if
 !$OMP END SINGLE
 !$OMP WORKSHARE
