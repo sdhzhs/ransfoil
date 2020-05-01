@@ -2,12 +2,11 @@ Subroutine hypresolve(aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,scalar)
 implicit none
 include 'HYPREf.h'
 
-integer  i,j,k,l,Ic,Jc,Ib1,Ib2,solid
+integer  i,j,Ic,Jc,Ib1,Ib2,solid
 integer  ierr,ndims,nentries,nparts,nvars,part,var,object_type,itmax,prlv,iter,nb,precond_id
 integer  ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
 real(8)  Ra,tol,res
-real(8)  aM(5,Ic,Jc),ba(Ic,Jc),aR(Ic,Jc),br(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
-real(8)  values(5*Ic*Jc)
+real(8)  aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 character(*) scalar
 
 integer(8)  grid
@@ -28,16 +27,14 @@ integer,parameter::HYPRE_SSTRUCT_VARIABLE_CELL = 0
 DO j=1,Jc
  DO i=1,Ic
   if(i>1.and.i<Ic.and.j<Jc) then
-   if(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw')) then
-    aR(i,j)=aM(1,i,j)
-    br(i,j)=ba(i,j)
-   else
-    aR(i,j)=aM(1,i,j)/Ra
-    br(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
+   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
+    ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
+    aM(1,i,j)=aM(1,i,j)/Ra
+    aM(2,i,j)=-aM(2,i,j)
+    aM(3,i,j)=-aM(3,i,j)
+    aM(4,i,j)=-aM(4,i,j)
+    aM(5,i,j)=-aM(5,i,j)
    end if
-  else
-   aR(i,j)=aM(1,i,j)
-   br(i,j)=ba(i,j)
   end if
  end DO
 end DO
@@ -105,26 +102,7 @@ Call HYPRE_SStructGraphAssemble(graph,ierr)
 Call HYPRE_SStructMatrixCreate(MPI_COMM_WORLD,graph,A,ierr)
 Call HYPRE_SStructMatrixSetObjectTyp(A,object_type,ierr)
 Call HYPRE_SStructMatrixInitialize(A,ierr)
- l=1
- DO j=1,Jc
-  DO i=1,Ic
-   DO k=1,nentries
-    if(k==1) then
-    values(l)=aR(i,j)
-    else if(k==2) then
-    values(l)=-aM(2,i,j)
-    else if(k==3) then
-    values(l)=-aM(3,i,j)
-    else if(k==4) then
-    values(l)=-aM(4,i,j)
-    else if(k==5) then
-    values(l)=-aM(5,i,j)
-    end if
-    l=l+1
-   end DO
-  end DO
- end DO
- Call HYPRE_SStructMatrixSetBoxValues(A,part,ilower,iupper,var,nentries,stencil_indices,values,ierr)
+Call HYPRE_SStructMatrixSetBoxValues(A,part,ilower,iupper,var,nentries,stencil_indices,aM,ierr)
 Call HYPRE_SStructMatrixAssemble(A,ierr)
 Call HYPRE_SStructMatrixGetObject(A, parA, ierr)
 
@@ -134,7 +112,7 @@ Call HYPRE_SStructVectorSetObjectTyp(b,object_type,ierr)
 Call HYPRE_SStructVectorSetObjectTyp(x,object_type,ierr)
 Call HYPRE_SStructVectorInitialize(b,ierr)
 Call HYPRE_SStructVectorInitialize(x,ierr)
-Call HYPRE_SStructVectorSetBoxValues(b,part,ilower,iupper,var,br,ierr)
+Call HYPRE_SStructVectorSetBoxValues(b,part,ilower,iupper,var,ba,ierr)
 Call HYPRE_SStructVectorSetBoxValues(x,part,ilower,iupper,var,F,ierr)
 Call HYPRE_SStructVectorAssemble(b,ierr)
 Call HYPRE_SStructVectorAssemble(x,ierr)
