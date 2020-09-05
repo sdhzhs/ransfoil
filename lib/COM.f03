@@ -24,16 +24,6 @@ real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:),fXwp0(:),fYwp0(:)
 type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXwp0,cYwp0,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy
 type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 
-contains
-
-real(8) function interpl(phi0,phi1,d0,d1)
-implicit none
-real(8) phi0,phi1,d0,d1
-
-interpl=(d1*phi0+d0*phi1)/(d0+d1)
-
-end function interpl
-
 ! Below is a list of common identifiers in aero2dcom module
 ! =========================================================
 ! characters variables

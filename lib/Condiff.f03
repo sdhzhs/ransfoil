@@ -5,6 +5,7 @@ integer i,j
 real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,DF
 real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin
 real(8) aP,aW,aE,aS,aN
+real(8),external:: interpl
 real(8) Fwall(Ib1:Ib2)
 real(8) F(Ic,Jc),Ga(Ic,Jc)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
@@ -25,6 +26,7 @@ else if(scalar=='T') then
 else if(scalar=='Tn') then
  F=Tn
  Fwall=1.5*Tn(Ib1:Ib2,1)-0.5*Tn(Ib1:Ib2,2)
+ !Fwall=0
  Ga=(mu+rho*Tn)/sigman
 else if(scalar=='Tk'.and.Turmod=='ke') then
  F=Tk
@@ -33,6 +35,7 @@ else if(scalar=='Tk'.and.Turmod=='ke') then
 else if(scalar=='Tk'.and.Turmod=='sst') then
  F=Tk
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
+ !Fwall=0
  Ga=mu+mut/sigmatk
 else if(scalar=='Te') then
  F=Te
@@ -41,6 +44,7 @@ else if(scalar=='Te') then
 else if(scalar=='Tw') then
  F=Tw
  Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
+ !Fwall=Tw(Ib1:Ib2,1)
  Ga=mu+mut/sigmatw
 end if
 DO j=1,Jc-1
@@ -149,7 +153,7 @@ DO j=1,Jc-1
    aM(5,i,j)=aN
   end DO
 end DO
-Call Defercorrect(F,cor,Fw,Fe,Fs,Fn)
+Call Defercorrect(F,Fwall,cor,Fw,Fe,Fs,Fn)
 if(scalar=='T'.or.scalar=='Tk'.or.scalar=='Tw'.or.scalar=='Te') then
  St=sqrt(2*(Ux**2+Vy**2)+(Uy+Vx)**2)
 end if

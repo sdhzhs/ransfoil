@@ -7,6 +7,7 @@ integer i,s
 integer(C_INT),bind(C)::prtl
 character(*) libmod,scptname
 integer time0(8),time1(8)
+integer(8) grid,stencil,graph,matA,vecb,vecx,solver,precond
 
 if(libmod=='S'.or.libmod=='I') then
  Call Readpara(libmod,scptname)
@@ -99,6 +100,9 @@ if(libmod=='S'.or.libmod=='I') then
    write(2,*) 'U equation   ','V equation   ','T equation   ','c equation   ','Iteration step'
   end if
 end if
+#ifdef HYPRE
+  Call hypreinit(grid,stencil,graph,matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,3)
+#endif
 print *,'RANS equations iteration is beginning...'
 Call DATE_AND_TIME(VALUES=time0)
 DO s=1,maxs
@@ -109,14 +113,14 @@ DO s=1,maxs
   Call Wallfunc
   Call Condiff('U')
 #ifdef HYPRE
-  Call hypresolve(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,3,'U')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,3,'U')
 #else
   Call sor(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
   !Call CGSTAB(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
 #endif
   Call Condiff('V')
 #ifdef HYPRE
-  Call hypresolve(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,3,'V')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,3,'V')
 #else
   Call sor(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
   !Call CGSTAB(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
@@ -124,7 +128,7 @@ DO s=1,maxs
   Call PCEcoe
   rmsm=sum(abs(b))/(Ic*Jc)
 #ifdef HYPRE
-  Call hypresolve(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,3,'dP')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,3,'dP')
 #else
   !Call sor(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
   Call CGSTAB(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
@@ -146,7 +150,7 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('T')
 #ifdef HYPRE
-   Call hypresolve(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,3,'T')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,3,'T')
 #else
    Call sor(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
    !Call CGSTAB(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
@@ -165,7 +169,7 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('Tn')
 #ifdef HYPRE
-   Call hypresolve(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,3,'Tn')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,3,'Tn')
 #else
    Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
    !Call CGSTAB(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
@@ -175,7 +179,7 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('Tk')
 #ifdef HYPRE
-   Call hypresolve(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
 #else
    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
    !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
@@ -183,7 +187,7 @@ DO s=1,maxs
    Tk=max(Tk,1e-15)
    Call Condiff('Te')
 #ifdef HYPRE
-   Call hypresolve(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,3,'Te')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,3,'Te')
 #else
    Call sor(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
    !Call CGSTAB(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
@@ -195,7 +199,7 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('Tk')
 #ifdef HYPRE
-   Call hypresolve(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
 #else
    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
    !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
@@ -203,7 +207,7 @@ DO s=1,maxs
    Tk=max(Tk,1e-15)
    Call Condiff('Tw')
 #ifdef HYPRE
-   Call hypresolve(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,3,'Tw')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,3,'Tw')
 #else
    Call sor(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
    !Call CGSTAB(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
@@ -357,6 +361,9 @@ else if(libmod=='C') then
   deallocate(Xwd,Ywd,Xwu,Ywu)
  end if
 end if
+#ifdef HYPRE
+  Call hyprerelease(grid,stencil,graph,matA,vecb,vecx,solver,precond,3)
+#endif
 
 end Subroutine Aero2D
 

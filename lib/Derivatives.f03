@@ -3,6 +3,7 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Fw,Fe,Fs,Fn,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Jgc
+real(8),external:: interpl
 real(8) F(Ic,Jc),Fwall(Ib1:Ib2),Fx(Ic,Jc),Fy(Ic,Jc)
 character(*) scalar
 if(scalar=='U') then

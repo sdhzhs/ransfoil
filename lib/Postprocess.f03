@@ -2,7 +2,7 @@ Subroutine Postprocess
 use Aero2DCOM
 implicit none
 integer i
-real(8) Cx,Cy,Ctx,Cty,Cpm
+real(8) Cx,Cy,Ctx,Cty,Cpm,Ctm
 DO i=Ib1,Ib2
 if(Turmod=='sa'.and.Walltreat=='lr'.or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
  if(Ta-Tf/=0) then
@@ -27,17 +27,19 @@ Cy=0
 Ctx=0
 Cty=0
 Cpm=0
+Ctm=0
 DO i=Ib1,Ib2
  Cx=Cx+P(i,1)*(Yg(i+1,1)-Yg(i,1))
  Cy=Cy+P(i,1)*(-Xg(i+1,1)+Xg(i,1))
  Ctx=Ctx+Ax(i)*DR(i)
  Cty=Cty+Ay(i)*DR(i)
  Cpm=Cpm+(Xw(i)-0.25*c)*P(i,1)*(-Xg(i+1,1)+Xg(i,1))-Yw(i)*P(i,1)*(Yg(i+1,1)-Yg(i,1))
+ Ctm=Ctm+(Xw(i)-0.25*c)*Ay(i)*DR(i)-Yw(i)*Ax(i)*DR(i)
 end DO
 Xpc=0.25+Cpm/(c*Cy)
 Ypc=0
-Cl=(Cy*cos(AoA*Pi/180)-Cx*sin(AoA*Pi/180))/(0.5*rhoi*Vfar**2*c)
+Cl=((Cty+Cy)*cos(AoA*Pi/180)-(Ctx+Cx)*sin(AoA*Pi/180))/(0.5*rhoi*Vfar**2*c)
 Cd=(Cy*sin(AoA*Pi/180)+Cx*cos(AoA*Pi/180))/(0.5*rhoi*Vfar**2*c)
 Cf=(Cty*sin(AoA*Pi/180)+Ctx*cos(AoA*Pi/180))/(0.5*rhoi*Vfar**2*c)
-Cm=-Cpm/(0.5*rhoi*Vfar**2*c**2)
+Cm=-(Cpm+Ctm)/(0.5*rhoi*Vfar**2*c**2)
 end Subroutine Postprocess

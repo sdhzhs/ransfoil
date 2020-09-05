@@ -1,13 +1,10 @@
-Subroutine hypresolve(aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,scalar)
+Subroutine hypreinit(grid,stencil,graph,A,b,x,solver,precond,Ic,Jc,Ib1,Ib2,solid)
 implicit none
 include 'HYPREf.h'
 
-integer  i,j,Ic,Jc,Ib1,Ib2,solid
-integer  ierr,ndims,nentries,nparts,nvars,part,var,object_type,itmax,prlv,iter,nb,precond_id
+integer  i,Ic,Jc,Ib1,Ib2,solid
+integer  ierr,ndims,nentries,nparts,nvars,part,var,object_type,nb
 integer  ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
-real(8)  Ra,tol,res
-real(8)  aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
-character(*) scalar
 
 integer(8)  grid
 integer(8)  stencil
@@ -15,29 +12,11 @@ integer(8)  graph
 integer(8)  A
 integer(8)  b
 integer(8)  x
-integer(8)  parA
-integer(8)  parb
-integer(8)  parx
 integer(8)  solver,precond
 
 integer(8)  MPI_COMM_WORLD
 
 integer,parameter::HYPRE_SSTRUCT_VARIABLE_CELL = 0
-
-DO j=1,Jc
- DO i=1,Ic
-  if(i>1.and.i<Ic.and.j<Jc) then
-   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
-    ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
-    aM(1,i,j)=aM(1,i,j)/Ra
-    aM(2,i,j)=-aM(2,i,j)
-    aM(3,i,j)=-aM(3,i,j)
-    aM(4,i,j)=-aM(4,i,j)
-    aM(5,i,j)=-aM(5,i,j)
-   end if
-  end if
- end DO
-end DO
 
 ndims = 2
 nparts = 1
@@ -102,9 +81,6 @@ Call HYPRE_SStructGraphAssemble(graph,ierr)
 Call HYPRE_SStructMatrixCreate(MPI_COMM_WORLD,graph,A,ierr)
 Call HYPRE_SStructMatrixSetObjectTyp(A,object_type,ierr)
 Call HYPRE_SStructMatrixInitialize(A,ierr)
-Call HYPRE_SStructMatrixSetBoxValues(A,part,ilower,iupper,var,nentries,stencil_indices,aM,ierr)
-Call HYPRE_SStructMatrixAssemble(A,ierr)
-Call HYPRE_SStructMatrixGetObject(A, parA, ierr)
 
 Call HYPRE_SStructVectorCreate(MPI_COMM_WORLD,grid,b,ierr)
 Call HYPRE_SStructVectorCreate(MPI_COMM_WORLD,grid,x,ierr)
@@ -112,6 +88,104 @@ Call HYPRE_SStructVectorSetObjectTyp(b,object_type,ierr)
 Call HYPRE_SStructVectorSetObjectTyp(x,object_type,ierr)
 Call HYPRE_SStructVectorInitialize(b,ierr)
 Call HYPRE_SStructVectorInitialize(x,ierr)
+
+if(solid==1) then
+ Call HYPRE_SStructBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
+else if(solid==2) then
+ Call HYPRE_SStructPCGCreate(MPI_COMM_WORLD, solver, ierr)
+else if(solid==3) then
+ !Call HYPRE_BoomerAMGCreate(solver, ierr)
+else if(solid==4) then
+ Call HYPRE_ParCSRBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
+ Call HYPRE_EuclidCreate(MPI_COMM_WORLD, precond, ierr)
+end if
+
+end Subroutine hypreinit
+
+Subroutine hyprerelease(grid,stencil,graph,A,b,x,solver,precond,solid)
+implicit none
+include 'HYPREf.h'
+
+integer  solid
+integer  ierr
+
+integer(8)  grid
+integer(8)  stencil
+integer(8)  graph
+integer(8)  A
+integer(8)  b
+integer(8)  x
+integer(8)  solver,precond
+
+Call HYPRE_SStructGridDestroy(grid, ierr)
+Call HYPRE_SStructStencilDestroy(stencil, ierr)
+Call HYPRE_SStructGraphDestroy(graph, ierr)
+Call HYPRE_SStructMatrixDestroy(A, ierr)
+Call HYPRE_SStructVectorDestroy(b, ierr)
+Call HYPRE_SStructVectorDestroy(x, ierr)
+if(solid==1) then
+ Call HYPRE_SStructBiCGSTABDestroy(solver, ierr)
+else if(solid==2) then
+ Call HYPRE_SStructPCGDestroy(solver, ierr)
+else if(solid==3) then
+ !Call HYPRE_BoomerAMGDestroy(solver, ierr)
+else if(solid==4) then
+ Call HYPRE_EuclidDestroy(precond, ierr)
+ Call HYPRE_ParCSRBiCGSTABDestroy(solver, ierr)
+end if
+
+end Subroutine hyprerelease
+
+Subroutine hypresolve(A,b,x,solver,precond,aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,scalar)
+implicit none
+include 'HYPREf.h'
+
+integer  i,j,Ic,Jc,Ib1,Ib2,solid
+integer  ierr,nentries,part,var,itmax,prlv,iter,precond_id
+integer  ilower(2),iupper(2),stencil_indices(5)
+real(8)  Ra,tol,res
+real(8)  aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
+character(*) scalar
+
+integer(8)  A
+integer(8)  b
+integer(8)  x
+integer(8)  parA
+integer(8)  parb
+integer(8)  parx
+integer(8)  solver,precond
+
+DO j=1,Jc
+ DO i=1,Ic
+  if(i>1.and.i<Ic.and.j<Jc) then
+   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
+    ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
+    aM(1,i,j)=aM(1,i,j)/Ra
+    aM(2,i,j)=-aM(2,i,j)
+    aM(3,i,j)=-aM(3,i,j)
+    aM(4,i,j)=-aM(4,i,j)
+    aM(5,i,j)=-aM(5,i,j)
+   end if
+  end if
+ end DO
+end DO
+
+nentries = 5
+part = 0
+var = 0
+ilower(1) = 1
+ilower(2) = 1
+iupper(1) = Ic
+iupper(2) = Jc
+
+DO i=1,nentries
+ stencil_indices(i) = i-1
+end DO
+
+Call HYPRE_SStructMatrixSetBoxValues(A,part,ilower,iupper,var,nentries,stencil_indices,aM,ierr)
+Call HYPRE_SStructMatrixAssemble(A,ierr)
+Call HYPRE_SStructMatrixGetObject(A, parA, ierr)
+
 Call HYPRE_SStructVectorSetBoxValues(b,part,ilower,iupper,var,ba,ierr)
 Call HYPRE_SStructVectorSetBoxValues(x,part,ilower,iupper,var,F,ierr)
 Call HYPRE_SStructVectorAssemble(b,ierr)
@@ -128,14 +202,12 @@ else
 end if
 
 if(solid==1) then
- Call HYPRE_SStructBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
  Call HYPRE_SStructBiCGSTABSetTol(solver, tol, ierr)
  Call HYPRE_SStructBiCGSTABSetPrintLe(solver, prlv, ierr)
  Call HYPRE_SStructBiCGSTABSetMaxIter(solver, itmax, ierr)
  Call HYPRE_SStructBiCGSTABSetup(solver, A, b, x, ierr)
  Call HYPRE_SStructBiCGSTABSolve(solver, A, b, x, ierr)
 else if(solid==2) then
- Call HYPRE_SStructPCGCreate(MPI_COMM_WORLD, solver, ierr)
  Call HYPRE_SStructPCGSetTol(solver, tol, ierr)
  Call HYPRE_SStructPCGSetPrintLevel(solver, prlv, ierr)
  Call HYPRE_SStructPCGSetMaxIter(solver, itmax, ierr)
@@ -147,7 +219,7 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
  if(scalar=='dP') then
-  Call HYPRE_BoomerAMGSetMaxLevels(solver, 25, ierr)
+  Call HYPRE_BoomerAMGSetMaxLevels(solver, 20, ierr)
  else
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 1, ierr)
  end if
@@ -157,12 +229,10 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetup(solver, parA, parb, parx, ierr)
  Call HYPRE_BoomerAMGSolve(solver, parA, parb, parx, ierr)
 else if(solid==4) then
- Call HYPRE_ParCSRBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
  Call HYPRE_ParCSRBiCGSTABSetTol(solver, tol, ierr)
  Call HYPRE_ParCSRBiCGSTABSetPrintLev(solver, prlv, ierr)
  Call HYPRE_ParCSRBiCGSTABSetMaxIter(solver, itmax, ierr)
  
- Call HYPRE_EuclidCreate(MPI_COMM_WORLD, precond, ierr)
  Call HYPRE_EuclidSetLevel(precond, 0, ierr)
  !Call HYPRE_EuclidSetSparseA(precond, 1d-3, ierr)
  Call HYPRE_EuclidSetRowScale(precond, 1, ierr)
@@ -186,26 +256,10 @@ else if(solid==2) then
 else if(solid==3) then
  Call HYPRE_BoomerAMGGetNumIterations(solver, iter, ierr)
  Call HYPRE_BoomerAMGGetFinalReltvRes(solver, res, ierr)
+ Call HYPRE_BoomerAMGDestroy(solver, ierr)
 else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABGetNumIter(solver, iter, ierr)
  Call HYPRE_ParCSRBiCGSTABGetFinalRel(solver, res, ierr)
-end if
-
-Call HYPRE_SStructGridDestroy(grid, ierr)
-Call HYPRE_SStructStencilDestroy(stencil, ierr)
-Call HYPRE_SStructGraphDestroy(graph, ierr)
-Call HYPRE_SStructMatrixDestroy(A, ierr)
-Call HYPRE_SStructVectorDestroy(b, ierr)
-Call HYPRE_SStructVectorDestroy(x, ierr)
-if(solid==1) then
- Call HYPRE_SStructBiCGSTABDestroy(solver, ierr)
-else if(solid==2) then
- Call HYPRE_SStructPCGDestroy(solver, ierr)
-else if(solid==3) then
- Call HYPRE_BoomerAMGDestroy(solver, ierr)
-else if(solid==4) then
- Call HYPRE_EuclidDestroy(precond, ierr)
- Call HYPRE_ParCSRBiCGSTABDestroy(solver, ierr)
 end if
 
 end Subroutine hypresolve

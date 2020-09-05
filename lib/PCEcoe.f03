@@ -4,6 +4,7 @@ implicit none
 integer i,j
 real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn
 real(8) aP,aW,aE,aS,aN
+real(8),external:: interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
   if(solctrl=='SIMPLE') then
     DO j=1,Jc-1

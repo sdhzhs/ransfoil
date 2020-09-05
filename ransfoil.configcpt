@@ -1,5 +1,5 @@
 Input a name of airfoil coordinates file(1D XYZ):
-'cases/NACA001264.cpt'
+'cases/goe495.cpt'
 Using control points based parametric spline(Y/N)?
 Y
 Select air property(com/incom):
@@ -11,7 +11,7 @@ N
 Select turbulence model(inv/lam/sa/ke/sst):
 sa
 Select wall treatment method(wf/lr):
-wf
+lr
 Select coupling method(SIMPLE/SIMPLEC):
 SIMPLE
 Select discretization scheme(1upwind/2upwind/Quick/tvd):
@@ -23,7 +23,7 @@ N
 Input maximum iteration steps:
 2000
 Input minimum residual of iteration:
-1e-4
+1e-5
 Input relaxation factor of velocity:
 7e-1
 Input relaxation factor of pressure:
@@ -39,17 +39,17 @@ Input dimensionless mesh spacing near leading edge:
 Input dimensionless mesh spacing near trailing edge:
 2e-2
 Input dimensionless near wall mesh spacing:
-1e-3
+2e-5
 Input layers of uniform near wall mesh:
 5
 Input total number of grid points normal to the airfoil surface:
-75
+85
 Input chord length(m):
-0.5334
+0.1675
 Input velocity of free stream(m/s):
 75
 Input angle of attack(deg):
-4
+0
 Input temperature of free stream(K):
 263.15
 Input temperature of wall(K):

@@ -1,10 +1,10 @@
-Subroutine Defercorrect(F,cor,Fw,Fe,Fs,Fn)
+Subroutine Defercorrect(F,Fwall,cor,Fw,Fe,Fs,Fn)
 use Aero2DCOM
 implicit none
 integer i,j
 real(8) Fcc,Fcw,Fce,Fcs,Fcn,Fcww,Fcee,Fcss,Fcnn,dkc,dkw,dkww,dke,dkee,dac,das,dass,dan,dann
 real(8) rp,rm,Psip,Psim
-real(8) F(Ic,Jc),cor(Ic,Jc),Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc)
+real(8) F(Ic,Jc),Fwall(Ib1:Ib2),cor(Ic,Jc),Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc)
 DO j=1,Jc-1
  DO i=2,Ic-1
  Fcc=F(i,j)
@@ -31,8 +31,8 @@ DO j=1,Jc-1
   dkee=dk(i+2,j)
  end if
  if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-  Fcs=F(i,j)
-  Fcss=F(i,j)
+  Fcs=2*Fwall(i)-F(i,j)
+  Fcss=2*Fwall(i)-F(i,j+1)
   das=da(i,j)
   dass=da(i,j)
  else if(j==1) then
@@ -42,7 +42,7 @@ DO j=1,Jc-1
   dass=da(Ic+1-i,j+1)
  else if(j==2.and.(i>=Ib1.and.i<=Ib2)) then
   Fcs=F(i,j-1)
-  Fcss=F(i,j-1)
+  Fcss=2*Fwall(i)-F(i,j-1)
   das=da(i,j-1)
   dass=da(i,j-1)
  else if(j==2) then
@@ -66,14 +66,51 @@ DO j=1,Jc-1
  if(Discret=='1upwind') then
   cor(i,j)=0
  else if(Discret=='2upwind') then
-  cor(i,j)=dkw*(Fcw-Fcww)*max(Fw(i,j),0.0)/(dkw+dkww)+dkc*(Fce-Fcc)*max(-Fw(i,j),0.0)/(dkc+dke)+dkc*(Fcw-Fcc)*max(Fe(i,j),0.0)/(dkc+dkw)+&
-  dke*(Fce-Fcee)*max(-Fe(i,j),0.0)/(dke+dkee)+das*(Fcs-Fcss)*max(Fs(i,j),0.0)/(das+dass)+dac*(Fcn-Fcc)*max(-Fs(i,j),0.0)/(dac+dan)+&
-  dac*(Fcs-Fcc)*max(Fn(i,j),0.0)/(dac+das)+dan*(Fcn-Fcnn)*max(-Fn(i,j),0.0)/(dan+dann)
+  Psip=dkw*(Fcw-Fcww)/(dkw+dkww)
+  Psim=dkc*(Fce-Fcc)/(dkc+dke)
+  cor(i,j)=max(Fw(i,j),0.0)*Psip+max(-Fw(i,j),0.0)*Psim
+  Psip=dkc*(Fcw-Fcc)/(dkc+dkw)
+  Psim=dke*(Fce-Fcee)/(dke+dkee)
+  cor(i,j)=cor(i,j)+max(Fe(i,j),0.0)*Psip+max(-Fe(i,j),0.0)*Psim
+  Psip=das*(Fcs-Fcss)/(das+dass)
+  Psim=dac*(Fcn-Fcc)/(dac+dan)
+  cor(i,j)=cor(i,j)+max(Fs(i,j),0.0)*Psip+max(-Fs(i,j),0.0)*Psim
+  Psip=dac*(Fcs-Fcc)/(dac+das)
+  Psim=dan*(Fcn-Fcnn)/(dan+dann)
+  cor(i,j)=cor(i,j)+max(Fn(i,j),0.0)*Psip+max(-Fn(i,j),0.0)*Psim
  else if(Discret=='Quick') then
-  cor(i,j)=dkw*(3*(Fcc-Fcw)/(dkc+dkw)+(Fcw-Fcww)/(dkw+dkww))*max(Fw(i,j),0.0)/4+dkc*(3*(Fcc-Fce)/(dkc+dke)+(Fcw-Fcc)/(dkc+dkw))*max(Fe(i,j),0.0)/4+&
-  dkc*(3*(Fcw-Fcc)/(dkc+dkw)+(Fcc-Fce)/(dkc+dke))*max(-Fw(i,j),0.0)/4+dke*(3*(Fce-Fcc)/(dkc+dke)+(Fcee-Fce)/(dke+dkee))*max(-Fe(i,j),0.0)/4+&
-  das*(3*(Fcc-Fcs)/(dac+das)+(Fcs-Fcss)/(das+dass))*max(Fs(i,j),0.0)/4+dac*(3*(Fcc-Fcn)/(dac+dan)+(Fcs-Fcc)/(dac+das))*max(Fn(i,j),0.0)/4+&
-  dac*(3*(Fcs-Fcc)/(dac+das)+(Fcc-Fcn)/(dac+dan))*max(-Fs(i,j),0.0)/4+dan*(3*(Fcn-Fcc)/(dac+dan)+(Fcnn-Fcn)/(dan+dann))*max(-Fn(i,j),0.0)/4
+  if(i==2) then
+   Psip=0
+  else
+   Psip=dkw*(3*(Fcc-Fcw)/(dkc+dkw)+(Fcw-Fcww)/(dkw+dkww))/4
+   !Psip=(3*Fcc-2*Fcw-Fcww)/8
+  end if
+  Psim=dkc*(3*(Fcw-Fcc)/(dkc+dkw)+(Fcc-Fce)/(dkc+dke))/4
+  !Psim=(3*Fcw-2*Fcc-Fce)/8
+  cor(i,j)=max(Fw(i,j),0.0)*Psip+max(-Fw(i,j),0.0)*Psim
+  if(i==Ic-1) then
+   Psim=0
+  else
+   Psim=dke*(3*(Fce-Fcc)/(dkc+dke)+(Fcee-Fce)/(dke+dkee))/4
+   !Psim=(2*Fce+Fcee-3*Fcc)/8
+  end if
+  Psip=dkc*(3*(Fcc-Fce)/(dkc+dke)+(Fcw-Fcc)/(dkc+dkw))/4
+  !Psip=(2*Fcc+Fcw-3*Fce)/8
+  cor(i,j)=cor(i,j)+max(Fe(i,j),0.0)*Psip+max(-Fe(i,j),0.0)*Psim
+  if(j==Jc-1) then
+   Psim=0
+  else
+   Psim=dan*(3*(Fcn-Fcc)/(dac+dan)+(Fcnn-Fcn)/(dan+dann))/4
+   !Psim=(2*Fcn+Fcnn-3*Fcc)/8
+  end if
+  Psip=dac*(3*(Fcc-Fcn)/(dac+dan)+(Fcs-Fcc)/(dac+das))/4
+  !Psip=(2*Fcc+Fcs-3*Fcn)/8
+  cor(i,j)=cor(i,j)+max(Fn(i,j),0.0)*Psip+max(-Fn(i,j),0.0)*Psim
+  Psip=das*(3*(Fcc-Fcs)/(dac+das)+(Fcs-Fcss)/(das+dass))/4
+  !Psip=(3*Fcc-2*Fcs-Fcss)/8
+  Psim=dac*(3*(Fcs-Fcc)/(dac+das)+(Fcc-Fcn)/(dac+dan))/4
+  !Psim=(3*Fcs-2*Fcc-Fcn)/8
+  cor(i,j)=cor(i,j)+max(Fs(i,j),0.0)*Psip+max(-Fs(i,j),0.0)*Psim
  else if(Discret=='tvd') then
   if(abs(Fcc-Fcw)<1e-30) then
    rp=0

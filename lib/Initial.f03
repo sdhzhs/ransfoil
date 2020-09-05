@@ -2,6 +2,7 @@ Subroutine Initial
 use Aero2DCOM
 implicit none
 integer i,j,ioerr
+real(8),external:: interpl
 real(8) Tni0
 ca=1006.43
 ka=0.00008*(Ta-Tf)+0.0244
