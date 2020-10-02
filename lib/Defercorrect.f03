@@ -31,8 +31,13 @@ DO j=1,Jc-1
   dkee=dk(i+2,j)
  end if
  if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-  Fcs=2*Fwall(i)-F(i,j)
-  Fcss=2*Fwall(i)-F(i,j+1)
+  if(Discret=='Quick') then
+   Fcs=(F(i,j+1)+10*F(i,j)-8*Fwall(i))/3
+   Fcss=6*Fcs+3*F(i,j)-8*Fwall(i)
+  else
+   Fcs=2*Fwall(i)-F(i,j)
+   Fcss=2*Fwall(i)-F(i,j+1)
+  end if
   das=da(i,j)
   dass=da(i,j)
  else if(j==1) then
@@ -42,7 +47,11 @@ DO j=1,Jc-1
   dass=da(Ic+1-i,j+1)
  else if(j==2.and.(i>=Ib1.and.i<=Ib2)) then
   Fcs=F(i,j-1)
-  Fcss=2*Fwall(i)-F(i,j-1)
+  if(Discret=='Quick') then
+   Fcss=(F(i,j)+10*F(i,j-1)-8*Fwall(i))/3
+  else
+   Fcss=2*Fwall(i)-F(i,j-1)
+  end if
   das=da(i,j-1)
   dass=da(i,j-1)
  else if(j==2) then
