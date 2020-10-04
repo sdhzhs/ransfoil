@@ -23,7 +23,7 @@ Y
 Initialize using stagnation values(Y/N)? (or Input a filename for initialization:)
 'whitcomb1/Autosave.dat'
 Input maximum iteration steps:
-2000
+1500
 Input minimum residual of iteration:
 1e-4
 Input relaxation factor of velocity:

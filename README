@@ -14,7 +14,9 @@ or 8, 32bit version).
 A git repository is available at git://git.code.sf.net/p/ransfoil/code
 since the commitment of version 1.4, which is identical to the contents in
 the source package ransfoil-x.x.tar.gz. Now only the master branch is
-advanced linearly.
+advanced linearly. Since the version of 2.2.4, the git repository is moved
+to GitHub (https://github.com/sdhzhs/ransfoil.git) and the repository at
+SourceForge is removed.
 
 More information can be found in the UserGuide.pdf file in 'doc' subdirectory.
 Please report bugs or errors to sdhzhs@gmail.com. For any comments or
