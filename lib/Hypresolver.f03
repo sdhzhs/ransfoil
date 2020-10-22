@@ -1,4 +1,4 @@
-Subroutine hypreinit(grid,stencil,graph,A,b,x,solver,precond,Ic,Jc,Ib1,Ib2,solid)
+Subroutine hypreinit(A,b,x,solver,precond,Ic,Jc,Ib1,Ib2,solid)
 implicit none
 include 'HYPREf.h'
 
@@ -100,26 +100,24 @@ else if(solid==4) then
  Call HYPRE_EuclidCreate(MPI_COMM_WORLD, precond, ierr)
 end if
 
+Call HYPRE_SStructGridDestroy(grid, ierr)
+Call HYPRE_SStructStencilDestroy(stencil, ierr)
+Call HYPRE_SStructGraphDestroy(graph, ierr)
+
 end Subroutine hypreinit
 
-Subroutine hyprerelease(grid,stencil,graph,A,b,x,solver,precond,solid)
+Subroutine hyprerelease(A,b,x,solver,precond,solid)
 implicit none
 include 'HYPREf.h'
 
 integer  solid
 integer  ierr
 
-integer(8)  grid
-integer(8)  stencil
-integer(8)  graph
 integer(8)  A
 integer(8)  b
 integer(8)  x
 integer(8)  solver,precond
 
-Call HYPRE_SStructGridDestroy(grid, ierr)
-Call HYPRE_SStructStencilDestroy(stencil, ierr)
-Call HYPRE_SStructGraphDestroy(graph, ierr)
 Call HYPRE_SStructMatrixDestroy(A, ierr)
 Call HYPRE_SStructVectorDestroy(b, ierr)
 Call HYPRE_SStructVectorDestroy(x, ierr)

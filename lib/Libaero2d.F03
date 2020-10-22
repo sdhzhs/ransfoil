@@ -7,7 +7,9 @@ integer i,s
 integer(C_INT),bind(C)::prtl
 character(*) libmod,scptname
 integer time0(8),time1(8)
-integer(8) grid,stencil,graph,matA,vecb,vecx,solver,precond
+#ifdef HYPRE
+integer(8) matA,vecb,vecx,solver,precond
+#endif
 
 if(libmod=='S'.or.libmod=='I') then
  Call Readpara(libmod,scptname)
@@ -101,7 +103,7 @@ if(libmod=='S'.or.libmod=='I') then
   end if
 end if
 #ifdef HYPRE
-  Call hypreinit(grid,stencil,graph,matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,3)
+  Call hypreinit(matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,3)
 #endif
 print *,'RANS equations iteration is beginning...'
 Call DATE_AND_TIME(VALUES=time0)
@@ -163,6 +165,8 @@ DO s=1,maxs
    if(Turmod/='inv') then
     mu=mu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
    end if
+   Pr=mu*ca/ka
+   Pc=9.24*((Pr/Prt)**0.75-1)*(1+0.28*exp(-0.007*Pr/Prt))
   end if
   if(Turmod=='sa') then
    Call Derivatives('Tn')
@@ -362,7 +366,7 @@ else if(libmod=='C') then
  end if
 end if
 #ifdef HYPRE
-  Call hyprerelease(grid,stencil,graph,matA,vecb,vecx,solver,precond,3)
+  Call hyprerelease(matA,vecb,vecx,solver,precond,3)
 #endif
 
 end Subroutine Aero2D
