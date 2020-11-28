@@ -9,6 +9,7 @@ character(*) libmod,scptname
 integer time0(8),time1(8)
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
+integer solid
 #endif
 
 if(libmod=='S'.or.libmod=='I') then
@@ -103,7 +104,8 @@ if(libmod=='S'.or.libmod=='I') then
   end if
 end if
 #ifdef HYPRE
-  Call hypreinit(matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,3)
+  solid=3
+  Call hypreinit(matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,solid)
 #endif
 print *,'RANS equations iteration is beginning...'
 Call DATE_AND_TIME(VALUES=time0)
@@ -115,14 +117,14 @@ DO s=1,maxs
   Call Wallfunc
   Call Condiff('U')
 #ifdef HYPRE
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,3,'U')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
 #else
   Call sor(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
   !Call CGSTAB(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
 #endif
   Call Condiff('V')
 #ifdef HYPRE
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,3,'V')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
 #else
   Call sor(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
   !Call CGSTAB(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
@@ -130,7 +132,7 @@ DO s=1,maxs
   Call PCEcoe
   rmsm=sum(abs(b))/(Ic*Jc)
 #ifdef HYPRE
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,3,'dP')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
 #else
   !Call sor(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
   Call CGSTAB(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
@@ -152,7 +154,7 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('T')
 #ifdef HYPRE
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,3,'T')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
 #else
    Call sor(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
    !Call CGSTAB(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
@@ -173,7 +175,7 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('Tn')
 #ifdef HYPRE
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,3,'Tn')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn')
 #else
    Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
    !Call CGSTAB(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
@@ -183,7 +185,7 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('Tk')
 #ifdef HYPRE
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
 #else
    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
    !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
@@ -191,7 +193,7 @@ DO s=1,maxs
    Tk=max(Tk,1e-15)
    Call Condiff('Te')
 #ifdef HYPRE
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,3,'Te')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,solid,'Te')
 #else
    Call sor(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
    !Call CGSTAB(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
@@ -203,7 +205,7 @@ DO s=1,maxs
    Call Wallfunc
    Call Condiff('Tk')
 #ifdef HYPRE
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,3,'Tk')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
 #else
    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
    !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
@@ -211,7 +213,7 @@ DO s=1,maxs
    Tk=max(Tk,1e-15)
    Call Condiff('Tw')
 #ifdef HYPRE
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,3,'Tw')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tw')
 #else
    Call sor(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
    !Call CGSTAB(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
@@ -258,7 +260,7 @@ DO s=1,maxs
    end if
    if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsn>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
    (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsn))) then
-    print *,'RANS Equations divergence!'
+    print *,'RANS Equations diverge!'
     stop
    end if
   else if(Turmod=='ke') then
@@ -268,7 +270,7 @@ DO s=1,maxs
    end if
    if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmse>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
    (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsk)).or.(.not.ieee_is_normal(rmse))) then
-    print *,'RANS Equations divergence!'
+    print *,'RANS Equations diverge!'
     stop
    end if
   else if(Turmod=='sst') then
@@ -278,7 +280,7 @@ DO s=1,maxs
    end if
    if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmsw>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
    (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsk)).or.(.not.ieee_is_normal(rmsw))) then
-    print *,'RANS Equations divergence!'
+    print *,'RANS Equations diverge!'
     stop
    end if
   else if(Turmod=='lam'.or.Turmod=='inv') then
@@ -288,7 +290,7 @@ DO s=1,maxs
    end if
    if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.(.not.ieee_is_normal(rmsv)).or.&
    (.not.ieee_is_normal(rmst))) then
-    print *,'RANS Equations divergence!'
+    print *,'RANS Equations diverge!'
     stop
    end if
   end if
