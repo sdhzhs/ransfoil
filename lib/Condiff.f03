@@ -110,7 +110,7 @@ DO j=1,Jc-1
     aS=0
     aP=aW+aE+aS+aN+DF
     if((Turmod=='sa'.and.Walltreat=='lr').or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
-     if(scalar=='Tn'.and.ks(i)>1e-10) then
+     if(scalar=='Tn'.and.ks(i)>0) then
       aP=aP+2*Ds(i,j)*Yp(i)/d(i,j)
      else if(scalar=='Tw') then
       aW=0

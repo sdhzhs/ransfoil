@@ -121,42 +121,42 @@ DO j=1,Jc-1
   !Psim=(3*Fcs-2*Fcc-Fcn)/8
   cor(i,j)=cor(i,j)+max(Fs(i,j),0.0)*Psip+max(-Fs(i,j),0.0)*Psim
  else if(Discret=='tvd') then
-  if(abs(Fcc-Fcw)<1e-30) then
-   rp=0
-   rm=0
-  else
+  if(abs(Fcc-Fcw)>0) then
    rp=(Fcw-Fcww)/(Fcc-Fcw)
    rm=(Fce-Fcc)/(Fcc-Fcw)
+  else
+   rp=0
+   rm=0
   end if
   Psip=(rp+rp**2)/(1+rp**2)
   Psim=(rm+rm**2)/(1+rm**2)
   cor(i,j)=(max(Fw(i,j),0.0)*Psip+max(-Fw(i,j),0.0)*Psim)*(Fcc-Fcw)/2
-  if(abs(Fce-Fcc)<1e-30) then
-   rp=0
-   rm=0
-  else
+  if(abs(Fce-Fcc)>0) then
    rp=(Fcc-Fcw)/(Fce-Fcc)
    rm=(Fcee-Fce)/(Fce-Fcc)
+  else
+   rp=0
+   rm=0
   end if
   Psip=(rp+rp**2)/(1+rp**2)
   Psim=(rm+rm**2)/(1+rm**2)
   cor(i,j)=cor(i,j)+(max(Fe(i,j),0.0)*Psip+max(-Fe(i,j),0.0)*Psim)*(Fcc-Fce)/2
-  if(abs(Fcc-Fcs)<1e-30) then
-   rp=0
-   rm=0
-  else
+  if(abs(Fcc-Fcs)>0) then
    rp=(Fcs-Fcss)/(Fcc-Fcs)
    rm=(Fcn-Fcc)/(Fcc-Fcs)
+  else
+   rp=0
+   rm=0
   end if
   Psip=(rp+rp**2)/(1+rp**2)
   Psim=(rm+rm**2)/(1+rm**2)
   cor(i,j)=cor(i,j)+(max(Fs(i,j),0.0)*Psip+max(-Fs(i,j),0.0)*Psim)*(Fcc-Fcs)/2
-  if(abs(Fcn-Fcc)<1e-30) then
-   rp=0
-   rm=0
-  else
+  if(abs(Fcn-Fcc)>0) then
    rp=(Fcc-Fcs)/(Fcn-Fcc)
    rm=(Fcnn-Fcn)/(Fcn-Fcc)
+  else
+   rp=0
+   rm=0
   end if
   Psip=(rp+rp**2)/(1+rp**2)
   Psim=(rm+rm**2)/(1+rm**2)

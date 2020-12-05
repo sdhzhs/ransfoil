@@ -39,15 +39,15 @@ real(8),external:: interpl
       rhok(i,j)=(0.5-wk)*(3*(dkw*rhoc+dkc*rhow)/(dkc+dkw)+((2*dkc+dke)*rhoc-dkc*rhoe)/(dkc+dke))/4+&
       (0.5+wk)*(3*(dkw*rhoc+dkc*rhow)/(dkc+dkw)+((2*dkw+dkww)*rhow-dkw*rhoww)/(dkw+dkww))/4
      else if(denface=='tvd') then
-      if(abs(rhoc-rhow)<1e-30) then
-       rwp=0
-      else
+      if(abs(rhoc-rhow)>0) then
        rwp=(rhow-rhoww)/(rhoc-rhow)
-      end if
-      if(abs(rhoc-rhow)<1e-30) then
-       rwm=0
       else
+       rwp=0
+      end if
+      if(abs(rhoc-rhow)>0) then
        rwm=(rhoe-rhoc)/(rhoc-rhow)
+      else
+       rwm=0
       end if
       Psiwp=(rwp+rwp**2)/(1+rwp**2)
       Psiwm=(rwm+rwm**2)/(1+rwm**2)
@@ -107,15 +107,15 @@ real(8),external:: interpl
       rhoa(i,j)=(0.5-wa)*(3*(das*rhoc+dac*rhos)/(dac+das)+((2*dac+dan)*rhoc-dac*rhon)/(dac+dan))/4+&
       (0.5+wa)*(3*(das*rhoc+dac*rhos)/(dac+das)+((2*das+dass)*rhos-das*rhoss)/(das+dass))/4
      else if(denface=='tvd') then
-      if(abs(rhoc-rhos)<1e-30) then
-       rsp=0
-      else
+      if(abs(rhoc-rhos)>0) then
        rsp=(rhos-rhoss)/(rhoc-rhos)
-      end if
-      if(abs(rhoc-rhos)<1e-30) then
-       rsm=0
       else
+       rsp=0
+      end if
+      if(abs(rhoc-rhos)>0) then
        rsm=(rhon-rhoc)/(rhoc-rhos)
+      else
+       rsm=0
       end if
       Psisp=(rsp+rsp**2)/(1+rsp**2)
       Psism=(rsm+rsm**2)/(1+rsm**2)

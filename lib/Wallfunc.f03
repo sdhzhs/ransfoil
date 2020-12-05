@@ -19,7 +19,7 @@ DO i=Ib1,Ib2
   ksplus(i)=rho(i,1)*ks(i)*ustar(i)/mu(i,1)
   if(Turmod=='sa'.or.Turmod=='sst') then
    Yplus(i)=rho(i,1)*Yp(i)*ustar(i)/mu(i,1)
-   if(Walltreat=='wf'.and.ks(i)>1e-10) then
+   if(Walltreat=='wf'.and.ks(i)>0) then
     Yplus(i)=max(Yplus(i),ksplus(i)/2,2.5)
    end if
   else if(Turmod=='ke') then
@@ -33,10 +33,10 @@ DO i=Ib1,Ib2
   else
    deltaB(i)=log(1+Cks*ksplus(i))/kapa
   end if
-  if(ks(i)<1e-10) then
-   Prough(i)=Pc(i,1)
-  else
+  if(ks(i)>0) then
    Prough(i)=3.15*Pr(i,1)**0.695*(exp(kapa*deltaB(i))/Ep-1/Ep)**0.359+(1/exp(kapa*deltaB(i)))**0.6*Pc(i,1)
+  else
+   Prough(i)=Pc(i,1)
   end if
 end DO
 if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
@@ -97,17 +97,17 @@ if(Turmod=='sst') then
   Twplus=exp(lamda)*Twplusl+exp(1./lamda)*Twplust
  else if(Walltreat=='lr') then
   DO i=Ib1,Ib2
-  if(ksplus(i)>1e-10) then
-   ksplus(i)=max(1.0,ksplus(i))
-   if(ksplus(i)<25) then
-    Twplusl(i)=(50/ksplus(i))**2
-   else if(ksplus(i)>=25) then
-    Twplusl(i)=100/ksplus(i)
+   if(ksplus(i)>0) then
+    ksplus(i)=max(1.0,ksplus(i))
+    if(ksplus(i)<25) then
+     Twplusl(i)=(50/ksplus(i))**2
+    else if(ksplus(i)>=25) then
+     Twplusl(i)=100/ksplus(i)
+    end if
+    Twplus(i)=min(Twplusl(i),6./(betai(i)*Yplus(i)**2))
+   else
+    Twplus(i)=6./(betai(i)*Yplus(i)**2)
    end if
-   Twplus(i)=min(Twplusl(i),6./(betai(i)*Yplus(i)**2))
-  else
-   Twplus(i)=6./(betai(i)*Yplus(i)**2)
-  end if
   end DO
  end if
  Tw(Ib1:Ib2,1)=rho(Ib1:Ib2,1)*ustar**2*Twplus/mu(Ib1:Ib2,1)

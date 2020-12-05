@@ -2,9 +2,10 @@ Subroutine hypreinit(A,b,x,solver,precond,Ic,Jc,Ib1,Ib2,solid)
 implicit none
 include 'HYPREf.h'
 
-integer  i,Ic,Jc,Ib1,Ib2,solid
-integer  ierr,ndims,nentries,nparts,nvars,part,var,object_type,nb
-integer  ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
+integer    i,Ic,Jc,Ib1,Ib2
+integer(1) solid
+integer    ierr,ndims,nentries,nparts,nvars,part,var,object_type,nb
+integer    ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
 
 integer(8)  grid
 integer(8)  stencil
@@ -110,8 +111,8 @@ Subroutine hyprerelease(A,b,x,solver,precond,solid)
 implicit none
 include 'HYPREf.h'
 
-integer  solid
-integer  ierr
+integer(1)  solid
+integer     ierr
 
 integer(8)  A
 integer(8)  b
@@ -138,11 +139,12 @@ Subroutine hypresolve(A,b,x,solver,precond,aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,sca
 implicit none
 include 'HYPREf.h'
 
-integer  i,j,Ic,Jc,Ib1,Ib2,solid
-integer  ierr,nentries,part,var,itmax,prlv,iter,precond_id
-integer  ilower(2),iupper(2),stencil_indices(5)
-real(8)  Ra,tol,res
-real(8)  aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
+integer      i,j,Ic,Jc,Ib1,Ib2
+integer(1)   solid
+integer      ierr,nentries,part,var,itmax,prlv,iter,precond_id
+integer      ilower(2),iupper(2),stencil_indices(5)
+real(8)      Ra,tol,res
+real(8)      aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 character(*) scalar
 
 integer(8)  A

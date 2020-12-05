@@ -9,7 +9,7 @@ character(*) libmod,scptname
 integer time0(8),time1(8)
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
-integer solid
+integer(1) solid
 #endif
 
 if(libmod=='S'.or.libmod=='I') then
@@ -180,7 +180,7 @@ DO s=1,maxs
    Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
    !Call CGSTAB(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
 #endif
-   Tn=min(max(Tn,1e-15),1e+5*mu/rho)
+   Tn=min(max(Tn,0d+0),1e+5*mu/rho)
   else if(Turmod=='ke') then
    Call Wallfunc
    Call Condiff('Tk')
@@ -190,7 +190,7 @@ DO s=1,maxs
    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
    !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
 #endif
-   Tk=max(Tk,1e-15)
+   Tk=max(Tk,1d-15)
    Call Condiff('Te')
 #ifdef HYPRE
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,solid,'Te')
@@ -210,7 +210,7 @@ DO s=1,maxs
    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
    !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
 #endif
-   Tk=max(Tk,1e-15)
+   Tk=max(Tk,1d-15)
    Call Condiff('Tw')
 #ifdef HYPRE
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tw')
