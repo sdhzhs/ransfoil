@@ -616,6 +616,10 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+PROF_FALSE
+PROF_TRUE
+DEBUG_FALSE
+DEBUG_TRUE
 LINKOMP_FALSE
 LINKOMP_TRUE
 hypredir
@@ -747,6 +751,8 @@ enable_libtool_lock
 enable_hyprelib
 with_hyprelib_dir
 enable_openmp
+enable_debug
+enable_profile
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1388,6 +1394,8 @@ Optional Features:
   --disable-libtool-lock  avoid locking (might break parallel builds)
   --enable-hyprelib       enable hypre library
   --enable-openmp         enable openmp parallelization
+  --enable-debug          enable debug option
+  --enable-profile        enable profile option
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -14377,6 +14385,36 @@ else
   LINKOMP_FALSE=
 fi
 
+# Check whether --enable-debug was given.
+if test "${enable_debug+set}" = set; then :
+  enableval=$enable_debug; debug=${enableval}
+else
+  debug=no
+fi
+
+ if test "x${debug}" = xyes; then
+  DEBUG_TRUE=
+  DEBUG_FALSE='#'
+else
+  DEBUG_TRUE='#'
+  DEBUG_FALSE=
+fi
+
+# Check whether --enable-profile was given.
+if test "${enable_profile+set}" = set; then :
+  enableval=$enable_profile; profile=${enableval}
+else
+  profile=no
+fi
+
+ if test "x${profile}" = xyes; then
+  PROF_TRUE=
+  PROF_FALSE='#'
+else
+  PROF_TRUE='#'
+  PROF_FALSE=
+fi
+
 ac_config_files="$ac_config_files Makefile cases/Makefile doc/Makefile lib/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile scripts/transonic/Makefile scripts/whitcomb1/Makefile"
 
 cat >confcache <<\_ACEOF
@@ -14514,6 +14552,14 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LINKOMP_TRUE}" && test -z "${LINKOMP_FALSE}"; then
   as_fn_error $? "conditional \"LINKOMP\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${DEBUG_TRUE}" && test -z "${DEBUG_FALSE}"; then
+  as_fn_error $? "conditional \"DEBUG\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${PROF_TRUE}" && test -z "${PROF_FALSE}"; then
+  as_fn_error $? "conditional \"PROF\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

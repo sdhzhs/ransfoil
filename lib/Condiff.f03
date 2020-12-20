@@ -2,53 +2,73 @@ Subroutine Condiff(scalar)
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,DF
+real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle
 real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin
-real(8) aP,aW,aE,aS,aN
+real(8) aP,aW,aE,aS,aN,DF
 real(8),external:: interpl
 real(8) Fwall(Ib1:Ib2)
 real(8) F(Ic,Jc),Ga(Ic,Jc)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 character(*) scalar
+!$OMP PARALLEL
 if(scalar=='U'.or.scalar=='V') then
+ !$OMP WORKSHARE
  Fwall=0
  Ga=mu+mut
+ !$OMP END WORKSHARE
  if(scalar=='U') then
+  !$OMP WORKSHARE
   F=U
+  !$OMP END WORKSHARE
  else if(scalar=='V') then
+  !$OMP WORKSHARE
   F=V
+  !$OMP END WORKSHARE
  end if
 else if(scalar=='T') then
+ !$OMP WORKSHARE
  F=T
  Fwall=Tf
  Ga=ka/ca+mut/Prt
+ !$OMP END WORKSHARE
 else if(scalar=='Tn') then
+ !$OMP WORKSHARE
  F=Tn
  Fwall=1.5*Tn(Ib1:Ib2,1)-0.5*Tn(Ib1:Ib2,2)
  !Fwall=0
  Ga=(mu+rho*Tn)/sigman
+ !$OMP END WORKSHARE
 else if(scalar=='Tk'.and.Turmod=='ke') then
+ !$OMP WORKSHARE
  F=Tk
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
  Ga=mu+mut/sigmak
+ !$OMP END WORKSHARE
 else if(scalar=='Tk'.and.Turmod=='sst') then
+ !$OMP WORKSHARE
  F=Tk
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
  !Fwall=0
  Ga=mu+mut/sigmatk
+ !$OMP END WORKSHARE
 else if(scalar=='Te') then
+ !$OMP WORKSHARE
  F=Te
  Fwall=1.5*Te(Ib1:Ib2,1)-0.5*Te(Ib1:Ib2,2)
  Ga=mu+mut/sigmae
+ !$OMP END WORKSHARE
 else if(scalar=='Tw') then
+ !$OMP WORKSHARE
  F=Tw
  Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
  !Fwall=Tw(Ib1:Ib2,1)
  Ga=mu+mut/sigmatw
+ !$OMP END WORKSHARE
 end if
+!$OMP DO PRIVATE(Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle)
 DO j=1,Jc-1
-  DO i=2,Ic-1
+ DO i=2,Ic-1
   Dw(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy/dx
   De(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy/dx
   Dn(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j+1)*Ga(i,j+1),da(i,j),da(i,j+1))*dx/dy
@@ -88,14 +108,18 @@ DO j=1,Jc-1
    Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
   end if
   bno(i,j)=Dnow*Faw-Dnoe*Fae+Dnos*Fks-Dnon*Fkn
-  end DO
+ end DO
 end DO
+!$OMP END DO
+!$OMP WORKSHARE
 Tmin=minval(Tplus)
 aM(1,:,:)=1
 aM(2,:,:)=0
 aM(3,:,:)=0
 aM(4,:,:)=0
 aM(5,:,:)=0
+!$OMP END WORKSHARE
+!$OMP DO PRIVATE(aP,aW,aE,aS,aN,DF)
 DO j=1,Jc-1
   DO i=2,Ic-1
    Fw(i,j)=dy*rhok(i,j)*Unk(i,j)
@@ -153,11 +177,15 @@ DO j=1,Jc-1
    aM(5,i,j)=aN
   end DO
 end DO
+!$OMP END DO
 Call Defercorrect(F,Fwall,cor,Fw,Fe,Fs,Fn)
 if(scalar=='T'.or.scalar=='Tk'.or.scalar=='Tw'.or.scalar=='Te') then
+ !$OMP WORKSHARE
  St=sqrt(2*(Ux**2+Vy**2)+(Uy+Vx)**2)
+ !$OMP END WORKSHARE
 end if
 if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
+ !$OMP DO PRIVATE(Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai)
  DO j=1,Jc-1
    DO i=2,Ic-1
     Dwplus=max(2*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
@@ -181,7 +209,9 @@ if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
     Dwt(i,j)=2*(1-F1)*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(Tw(i,j)*sigmaw2)
    end DO
  end DO
+ !$OMP END DO
 else if(scalar=='Tn') then
+ !$OMP DO PRIVATE(Xi,fnu1,fnu2,Sv,rm,gm)
  DO j=1,Jc-1
    DO i=2,Ic-1
     if(Walltreat=='lr') then
@@ -198,10 +228,16 @@ else if(scalar=='Tn') then
     fw1(i,j)=gm*((1+Cw3**6)/(gm**6+Cw3**6))**(1./6)
    end DO
  end DO
+ !$OMP END DO
 else if(scalar=='Te') then
+ !$OMP WORKSHARE
  C3e=tanh(abs(V/U))
+ !$OMP END WORKSHARE
 end if
+!$OMP WORKSHARE
 b=F
+!$OMP END WORKSHARE
+!$OMP DO
 DO j=1,Jc-1
   DO i=2,Ic-1
    if(scalar=='U') then
@@ -323,8 +359,12 @@ DO j=1,Jc-1
    end if
   end DO
 end DO
+!$OMP END DO
 if(scalar=='U') then
+ !$OMP WORKSHARE
  auP=aM(1,:,:)
  auNB=aM(2,:,:)+aM(3,:,:)+aM(4,:,:)+aM(5,:,:)
+ !$OMP END WORKSHARE
 end if
+!$OMP END PARALLEL
 end Subroutine Condiff

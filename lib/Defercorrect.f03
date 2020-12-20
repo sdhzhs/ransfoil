@@ -5,6 +5,7 @@ integer i,j
 real(8) Fcc,Fcw,Fce,Fcs,Fcn,Fcww,Fcee,Fcss,Fcnn,dkc,dkw,dkww,dke,dkee,dac,das,dass,dan,dann
 real(8) rp,rm,Psip,Psim
 real(8) F(Ic,Jc),Fwall(Ib1:Ib2),cor(Ic,Jc),Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc)
+!$OMP DO
 DO j=1,Jc-1
  DO i=2,Ic-1
  Fcc=F(i,j)
@@ -164,4 +165,5 @@ DO j=1,Jc-1
  end if
  end DO
 end DO
+!$OMP END DO
 end Subroutine Defercorrect

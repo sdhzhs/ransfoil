@@ -9,7 +9,7 @@ Y
 Include Viscous Heating(Y/N)?
 N
 Select turbulence model(inv/lam/sa/ke/sst):
-sa
+sst
 Select wall treatment method(wf/lr):
 wf
 Select coupling method(SIMPLE/SIMPLEC):
@@ -31,7 +31,7 @@ Input relaxation factor of pressure:
 Input relaxation factor of temperature:
 7e-1
 Input relaxation factor of turbulence:
-3e-1
+2e-1
 Input number of grid points on whole airfoil(interpolation based on parametric spline):
 201
 Input dimensionless mesh spacing near leading edge:
@@ -56,6 +56,8 @@ Input temperature of wall(K):
 273.15
 Input ambient pressure(Pa):
 100000
+Input turbulent viscosity ratio of free stream:
+1e-2
 Input turbulent viscosity ratio of free stream:
 10
 Input wall roughness(m):

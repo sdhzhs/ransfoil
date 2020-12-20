@@ -2,6 +2,12 @@ AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = cases doc lib scripts
 FCFLAGS = -Wall -ffree-line-length-none -O3
+if DEBUG
+FCFLAGS += -g -O0
+endif
+if PROF
+FCFLAGS += -g -pg
+endif
 bin_PROGRAMS = ransfoil
 ransfoil_SOURCES = console.f03
 ransfoil_LDADD = $(top_srcdir)/lib/libaero2d.la
