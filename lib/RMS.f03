@@ -4,7 +4,7 @@ integer i,j,Ip,Jp
 real(8) rmsf,F(Ip,Jp),F0(Ip,Jp),res(Ip,Jp)
 DO j=1,Jp
  DO i=1,Ip
- if(abs(F0(i,j))>1d-15) then
+ if(abs(F0(i,j))>0) then
   res(i,j)=abs((F(i,j)-F0(i,j))/F0(i,j))
  else
   res(i,j)=abs(F(i,j)-F0(i,j))

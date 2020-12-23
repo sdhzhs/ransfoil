@@ -7,6 +7,7 @@ integer i,s
 integer(C_INT),bind(C)::prtl
 character(*) libmod,scptname
 integer time0(8),time1(8)
+real(8) lnum
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
 integer(1) solid
@@ -107,6 +108,7 @@ end if
   solid=3
   Call hypreinit(matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,solid)
 #endif
+lnum=1e+10
 print *,'RANS equations iteration is beginning...'
 Call DATE_AND_TIME(VALUES=time0)
 DO s=1,maxs
@@ -258,7 +260,7 @@ DO s=1,maxs
     print *,'RANS Equations converge!'
     exit
    end if
-   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsn>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
+   if(rmsm>lnum.or.rmsu>lnum.or.rmsv>lnum.or.rmst>lnum.or.rmsn>lnum.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
    (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsn))) then
     print *,'RANS Equations diverge!'
     stop
@@ -268,7 +270,7 @@ DO s=1,maxs
     print *,'RANS Equations converge!'
     exit
    end if
-   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmse>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
+   if(rmsm>lnum.or.rmsu>lnum.or.rmsv>lnum.or.rmst>lnum.or.rmsk>lnum.or.rmse>lnum.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
    (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsk)).or.(.not.ieee_is_normal(rmse))) then
     print *,'RANS Equations diverge!'
     stop
@@ -278,7 +280,7 @@ DO s=1,maxs
     print *,'RANS Equations converge!'
     exit
    end if
-   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.rmsk>1e+5.or.rmsw>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
+   if(rmsm>lnum.or.rmsu>lnum.or.rmsv>lnum.or.rmst>lnum.or.rmsk>lnum.or.rmsw>lnum.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.&
    (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsk)).or.(.not.ieee_is_normal(rmsw))) then
     print *,'RANS Equations diverge!'
     stop
@@ -288,7 +290,7 @@ DO s=1,maxs
     print *,'RANS Equations converge!'
     exit
    end if
-   if(rmsm>1e+5.or.rmsu>1e+5.or.rmsv>1e+5.or.rmst>1e+5.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.(.not.ieee_is_normal(rmsv)).or.&
+   if(rmsm>lnum.or.rmsu>lnum.or.rmsv>lnum.or.rmst>lnum.or.(.not.ieee_is_normal(rmsm)).or.(.not.ieee_is_normal(rmsu)).or.(.not.ieee_is_normal(rmsv)).or.&
    (.not.ieee_is_normal(rmst))) then
     print *,'RANS Equations diverge!'
     stop
