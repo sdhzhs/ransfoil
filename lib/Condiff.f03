@@ -66,7 +66,7 @@ else if(scalar=='Tw') then
  Ga=mu+mut/sigmatw
  !$OMP END WORKSHARE
 end if
-!$OMP DO PRIVATE(Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle)
+!$OMP DO PRIVATE(Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,i)
 DO j=1,Jc-1
  DO i=2,Ic-1
   Dw(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy/dx
@@ -119,7 +119,7 @@ aM(3,:,:)=0
 aM(4,:,:)=0
 aM(5,:,:)=0
 !$OMP END WORKSHARE
-!$OMP DO PRIVATE(aP,aW,aE,aS,aN,DF)
+!$OMP DO PRIVATE(aP,aW,aE,aS,aN,DF,i)
 DO j=1,Jc-1
   DO i=2,Ic-1
    Fw(i,j)=dy*rhok(i,j)*Unk(i,j)
@@ -185,7 +185,7 @@ if(scalar=='T'.or.scalar=='Tk'.or.scalar=='Tw'.or.scalar=='Te') then
  !$OMP END WORKSHARE
 end if
 if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
- !$OMP DO PRIVATE(Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai)
+ !$OMP DO PRIVATE(Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,i)
  DO j=1,Jc-1
    DO i=2,Ic-1
     Dwplus=max(2*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
@@ -211,7 +211,7 @@ if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
  end DO
  !$OMP END DO
 else if(scalar=='Tn') then
- !$OMP DO PRIVATE(Xi,fnu1,fnu2,Sv,rm,gm)
+ !$OMP DO PRIVATE(Xi,fnu1,fnu2,Sv,rm,gm,i)
  DO j=1,Jc-1
    DO i=2,Ic-1
     if(Walltreat=='lr') then
@@ -237,7 +237,7 @@ end if
 !$OMP WORKSHARE
 b=F
 !$OMP END WORKSHARE
-!$OMP DO
+!$OMP DO PRIVATE(i)
 DO j=1,Jc-1
   DO i=2,Ic-1
    if(scalar=='U') then

@@ -5,7 +5,7 @@ real(8) err,omiga,a,rms
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 real(8) Fo(Ic,Jc)
 character(*) scalar
-!$OMP PARALLEL
+!$OMP PARALLEL PRIVATE(k)
 !$OMP SINGLE
 maxl=1000
 if(scalar=='dP') then
@@ -20,7 +20,7 @@ DO k=1,maxl
   !$OMP WORKSHARE
   Fo=F
   !$OMP END WORKSHARE
-  !$OMP DO
+  !$OMP DO PRIVATE(i)
   DO j=1,Jc-1
     DO i=2,Ic-1
       if(j>1) then
@@ -43,7 +43,7 @@ DO k=1,maxl
   !$OMP SINGLE
   rms=0
   !$OMP END SINGLE
-  !$OMP DO REDUCTION(+:rms)
+  !$OMP DO REDUCTION(+:rms) PRIVATE(i)
   DO j=1,Jc
    DO i=1,Ic
     if(abs(Fo(i,j))>0) then
@@ -70,7 +70,7 @@ real(8) rmsi(Ic,Jc),rms(Ic,Jc),p(Ic,Jc),v(Ic,Jc),s(Ic,Jc),t(Ic,Jc),pt(Ic,Jc),y(I
 character(*) scalar
 character(4) pretype
 
-!$OMP PARALLEL PRIVATE(alpha,beta,rho,omiga,rho0)
+!$OMP PARALLEL PRIVATE(alpha,beta,rho,omiga,rho0,k)
 !$OMP SINGLE
 maxl=1000
 if(scalar=='dP') then
@@ -83,7 +83,7 @@ pretype='ILU'
 !$OMP WORKSHARE
 rms=0
 !$OMP END WORKSHARE
-!$OMP DO
+!$OMP DO PRIVATE(i)
 DO j=1,Jc-1
  DO i=2,Ic-1
   if(j>1) then
@@ -106,7 +106,7 @@ v=p
 aD=aM(1,:,:)
 !$OMP END WORKSHARE
 if(pretype=='ILU') then
- !$OMP DO
+ !$OMP DO PRIVATE(i)
  DO j=1,Jc-1
   DO i=2,Ic-1
    if(j==1) then
@@ -141,7 +141,7 @@ DO k=1,maxl
  !$OMP WORKSHARE
  v=y
  !$OMP END WORKSHARE
- !$OMP DO
+ !$OMP DO PRIVATE(i)
  DO j=1,Jc-1
   DO i=2,Ic-1
    if(j>1) then
@@ -169,7 +169,7 @@ DO k=1,maxl
  !$OMP WORKSHARE
  t=z
  !$OMP END WORKSHARE
- !$OMP DO
+ !$OMP DO PRIVATE(i)
  DO j=1,Jc-1
    DO i=2,Ic-1
     if(j>1) then
