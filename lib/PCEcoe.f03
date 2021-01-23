@@ -6,7 +6,9 @@ real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn
 real(8) aP,aW,aE,aS,aN
 real(8),external:: interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
+!$OMP PARALLEL
 if(solctrl=='SIMPLE') then
+  !$OMP DO PRIVATE(i,Up,Vp)
   DO j=1,Jc-1
     DO i=2,Ic-1
      du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/auP(i,j)
@@ -17,7 +19,9 @@ if(solctrl=='SIMPLE') then
      Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
     end DO
   end DO
+  !$OMP END DO
 else if(solctrl=='SIMPLEC') then
+  !$OMP DO PRIVATE(i,Up,Vp)
   DO j=1,Jc-1
     DO i=2,Ic-1
      du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/(auP(i,j)-Rau*auNB(i,j))
@@ -28,7 +32,9 @@ else if(solctrl=='SIMPLEC') then
      Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
     end DO
   end DO
+  !$OMP END DO
 end if
+!$OMP DO PRIVATE(i,Unpk)
 DO j=1,Jc-1
  DO i=2,Ic
   if(i==2) then
@@ -44,6 +50,8 @@ DO j=1,Jc-1
   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j)))
  end DO
 end DO
+!$OMP END DO
+!$OMP DO PRIVATE(i,Vnpa)
 DO j=1,Jc
  DO i=2,Ic-1
   if(j==1.and.(i>Ib2.or.i<Ib1)) then
@@ -65,6 +73,8 @@ DO j=1,Jc
   end if
  end DO
 end DO
+!$OMP END DO
+!$OMP DO PRIVATE(i,ww,we,ws,wn,aP,aW,aE,aS,aN)
 DO j=1,Jc-1
   DO i=2,Ic-1
    aE=rhok(i+1,j)*duk(i+1,j)*dy
@@ -94,10 +104,16 @@ DO j=1,Jc-1
    aM(5,i,j)=aN
   end DO
 end DO
+!$OMP END DO
+!$OMP WORKSHARE
 b=0
+!$OMP END WORKSHARE
+!$OMP DO PRIVATE(i)
 DO j=1,Jc-1
   DO i=2,Ic-1
    b(i,j)=rhok(i,j)*Unk(i,j)*dy-rhok(i+1,j)*Unk(i+1,j)*dy+rhoa(i,j)*Vna(i,j)*dx-rhoa(i,j+1)*Vna(i,j+1)*dx
   end DO
 end DO
+!$OMP END DO
+!$OMP END PARALLEL
 end Subroutine PCEcoe
