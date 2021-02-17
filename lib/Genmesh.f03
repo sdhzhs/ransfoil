@@ -7,27 +7,7 @@ real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
 
 if(libmod=='S'.or.libmod=='I') then
- open(unit=1,file=filename(1),status='old')
-  if(Pntctrl=='N') then
-   read(1,*) Iwd
-   allocate(Xwd(Iwd),Ywd(Iwd))
-   DO i=1,Iwd
-    read(1,*) Xwd(i),Ywd(i)
-   end DO
-   read(1,*) Iwu
-   allocate(Xwu(Iwu),Ywu(Iwu))
-   DO i=1,Iwu
-    read(1,*) Xwu(i),Ywu(i)
-   end DO
-  else
-   read(1,*) Iw0
-   allocate(Xwp0(Iw0),Ywp0(Iw0))
-   DO i=1,Iw0
-    read(1,*) Xwp0(i),Ywp0(i)
-   end DO
-  end if
- close(1)
- print *,'Read airfoil coordinates completed!'
+ Call Readfoil
 else if(libmod=='C') then
  if(Pntctrl=='N') then
   allocate(Xwd(Iwd),Ywd(Iwd))
@@ -108,34 +88,31 @@ deallocate(Xt,fac)
 
 end Subroutine Genmesh
 
-Subroutine Allocarray(libmod)
+Subroutine Readfoil
 use Aero2DCOM
 implicit none
 integer i
-character(*) libmod
 
-if(libmod=='C') then
- DO i=1,8
-  if(cTurmod(i)(1:1)/=C_NULL_CHAR) then
-   Turmod(i:i)=cTurmod(i)(1:1)
-  else
-   Turmod(i:i)=' '
-  end if
- end DO
-end if
-allocate(U0(Ic,Jc),V0(Ic,Jc),T0(Ic,Jc),U(Ic,Jc),V(Ic,Jc),T(Ic,Jc),rho(Ic,Jc),mu(Ic,Jc),P(Ic,Jc),dP(Ic,Jc),mut(Ic,Jc),&
-Pr(Ic,Jc),Pc(Ic,Jc),auP(Ic,Jc),auNB(Ic,Jc),aM(5,Ic,Jc),b(Ic,Jc),Xg(Ip,Jp),Yg(Ip,Jp),Xc(Ic,Jc),Yc(Ic,Jc),Xga(Ic,Jc),Xgk(Ic,Jc),&
-Yga(Ic,Jc),Ygk(Ic,Jc),dk(Ic,Jc),da(Ic,Jc),Jg(Ic,Jc),a1(Ic,Jc),y1(Ic,Jc),b1(Ic,Jc),Un(Ic,Jc),Vn(Ic,Jc),Unk(Ip,Jc),Vna(Ic,Jp),&
-duk(Ip,Jc),dva(Ic,Jp),Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),muxy(Ic,Jc),&
-muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc))
-if(Turmod=='sa') then
- allocate(Tn0(Ic,Jc),Tn(Ic,Jc),Tnx(Ic,Jc),Tny(Ic,Jc))
-else if(Turmod=='ke') then
- allocate(Tk0(Ic,Jc),Te0(Ic,Jc),Tk(Ic,Jc),Te(Ic,Jc),rhox(Ic,Jc),rhoy(Ic,Jc))
-else if(Turmod=='sst') then
- allocate(Tk0(Ic,Jc),Tw0(Ic,Jc),Tk(Ic,Jc),Tw(Ic,Jc),Tkx(Ic,Jc),Tky(Ic,Jc),Twx(Ic,Jc),Twy(Ic,Jc),sigmatk(Ic,Jc),sigmatw(Ic,Jc))
-end if
-allocate(Xw(Ib1:Ib2),Yw(Ib1:Ib2),Yp(Ib1:Ib2),DR(Ib1:Ib2),Sw(Ib1:Ib2),ks(Ib1:Ib2),Q(Ib1:Ib2),Yplus(Ib1:Ib2),Ystar(Ib1:Ib2),&
-ustar(Ib1:Ib2),Uplus(Ib1:Ib2),Tplus(Ib1:Ib2),hcv(Ib1:Ib2),Ax(Ib1:Ib2),Ay(Ib1:Ib2))
+open(unit=1,file=filename(1),status='old')
+ if(Pntctrl=='N') then
+  read(1,*) Iwd
+  allocate(Xwd(Iwd),Ywd(Iwd))
+  DO i=1,Iwd
+   read(1,*) Xwd(i),Ywd(i)
+  end DO
+  read(1,*) Iwu
+  allocate(Xwu(Iwu),Ywu(Iwu))
+  DO i=1,Iwu
+   read(1,*) Xwu(i),Ywu(i)
+  end DO
+ else
+  read(1,*) Iw0
+  allocate(Xwp0(Iw0),Ywp0(Iw0))
+  DO i=1,Iw0
+   read(1,*) Xwp0(i),Ywp0(i)
+  end DO
+ end if
+close(1)
+print *,'Read airfoil coordinates completed!'
 
-end Subroutine Allocarray
+end Subroutine Readfoil
