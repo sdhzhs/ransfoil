@@ -9,7 +9,7 @@ AC_CANONICAL_HOST
 AS_CASE([$host],[i?86-pc-mingw32], [LTIOP=win32-dll],[LTIOP=""])
 LT_INIT([disable-static ${LTIOP}])
 AM_CONDITIONAL([BUILDDLL], [test "x${LTIOP}" = xwin32-dll])
-AC_CONFIG_SRCDIR([console.f03])
+AC_CONFIG_SRCDIR([src/console.f03])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_FC
@@ -26,6 +26,6 @@ AC_ARG_ENABLE([debug], [AS_HELP_STRING([--enable-debug],[enable debug option])],
 AM_CONDITIONAL([DEBUG], [test "x${debug}" = xyes])
 AC_ARG_ENABLE([profile], [AS_HELP_STRING([--enable-profile],[enable profile option])], [profile=${enableval}], [profile=no])
 AM_CONDITIONAL([PROF], [test "x${profile}" = xyes])
-AC_CONFIG_FILES([Makefile cases/Makefile doc/Makefile lib/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile \
+AC_CONFIG_FILES([Makefile lib/Makefile src/Makefile cases/Makefile doc/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile \
 scripts/transonic/Makefile scripts/whitcomb1/Makefile])
 AC_OUTPUT

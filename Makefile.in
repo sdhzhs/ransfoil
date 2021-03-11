@@ -15,8 +15,6 @@
 
 @SET_MAKE@
 
-
-
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -36,16 +34,11 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@DEBUG_TRUE@am__append_1 = -g -O0
-@PROF_TRUE@am__append_2 = -g -pg
-bin_PROGRAMS = ransfoil$(EXEEXT)
-EXTRA_PROGRAMS = libcallexp$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_data_DATA) \
-	$(dist_doc_DATA) $(dist_include_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure INSTALL config.guess config.sub \
-	depcomp install-sh ltmain.sh missing
+	$(dist_doc_DATA) $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/configure INSTALL \
+	config.guess config.sub depcomp install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -56,37 +49,8 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" \
-	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(includedir)"
-PROGRAMS = $(bin_PROGRAMS)
-am_libcallexp_OBJECTS = libcallexpf.$(OBJEXT) libcallexpc.$(OBJEXT)
-libcallexp_OBJECTS = $(am_libcallexp_OBJECTS)
-libcallexp_DEPENDENCIES = $(top_srcdir)/lib/libaero2d.la
-am_ransfoil_OBJECTS = console.$(OBJEXT)
-ransfoil_OBJECTS = $(am_ransfoil_OBJECTS)
-ransfoil_DEPENDENCIES = $(top_srcdir)/lib/libaero2d.la
-DEFAULT_INCLUDES = -I.@am__isrc@
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-FCCOMPILE = $(FC) $(AM_FCFLAGS) $(FCFLAGS)
-LTFCCOMPILE = $(LIBTOOL) --tag=FC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(FC) $(AM_FCFLAGS) $(FCFLAGS)
-FCLD = $(FC)
-FCLINK = $(LIBTOOL) --tag=FC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(FCLD) $(AM_FCFLAGS) $(FCFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-SOURCES = $(libcallexp_SOURCES) $(ransfoil_SOURCES)
-DIST_SOURCES = $(libcallexp_SOURCES) $(ransfoil_SOURCES)
+SOURCES =
+DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -115,8 +79,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__installdirs = "$(DESTDIR)$(datadir)" "$(DESTDIR)$(docdir)"
 DATA = $(dist_data_DATA) $(dist_doc_DATA)
-HEADERS = $(dist_include_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -185,8 +149,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FC = @FC@
-FCFLAGS = -Wall -ffree-line-length-none -O3 $(am__append_1) \
-	$(am__append_2)
+FCFLAGS = @FCFLAGS@
 FGREP = @FGREP@
 GREP = @GREP@
 INSTALL = @INSTALL@
@@ -281,19 +244,13 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = cases doc lib scripts
-ransfoil_SOURCES = console.f03
-ransfoil_LDADD = $(top_srcdir)/lib/libaero2d.la
-libcallexp_SOURCES = libcallexpf.f03 libcallexpc.c
-libcallexp_LDADD = $(top_srcdir)/lib/libaero2d.la
-dist_include_HEADERS = aero2dcom.h
+SUBDIRS = cases doc lib scripts src
 dist_data_DATA = ransfoil.configxyz ransfoil.configcpt
 dist_doc_DATA = COPYRIGHT INSTALL README
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .f03 .lo .o .obj
 am--refresh:
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -345,93 +302,6 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	for p in $$list; do echo "$$p $$p"; done | \
-	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p || test -f $$p1; \
-	  then echo "$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n;h' -e 's|.*|.|' \
-	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
-	sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
-	    else { print "f", $$3 "/" $$4, $$1; } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	    test -z "$$files" || { \
-	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
-	    } \
-	; done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
-	      -e 's/$$/$(EXEEXT)/' `; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bindir)" && rm -f $$files
-
-clean-binPROGRAMS:
-	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
-	echo " rm -f" $$list; \
-	rm -f $$list || exit $$?; \
-	test -n "$(EXEEXT)" || exit 0; \
-	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
-	echo " rm -f" $$list; \
-	rm -f $$list
-libcallexp$(EXEEXT): $(libcallexp_OBJECTS) $(libcallexp_DEPENDENCIES) 
-	@rm -f libcallexp$(EXEEXT)
-	$(FCLINK) $(libcallexp_OBJECTS) $(libcallexp_LDADD) $(LIBS)
-ransfoil$(EXEEXT): $(ransfoil_OBJECTS) $(ransfoil_DEPENDENCIES) 
-	@rm -f ransfoil$(EXEEXT)
-	$(FCLINK) $(ransfoil_OBJECTS) $(ransfoil_LDADD) $(LIBS)
-
-mostlyclean-compile:
-	-rm -f *.$(OBJEXT)
-
-distclean-compile:
-	-rm -f *.tab.c
-
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcallexpc.Po@am__quote@
-
-.c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
-
-.c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
-
-.c.lo:
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
-
-.f03.o:
-	$(FCCOMPILE) -c -o $@ $<
-
-.f03.obj:
-	$(FCCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.f03.lo:
-	$(LTFCCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -481,26 +351,6 @@ uninstall-dist_docDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(docdir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(docdir)" && rm -f $$files
-install-dist_includeHEADERS: $(dist_include_HEADERS)
-	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
-	@list='$(dist_include_HEADERS)'; test -n "$(includedir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(includedir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(includedir)" || exit $$?; \
-	done
-
-uninstall-dist_includeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_include_HEADERS)'; test -n "$(includedir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(includedir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(includedir)" && rm -f $$files
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -814,10 +664,10 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(PROGRAMS) $(DATA) $(HEADERS) config.h
+all-am: Makefile $(DATA) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(datadir)" "$(DESTDIR)$(docdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -847,14 +697,13 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
-distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-hdr distclean-libtool distclean-tags
+distclean-am: clean-am distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags
 
 dvi: dvi-recursive
 
@@ -868,14 +717,13 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dist_dataDATA install-dist_docDATA \
-	install-dist_includeHEADERS
+install-data-am: install-dist_dataDATA install-dist_docDATA
 
 install-dvi: install-dvi-recursive
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS
+install-exec-am:
 
 install-html: install-html-recursive
 
@@ -900,14 +748,12 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
 pdf: pdf-recursive
 
@@ -917,32 +763,28 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-dist_dataDATA \
-	uninstall-dist_docDATA uninstall-dist_includeHEADERS
+uninstall-am: uninstall-dist_dataDATA uninstall-dist_docDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all \
 	ctags-recursive install-am install-strip tags-recursive
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
-	all all-am am--refresh check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libtool ctags ctags-recursive dist \
-	dist-all dist-bzip2 dist-gzip dist-lzma dist-shar dist-tarZ \
-	dist-xz dist-zip distcheck distclean distclean-compile \
-	distclean-generic distclean-hdr distclean-libtool \
-	distclean-tags distcleancheck distdir distuninstallcheck dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am \
-	install-dist_dataDATA install-dist_docDATA \
-	install-dist_includeHEADERS install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-dist_dataDATA \
-	uninstall-dist_docDATA uninstall-dist_includeHEADERS
+	all all-am am--refresh check check-am clean clean-generic \
+	clean-libtool ctags ctags-recursive dist dist-all dist-bzip2 \
+	dist-gzip dist-lzma dist-shar dist-tarZ dist-xz dist-zip \
+	distcheck distclean distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am \
+	install-dist_dataDATA install-dist_docDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-recursive uninstall uninstall-am \
+	uninstall-dist_dataDATA uninstall-dist_docDATA
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

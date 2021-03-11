@@ -611,7 +611,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_unique_file="console.f03"
+ac_unique_file="src/console.f03"
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
@@ -14415,7 +14415,7 @@ else
   PROF_FALSE=
 fi
 
-ac_config_files="$ac_config_files Makefile cases/Makefile doc/Makefile lib/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile scripts/transonic/Makefile scripts/whitcomb1/Makefile"
+ac_config_files="$ac_config_files Makefile lib/Makefile src/Makefile cases/Makefile doc/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile scripts/transonic/Makefile scripts/whitcomb1/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -15547,9 +15547,10 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "lib/Makefile") CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
+    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "cases/Makefile") CONFIG_FILES="$CONFIG_FILES cases/Makefile" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
-    "lib/Makefile") CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
     "scripts/Makefile") CONFIG_FILES="$CONFIG_FILES scripts/Makefile" ;;
     "scripts/subsonic/Makefile") CONFIG_FILES="$CONFIG_FILES scripts/subsonic/Makefile" ;;
     "scripts/supersonic/Makefile") CONFIG_FILES="$CONFIG_FILES scripts/supersonic/Makefile" ;;
