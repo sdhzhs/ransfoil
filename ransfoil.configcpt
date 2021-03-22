@@ -1,4 +1,4 @@
-Input a name of airfoil coordinates file(1D XYZ):
+Input a name of airfoil coordinates file(1D XYZ/CPT):
 'cases/NACA001264.cpt'
 Using control points based parametric spline(Y/N)?
 Y

@@ -15,29 +15,40 @@ end Subroutine Connector
 
 Subroutine Connector2(X,Y,X0,Y0,fd,ed,Ip,Ip0)
 implicit none
-integer i,Ip,Ip0
-real(8) fd,ed,lenth,ds
+integer i,Ip,Ip0,Imin,Ipu,Ipd
+real(8) fd,ed,lenth,ds,xmin
 real(8) X(Ip),Y(Ip),X0(Ip0),Y0(Ip0)
-real(8) s(Ip),s0(Ip0),sd((Ip+1)/2),su((Ip+1)/2)
+real(8) s(Ip),s0(Ip0)
+real(8),allocatable,dimension(:)::sd,su
+Imin=(Ip0+1)/2
+xmin=1d+30
 s0(1)=0
 DO i=1,Ip0-1
  ds=sqrt((X0(i+1)-X0(i))**2+(Y0(i+1)-Y0(i))**2)
  s0(i+1)=s0(i)+ds
+ if(X0(i)<xmin) then
+  xmin=X0(i)
+  Imin=i
+ end if
 end DO
-lenth=s0((Ip0+1)/2)
-Call tanhgridline2(lenth,fd,ed,sd,(Ip+1)/2)
-lenth=s0(Ip0)-s0((Ip0+1)/2)
-Call tanhgridline2(lenth,fd,ed,su,(Ip+1)/2)
+Ipu=nint(Ip*Imin/dble(Ip0))
+Ipd=Ip+1-Ipu
+allocate(sd(Ipd),su(Ipu))
+lenth=s0(Imin)
+Call tanhgridline2(lenth,fd,ed,su,Ipu)
+lenth=s0(Ip0)-s0(Imin)
+Call tanhgridline2(lenth,fd,ed,sd,Ipd)
 s(1)=0
-DO i=1,(Ip-1)/2
- ds=sd((Ip+3)/2-i)-sd((Ip+1)/2-i)
+DO i=1,Ipu-1
+ ds=su(Ipu+1-i)-su(Ipu-i)
  s(i+1)=s(i)+ds
 end DO
-DO i=1,(Ip-1)/2
- s((Ip+1)/2+i)=su(i+1)+s((Ip+1)/2)
+DO i=1,Ipd-1
+ s(Ipu+i)=s(Ipu)+sd(i+1)
 end DO
 Call interp1(s,X,s0,X0,Ip0,Ip,'spline')
 Call interp1(s,Y,s0,Y0,Ip0,Ip,'spline')
+deallocate(sd,su)
 end Subroutine Connector2
 
 Subroutine tanhgridline(lenth,fb,s,M)

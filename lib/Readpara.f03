@@ -97,7 +97,7 @@ if(libmod=='S') then
   read(10,*) dir
  close(10)
 else if(libmod=='I') then
- print *,'Input a name of airfoil coordinates file(1D XYZ):'
+ print *,'Input a name of airfoil coordinates file(1D XYZ/CPT):'
  read *,filename(1)
  print *,'Using control points based parametric spline(Y/N)?'
  read *,Pntctrl

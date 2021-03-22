@@ -10,12 +10,13 @@ Program RANSFOIL
    print *,"usage: ",trim(argv(1))," [options] [configuration file]"
    print *,"Console program to mainly calculate aerodynamic parameters of an airfoil by numerically solving the RANS equations. &
    &Optionally the heat transfer coefficient on airfoil surface can also be obtained. This program reads airfoil coordinates of grid points (or control points) &
-   &from a 1D XYZ file, then generates grid and solution files in 2D PLOT3D format to record grid and airflow data and a report file to show aerodynamic &
+   &from a 1D XYZ/CPT file, then generates grid and solution files in 2D PLOT3D format to record grid and airflow data and a report file to show aerodynamic &
    &parameters."
    print *,"More information can be found in the README file."
    print *,"Options:"
    print *,"--stdin        interactive mode, read parameters from standard input"
    print *,"--script       batch mode, read parameters from a configuration file"
+   print *,"--version      show the current version"
    print *,"-h, --help     show this message"
   else if(argc==1) then
    Call get_command_argument(1,argv(2))
@@ -31,16 +32,20 @@ Program RANSFOIL
    else if(trim(argv(2))=="--script") then
     print *,"should input a name of the configuration file."
     print *,"usage: ",trim(argv(1))," [options] [configuration file]"
+   else if(trim(argv(2))=="--version") then
+    print *,"ransfoil version 2.2.7"
+    print *,"Copyright (c) 2012-2021, Hou Shuo"
    else if(trim(argv(2))=="-h".or.trim(argv(2))=="--help") then
     print *,"usage: ",trim(argv(1))," [options] [configuration file]"
     print *,"Console program to mainly calculate aerodynamic parameters of an airfoil by numerically solving the RANS equations. &
     &Optionally the heat transfer coefficient on airfoil surface can also be obtained. This program reads airfoil coordinates of grid points (or control points) &
-	&from a 1D XYZ file, then generates grid and solution files in 2D PLOT3D format to record grid and airflow data and a report file to show aerodynamic &
-	&parameters."
+    &from a 1D XYZ/CPT file, then generates grid and solution files in 2D PLOT3D format to record grid and airflow data and a report file to show aerodynamic &
+    &parameters."
     print *,"More information can be found in the README file."
     print *,"Options:"
     print *,"--stdin        interactive mode, read parameters from standard input"
     print *,"--script       batch mode, read parameters from a configuration file"
+    print *,"--version      show the current version"
     print *,"-h, --help     show this message"
    else
     print *,"This option does not exist."
