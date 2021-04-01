@@ -5,7 +5,7 @@ Program libaero2dcaller
   character(1) mode
   character(64) filenamei
   mode='A'
-  filenamei='cases/NACA0012.xyz'
+  filenamei='../cases/NACA0012.xyz'
   Pntctrl='N'
   Proctrl='incom'
   Energy='Y'

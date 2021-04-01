@@ -196,9 +196,9 @@ Call HYPRE_SStructVectorGetObject(x, parx, ierr)
 itmax = 1000
 prlv = 0
 if(scalar=='dP') then
- tol = 1.0D-3
+ tol = 1.0e-3
 else
- tol = 1.0D-5
+ tol = 1.0e-5
 end if
 
 if(solid==1) then
@@ -250,7 +250,7 @@ else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABSetMaxIter(solver, itmax, ierr)
  
  Call HYPRE_EuclidSetLevel(precond, 0, ierr)
- !Call HYPRE_EuclidSetSparseA(precond, 1d-3, ierr)
+ !Call HYPRE_EuclidSetSparseA(precond, 1e-3, ierr)
  Call HYPRE_EuclidSetRowScale(precond, 1, ierr)
  !Call HYPRE_EuclidSetBJ(precond, 1, ierr)
  

@@ -2,7 +2,7 @@ Module Aero2DCOM
 use ISO_C_BINDING
 implicit none
 
-real(8),parameter::Pi=3.1415926535897932d+0,R=8.31,Ma=0.029,mu0=1.716e-5,Ti=273.11,Si=110.56,g=9.8,gama=1.4,Prt=0.85,kapa=0.4187,&
+real(8),parameter::Pi=3.1415926535897932e+0,R=8.31,Ma=0.029,mu0=1.716e-5,Ti=273.11,Si=110.56,g=9.8,gama=1.4,Prt=0.85,kapa=0.4187,&
 Ep=9.793,Cks=0.5,Cb1=0.1355,Cb2=0.622,sigman=2.0/3,Cw2=0.3,Cw3=2.0,Cnu1=7.1,Cw1=Cb1/kapa**2+(1+Cb2)/sigman,C1e=1.44,C2e=1.92,&
 Cu=0.09,sigmak=1.0,sigmae=1.3,sigmak1=1.176,sigmak2=1.0,sigmaw1=2.0,sigmaw2=1.168,alpha1=0.31,betai1=0.075,betai2=0.0828,&
 alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,Mt0=0.25

@@ -1,7 +1,8 @@
 Subroutine Jacobi
 use Aero2DCOM
 implicit none
-integer i,j,k
+integer i,j,k,Imin
+real(8) Xmin
 real(8) theta(Ic,Jc),dw(Ib1:Ib2)
 dx=1
 dy=1
@@ -24,18 +25,24 @@ a1=(Xga**2+Yga**2)/Jg
 y1=(Xgk**2+Ygk**2)/Jg
 b1=(Xgk*Xga+Ygk*Yga)/Jg
 theta=180*acos(b1/sqrt(a1*y1))/Pi
+Xmin=1e+30
+Imin=(Ib1+Ib2+1)/2
 DO i=Ib1,Ib2
  Xw(i)=0.5*(Xg(i+1,1)+Xg(i,1))
  Yw(i)=0.5*(Yg(i+1,1)+Yg(i,1))
  Yp(i)=sqrt((Xc(i,1)-Xw(i))**2+(Yc(i,1)-Yw(i))**2)
  DR(i)=sqrt((Xg(i+1,1)-Xg(i,1))**2+(Yg(i+1,1)-Yg(i,1))**2)
+ if(Xg(i,1)<Xmin) then
+  Xmin=Xg(i,1)
+  Imin=i
+ end if
 end DO
-Sw((Ib1+Ib2+1)/2)=sqrt((Xw((Ib1+Ib2+1)/2)-Xw((Ib1+Ib2-1)/2))**2+(Yw((Ib1+Ib2+1)/2)-Yw((Ib1+Ib2-1)/2))**2)/2
-Sw((Ib1+Ib2-1)/2)=-Sw((Ib1+Ib2+1)/2)
-DO i=(Ib1+Ib2+3)/2,Ib2
+Sw(Imin)=sqrt((Xg(Imin+1,1)-Xg(Imin,1))**2+(Yg(Imin+1,1)-Yg(Imin,1))**2)/2
+Sw(Imin-1)=-sqrt((Xg(Imin,1)-Xg(Imin-1,1))**2+(Yg(Imin,1)-Yg(Imin-1,1))**2)/2
+DO i=Imin+1,Ib2
  Sw(i)=Sw(i-1)+sqrt((Xw(i)-Xw(i-1))**2+(Yw(i)-Yw(i-1))**2)
 end DO
-DO i=(Ib1+Ib2-3)/2,Ib1,-1
+DO i=Imin-2,Ib1,-1
  Sw(i)=Sw(i+1)-sqrt((Xw(i+1)-Xw(i))**2+(Yw(i+1)-Yw(i))**2)
 end DO
 DO j=1,Jc

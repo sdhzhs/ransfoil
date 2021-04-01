@@ -1,6 +1,6 @@
 Subroutine hypmeshgen(Xb,Yb,Xg,Yg,ra,fd,Ip,Jp)
 implicit none
-real(8),parameter::Pi=3.1415926535897932d+0
+real(8),parameter::Pi=3.1415926535897932e+0
 integer i,j,l,Ip,Jp,jtran,Jmax
 real(8) fd,dis,nua,nuj,theta,epsic
 real(8) Xb(Ip),Yb(Ip),ra(Jp)

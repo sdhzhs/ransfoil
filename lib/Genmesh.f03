@@ -33,12 +33,17 @@ if(Pntctrl=='Y') then
  Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0)
  Iwd=(Iw+1)/2
  Iwu=Iwd
+ if(abs(Ywp(Iw)-Ywp(1))>1e-10) Iwu=Iwu+1
  allocate(Xwd(Iwd),Ywd(Iwd))
  allocate(Xwu(Iwu),Ywu(Iwu))
  Xwd=Xwp((Iw+1)/2:Iw)
  Ywd=Ywp((Iw+1)/2:Iw)
- Xwu=Xwp((Iw+1)/2:1:-1)
- Ywu=Ywp((Iw+1)/2:1:-1)
+ Xwu(1:(Iw+1)/2)=Xwp((Iw+1)/2:1:-1)
+ Ywu(1:(Iw+1)/2)=Ywp((Iw+1)/2:1:-1)
+ if(abs(Ywp(Iw)-Ywp(1))>1e-10) then
+  Xwu((Iw+3)/2)=Xwp(Iw)
+  Ywu((Iw+3)/2)=Ywp(Iw)
+ end if
 end if
 Iw1=max(Iwd,Iwu)
 Iw2=Iw1+Iwd-1

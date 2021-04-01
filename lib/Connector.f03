@@ -21,7 +21,7 @@ real(8) X(Ip),Y(Ip),X0(Ip0),Y0(Ip0)
 real(8) s(Ip),s0(Ip0)
 real(8),allocatable,dimension(:)::sd,su
 Imin=(Ip0+1)/2
-xmin=1d+30
+xmin=1e+30
 s0(1)=0
 DO i=1,Ip0-1
  ds=sqrt((X0(i+1)-X0(i))**2+(Y0(i+1)-Y0(i))**2)
@@ -56,7 +56,7 @@ implicit none
 integer i,l,maxl,M
 real(8) err,lenth,fb,alpha,alpha0,B,s(M)
 maxl=100
-err=1d-10
+err=1e-10
 B=lenth/((M-1)*fb)
 alpha=5
 DO l=1,maxl
@@ -74,7 +74,7 @@ implicit none
 integer i,l,maxl,M
 real(8) err,lenth,fb,eb,alpha,alpha0,A,B,s(M),u(M)
 maxl=100
-err=1d-10
+err=1e-10
 A=sqrt(eb/fb)
 B=lenth/((M-1)*sqrt(eb*fb))
 alpha=5

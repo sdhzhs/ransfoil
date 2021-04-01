@@ -38,7 +38,7 @@ int main(void)
   po=100000.;
   tvr=10.;
   ksi=0.;
-  fp=fopen("cases/NACA0012.xyz","rt");
+  fp=fopen("../cases/NACA0012.xyz","rt");
   fscanf(fp,"%d",&iwd);
   cxwd=(double *) malloc(iwd*sizeof(double));
   cywd=(double *) malloc(iwd*sizeof(double));
