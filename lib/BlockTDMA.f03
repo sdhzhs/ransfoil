@@ -27,13 +27,34 @@ end Subroutine BlockTDMA
 Subroutine invMatrix(invA,A,N)
 implicit none
 integer i,j,k,N,kp,iq
-real(8) invA(N,N),A(N,N),B(N,N),R
+real(8) R,maxa,swap
+real(8) invA(N,N),A(N,N),B(N,N)
 
 B=0
 DO i=1,N
  B(i,i)=1
 end DO
 DO k=1,N-1
+ maxa=0
+ kp=k
+ DO i=k,N
+  if(abs(A(i,k))>maxa) then
+   maxa=abs(A(i,k))
+   kp=i
+  end if
+ end DO
+ if(kp/=k) then
+  DO j=k,N
+   swap=A(k,j)
+   A(k,j)=A(kp,j)
+   A(kp,j)=swap
+  end DO
+  DO j=1,N
+   swap=B(k,j)
+   B(k,j)=B(kp,j)
+   B(kp,j)=swap
+  end DO
+ end if
  kp=k+1
  DO i=kp,N
   R=A(i,k)/A(k,k)
@@ -65,9 +86,9 @@ integer i,j,k,N,M
 real(8) A(N,N),B(N,M),C(N,M)
 
 C=0
-DO i=1,N
- DO j=1,M
-  DO k=1,N
+DO j=1,M
+ DO k=1,N
+  DO i=1,N
    C(i,j)=C(i,j)+A(i,k)*B(k,j)
   end DO
  end DO

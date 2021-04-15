@@ -1,8 +1,9 @@
 Subroutine Genmesh(libmod)
 use Aero2DCOM
 implicit none
-integer i,j,l,Iw1,Iw2,Iw3,maxl
+integer i,j,l,Iw1,Iw2,Iw3,maxl,It
 real(8) err,ft,ltrail,lfar,ratio,ratio0
+real(8)::tol=1e-8
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
 
@@ -33,16 +34,21 @@ if(Pntctrl=='Y') then
  Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0)
  Iwd=(Iw+1)/2
  Iwu=Iwd
- if(abs(Ywp(Iw)-Ywp(1))>1e-10) Iwu=Iwu+1
+ if(abs(Ywp(Iw)-Ywp(1))>tol) then
+  It=6
+  Iwu=Iwu+It
+ end if
  allocate(Xwd(Iwd),Ywd(Iwd))
  allocate(Xwu(Iwu),Ywu(Iwu))
  Xwd=Xwp((Iw+1)/2:Iw)
  Ywd=Ywp((Iw+1)/2:Iw)
  Xwu(1:(Iw+1)/2)=Xwp((Iw+1)/2:1:-1)
  Ywu(1:(Iw+1)/2)=Ywp((Iw+1)/2:1:-1)
- if(abs(Ywp(Iw)-Ywp(1))>1e-10) then
-  Xwu((Iw+3)/2)=Xwp(Iw)
-  Ywu((Iw+3)/2)=Ywp(Iw)
+ if(abs(Ywp(Iw)-Ywp(1))>tol) then
+  DO i=1,It
+   Xwu((Iw+1)/2+i)=Xwp(Iw)
+   Ywu((Iw+1)/2+i)=Ywp(1)+i*(Ywp(Iw)-Ywp(1))/It
+  end DO
  end if
 end if
 Iw1=max(Iwd,Iwu)
