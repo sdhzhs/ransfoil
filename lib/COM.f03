@@ -17,6 +17,8 @@ real(8),allocatable,target,dimension(:,:)::rho,mu,P,dP,U,V,T,Tn,Tk,Te,Tw,mut,U0,
 a1,y1,b1,d,Un,Vn,duk,dva,Unk,Vna,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,rhox,rhoy,Tnx,Tny,Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,sigmatk,sigmatw
 real(8),allocatable,target,dimension(:,:,:)::aM
 real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xwp,Ywp,Xwp0,Ywp0,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
+real(8),allocatable,target,dimension(:)::Clrec,Cdrec,Cfrec,Cmrec,Xpcrec,Ypcrec
+real(8),allocatable,target,dimension(:,:)::Pnw,Unw,Vnw,Tnw,mutnw,hcvnw,Axnw,Aynw,Ypnw
 character(C_CHAR),bind(C)::cProctrl(8),cEnergy(8),cvisheat(8),cTurmod(8),cWalltreat(8),csolctrl(8),cDiscret(8),cdenface(8),&
 cInit(8),cStag(8),cPntctrl(8)
 character(C_CHAR),bind(C)::cfilename(64),cdir(64)

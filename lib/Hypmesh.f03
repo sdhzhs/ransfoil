@@ -1,6 +1,7 @@
-Subroutine hypmeshgen(Xb,Yb,Xg,Yg,ra,fd,Ip,Jp)
+Subroutine hypmeshgen(Xb,Yb,Xg,Yg,ra,fd,Ip,Jp,opentrail)
 implicit none
 real(8),parameter::Pi=3.1415926535897932e+0
+logical(1) opentrail
 integer i,j,l,Ip,Jp,jtran,Jmax
 real(8) fd,dis,nua,nuj,theta,epsic
 real(8) Xb(Ip),Yb(Ip),ra(Jp)
@@ -16,7 +17,11 @@ Jmax=Jp
 jtran=int(3*Jmax/4)
 dis=fd
 nua=2./3
-theta=1
+if(opentrail) then
+ theta=6
+else
+ theta=1
+end if
 epsic=1
 DO j=2,Jp
  dis=dis*ra(j)

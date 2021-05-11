@@ -221,7 +221,28 @@ else
   print *,'Iteration time:',60+time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
  end if
 end if
-if(s==maxs+1) print *,'Reach maximum iteration steps!'
+if(s==maxs+1) then
+ print *,'Reach maximum iteration steps!'
+ Cl=(Clrec(1)+Clrec(2)+Clrec(3))/3
+ Cd=(Cdrec(1)+Cdrec(2)+Cdrec(3))/3
+ Cf=(Cfrec(1)+Cfrec(2)+Cfrec(3))/3
+ Cm=(Cmrec(1)+Cmrec(2)+Cmrec(3))/3
+ Xpc=(Xpcrec(1)+Xpcrec(2)+Xpcrec(3))/3
+ Ypc=(Ypcrec(1)+Ypcrec(2)+Ypcrec(3))/3
+ hcv=(hcvnw(:,1)+hcvnw(:,2)+hcvnw(:,3))/3
+ Ax=(Axnw(:,1)+Axnw(:,2)+Axnw(:,3))/3
+ Ay=(Aynw(:,1)+Aynw(:,2)+Aynw(:,3))/3
+ if(Turmod=='sa'.or.Turmod=='sst') then
+  Yplus=(Ypnw(:,1)+Ypnw(:,2)+Ypnw(:,3))/3
+ else if(Turmod=='ke') then
+  Ystar=(Ypnw(:,1)+Ypnw(:,2)+Ypnw(:,3))/3
+ end if
+ P(Ib1:Ib2,1)=(Pnw(:,1)+Pnw(:,2)+Pnw(:,3))/3
+ U(Ib1:Ib2,1)=(Unw(:,1)+Unw(:,2)+Unw(:,3))/3
+ V(Ib1:Ib2,1)=(Vnw(:,1)+Vnw(:,2)+Vnw(:,3))/3
+ T(Ib1:Ib2,1)=(Tnw(:,1)+Tnw(:,2)+Tnw(:,3))/3
+ mut(Ib1:Ib2,1)=(mutnw(:,1)+mutnw(:,2)+mutnw(:,3))/3
+end if
 if(libmod=='S'.or.libmod=='I') then
  close(2)
  Call Saveresults
@@ -457,6 +478,8 @@ else if(Turmod=='sst') then
 end if
 allocate(Xw(Ib1:Ib2),Yw(Ib1:Ib2),Yp(Ib1:Ib2),DR(Ib1:Ib2),Sw(Ib1:Ib2),ks(Ib1:Ib2),Q(Ib1:Ib2),Yplus(Ib1:Ib2),Ystar(Ib1:Ib2),&
 ustar(Ib1:Ib2),Uplus(Ib1:Ib2),Tplus(Ib1:Ib2),hcv(Ib1:Ib2),Ax(Ib1:Ib2),Ay(Ib1:Ib2))
+allocate(Pnw(Ib1:Ib2,3),Unw(Ib1:Ib2,3),Vnw(Ib1:Ib2,3),Tnw(Ib1:Ib2,3),mutnw(Ib1:Ib2,3),hcvnw(Ib1:Ib2,3),Axnw(Ib1:Ib2,3),Aynw(Ib1:Ib2,3),Ypnw(Ib1:Ib2,3))
+allocate(Clrec(3),Cdrec(3),Cfrec(3),Cmrec(3),Xpcrec(3),Ypcrec(3))
 
 end Subroutine Allocarray
 

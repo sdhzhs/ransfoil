@@ -2,11 +2,13 @@ Subroutine Genmesh(libmod)
 use Aero2DCOM
 implicit none
 integer i,j,l,Iw1,Iw2,Iw3,maxl,It
+logical(1) opentrail
 real(8) err,ft,ltrail,lfar,ratio,ratio0
 real(8)::tol=1e-8
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
 
+opentrail=.false.
 if(libmod=='S'.or.libmod=='I') then
  Call Readfoil
 else if(libmod=='C') then
@@ -35,6 +37,7 @@ if(Pntctrl=='Y') then
  Iwd=(Iw+1)/2
  Iwu=Iwd
  if(abs(Ywp(Iw)-Ywp(1))>tol) then
+  opentrail=.true.
   It=6
   Iwu=Iwu+It
  end if
@@ -93,7 +96,7 @@ DO j=2,Jp
   fac(j)=ratio
  end if
 end DO
-Call hypmeshgen(Xg(:,1),Yg(:,1),Xg,Yg,fac,fd,Ip,Jp)
+Call hypmeshgen(Xg(:,1),Yg(:,1),Xg,Yg,fac,fd,Ip,Jp,opentrail)
 print *,'Generate 2D C-type structured mesh completed!'
 deallocate(Xt,fac)
 
