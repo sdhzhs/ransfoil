@@ -2,7 +2,7 @@ Subroutine Aero2D(libmod,prtl,scptname)
 #include <config.h>
 use Aero2DCOM
 implicit none
-integer s
+integer i,s,n
 integer(C_INT),bind(C)::prtl
 character(*) libmod,scptname
 integer time0(8),time1(8)
@@ -153,7 +153,7 @@ DO s=1,maxs
    Call StabSol('Tw')
   end if
   Call Turvis
-  Call Postprocess
+  Call Postprocess(s)
   if((libmod=='S'.or.libmod=='I').and.mod(s,100)==0) then
    Call Saveresults
    print *,'Output results completed!'
@@ -223,25 +223,49 @@ else
 end if
 if(s==maxs+1) then
  print *,'Reach maximum iteration steps!'
- Cl=(Clrec(1)+Clrec(2)+Clrec(3))/3
- Cd=(Cdrec(1)+Cdrec(2)+Cdrec(3))/3
- Cf=(Cfrec(1)+Cfrec(2)+Cfrec(3))/3
- Cm=(Cmrec(1)+Cmrec(2)+Cmrec(3))/3
- Xpc=(Xpcrec(1)+Xpcrec(2)+Xpcrec(3))/3
- Ypc=(Ypcrec(1)+Ypcrec(2)+Ypcrec(3))/3
- hcv=(hcvnw(:,1)+hcvnw(:,2)+hcvnw(:,3))/3
- Ax=(Axnw(:,1)+Axnw(:,2)+Axnw(:,3))/3
- Ay=(Aynw(:,1)+Aynw(:,2)+Aynw(:,3))/3
- if(Turmod=='sa'.or.Turmod=='sst') then
-  Yplus=(Ypnw(:,1)+Ypnw(:,2)+Ypnw(:,3))/3
- else if(Turmod=='ke') then
-  Ystar=(Ypnw(:,1)+Ypnw(:,2)+Ypnw(:,3))/3
+ if(s>1500) then
+  n=3
+  DO i=1,n
+   Cl=Cl+Clrec(i)
+   Cd=Cd+Cdrec(i)
+   Cf=Cf+Cfrec(i)
+   Cm=Cm+Cmrec(i)
+   Xpc=Xpc+Xpcrec(i)
+   Ypc=Ypc+Ypcrec(i)
+   hcv=hcv+hcvnw(:,i)
+   Ax=Ax+Axnw(:,i)
+   Ay=Ay+Aynw(:,i)
+   if(Turmod=='sa'.or.Turmod=='sst') then
+    Yplus=Yplus+Ypnw(:,i)
+   else if(Turmod=='ke') then
+    Ystar=Ystar+Ypnw(:,i)
+   end if
+   P(Ib1:Ib2,1)=P(Ib1:Ib2,1)+Pnw(:,i)
+   U(Ib1:Ib2,1)=U(Ib1:Ib2,1)+Unw(:,i)
+   V(Ib1:Ib2,1)=V(Ib1:Ib2,1)+Vnw(:,i)
+   T(Ib1:Ib2,1)=T(Ib1:Ib2,1)+Tnw(:,i)
+   mut(Ib1:Ib2,1)=mut(Ib1:Ib2,1)+mutnw(:,i)
+  end DO
+  Cl=Cl/(n+1)
+  Cd=Cd/(n+1)
+  Cf=Cf/(n+1)
+  Cm=Cm/(n+1)
+  Xpc=Xpc/(n+1)
+  Ypc=Ypc/(n+1)
+  hcv=hcv/(n+1)
+  Ax=Ax/(n+1)
+  Ay=Ay/(n+1)
+  if(Turmod=='sa'.or.Turmod=='sst') then
+   Yplus=Yplus/(n+1)
+  else if(Turmod=='ke') then
+   Ystar=Ystar/(n+1)
+  end if
+  P(Ib1:Ib2,1)=P(Ib1:Ib2,1)/(n+1)
+  U(Ib1:Ib2,1)=U(Ib1:Ib2,1)/(n+1)
+  V(Ib1:Ib2,1)=V(Ib1:Ib2,1)/(n+1)
+  T(Ib1:Ib2,1)=T(Ib1:Ib2,1)/(n+1)
+  mut(Ib1:Ib2,1)=mut(Ib1:Ib2,1)/(n+1)
  end if
- P(Ib1:Ib2,1)=(Pnw(:,1)+Pnw(:,2)+Pnw(:,3))/3
- U(Ib1:Ib2,1)=(Unw(:,1)+Unw(:,2)+Unw(:,3))/3
- V(Ib1:Ib2,1)=(Vnw(:,1)+Vnw(:,2)+Vnw(:,3))/3
- T(Ib1:Ib2,1)=(Tnw(:,1)+Tnw(:,2)+Tnw(:,3))/3
- mut(Ib1:Ib2,1)=(mutnw(:,1)+mutnw(:,2)+mutnw(:,3))/3
 end if
 if(libmod=='S'.or.libmod=='I') then
  close(2)
