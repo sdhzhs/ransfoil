@@ -47,7 +47,7 @@ DO i=Ib1,Ib2
   if(Ta-Tf/=0) then
    hcv(i)=ca*(ka/ca+mut(i,1)/Prt)*(T(i,1)-Tf)/Yp(i)/(Ta-Tf)
   else
-   hcv(i)=ca*(ka/ca+mut(i,1)/Prt)/Yp(i)
+   hcv(i)=ca*(ka/ca+mut(i,1)/Prt)*(T(i,1)-Tf)/Yp(i)
   end if
   Ax(i)=(mu(i,1)+mut(i,1))*U(i,1)/Yp(i)
   Ay(i)=(mu(i,1)+mut(i,1))*V(i,1)/Yp(i)
@@ -55,7 +55,7 @@ DO i=Ib1,Ib2
   if(Ta-Tf/=0) then
    hcv(i)=Q(i)/(Tf-Ta)
   else
-   hcv(i)=Q(i)/(Tf-T(i,1))
+   hcv(i)=Q(i)
   end if
   Ax(i)=rho(i,1)*ustar(i)*Un(i,1)*Yga(i,1)/Uplus(i)/da(i,1)**2
   Ay(i)=-rho(i,1)*ustar(i)*Un(i,1)*Xga(i,1)/Uplus(i)/da(i,1)**2

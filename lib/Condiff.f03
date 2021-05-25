@@ -11,6 +11,11 @@ real(8) F(Ic,Jc),Ga(Ic,Jc)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 character(*) scalar
+character(6) wallfunutype,wallfunktype
+
+wallfunutype='parvel'
+wallfunktype='genlaw'
+
 !$OMP PARALLEL
 if(scalar=='U'.or.scalar=='V') then
  !$OMP WORKSHARE
@@ -146,9 +151,17 @@ DO j=1,Jc-1
      end if
     else if(Turmod=='sa'.and.Walltreat=='wf'.or.(Turmod=='sst'.and.Walltreat=='wf').or.Turmod=='ke') then
      if(scalar=='U') then
-      aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*(Yga(i,j)/da(i,j))**2
+      if(wallfunutype=='parvel') then
+       aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*(Yga(i,j)/da(i,j))**2
+      else
+       aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)
+      end if
      else if(scalar=='V') then
-      aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*(Xga(i,j)/da(i,j))**2
+      if(wallfunutype=='parvel') then
+       aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*(Xga(i,j)/da(i,j))**2
+      else
+       aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)
+      end if
      else if(scalar=='T') then
       if(Tmin>=0) then
        aP=aP+rho(i,j)*ustar(i)*DR(i)/Tplus(i)
@@ -156,9 +169,17 @@ DO j=1,Jc-1
      else if(scalar=='Tn') then
       aP=aP+2*Ds(i,j)
      else if(Turmod=='sst'.and.scalar=='Tk') then
-      aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
+      if(wallfunktype=='genlaw') then
+       aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
+      else
+       aP=aP+rho(i,j)*ustar(i)**3*Jg(i,j)*dx*dy/(Tk(i,j)*kapa*Yp(i))
+      end if
      else if(Turmod=='ke'.and.scalar=='Tk') then
-      aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
+      if(wallfunktype=='genlaw') then
+       aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
+      else
+       aP=aP+rho(i,j)*ustar(i)**3*Jg(i,j)*dx*dy/(Tk(i,j)*kapa*Yp(i))
+      end if
      else if(scalar=='Te'.or.scalar=='Tw') then
       aW=0
       aE=0
@@ -246,7 +267,7 @@ DO j=1,Jc-1
     else if(Proctrl=='incom') then
      b(i,j)=Jg(i,j)*(-Px(i,j)+muxx(i,j)+mvxy(i,j))*dx*dy
     end if
-    if(j==1.and.(i>=Ib1.and.i<=Ib2).and.(Turmod=='sa'.and.Walltreat=='wf'.or.Turmod=='sst'.and.Walltreat=='wf'.or.Turmod=='ke')) then
+    if(wallfunutype=='parvel'.and.j==1.and.(i>=Ib1.and.i<=Ib2).and.(Turmod=='sa'.and.Walltreat=='wf'.or.Turmod=='sst'.and.Walltreat=='wf'.or.Turmod=='ke')) then
      b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xga(i,j)*Yga(i,j)*V(i,j)/da(i,j)**2
     end if
    else if(scalar=='V') then
@@ -255,7 +276,7 @@ DO j=1,Jc-1
     else if(Proctrl=='incom') then
      b(i,j)=Jg(i,j)*(-Py(i,j)+muyx(i,j)+mvyy(i,j))*dx*dy
     end if
-    if(j==1.and.(i>=Ib1.and.i<=Ib2).and.(Turmod=='sa'.and.Walltreat=='wf'.or.Turmod=='sst'.and.Walltreat=='wf'.or.Turmod=='ke')) then
+    if(wallfunutype=='parvel'.and.j==1.and.(i>=Ib1.and.i<=Ib2).and.(Turmod=='sa'.and.Walltreat=='wf'.or.Turmod=='sst'.and.Walltreat=='wf'.or.Turmod=='ke')) then
      b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xga(i,j)*Yga(i,j)*U(i,j)/da(i,j)**2
     end if
    else if(scalar=='T') then
@@ -310,10 +331,19 @@ DO j=1,Jc-1
    else if(scalar=='Tk'.and.Turmod=='ke') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      if(Proctrl=='com') then
-      b(i,j)=g*mut(i,j)*rhoy(i,j)*Jg(i,j)*dx*dy/(rho(i,j)*Prt)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)+&
-      rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
+      if(wallfunktype=='genlaw') then
+       b(i,j)=g*mut(i,j)*rhoy(i,j)*Jg(i,j)*dx*dy/(rho(i,j)*Prt)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)+&
+       rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
+      else
+       b(i,j)=g*mut(i,j)*rhoy(i,j)*Jg(i,j)*dx*dy/(rho(i,j)*Prt)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)+&
+       rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
+      end if
      else if(Proctrl=='incom') then
-      b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
+      if(wallfunktype=='genlaw') then
+       b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
+      else
+       b(i,j)=rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
+      end if
      end if
     else
      if(Proctrl=='com') then
@@ -326,7 +356,11 @@ DO j=1,Jc-1
    else if(scalar=='Tk'.and.Turmod=='sst') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      if(Walltreat=='wf') then
-      b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
+      if(wallfunktype=='genlaw') then
+       b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
+      else
+       b(i,j)=rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
+      end if
      else if(Walltreat=='lr') then
       b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-rho(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
      end if

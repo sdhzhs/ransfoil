@@ -60,7 +60,7 @@ DO j=1,Jc-1
    Pak=(P(i-1,j+1)+P(i,j+1)-P(i-1,j-1)-P(i,j-1))/(4*dy)
   end if
   cor=(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j)))
-  Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+dwk*Pak+cor
+  Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+cor+dwk*Pak
  end DO
 end DO
 !$OMP END DO
@@ -73,7 +73,7 @@ DO j=1,Jc
    Pka=(P(Ic-i,j)+P(i+1,j)-P(Ic+2-i,j)-P(i-1,j))/(4*dx)
    Vnpa=interpl(Vnp(i,j),-Vnp(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+dwa*Pka+cor
+   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+cor+dwa*Pka
   else if(j==1) then
    dva(i,j)=0
    Vna(i,j)=0
@@ -83,14 +83,14 @@ DO j=1,Jc
    Pka=(P(i+1,j-1)+P(i+1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
    Vnpa=interpl(Vnp(i,j-1),Vn(i,j),da(i,j-1),da(i,j))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+dwa*Pka+cor
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+dwa*Pka
   else
    dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j-1))
    dwa=interpl(dw(i,j)*dx,dw(i,j-1)*dx,da(i,j),da(i,j-1))
    Pka=(P(i+1,j-1)+P(i+1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
    Vnpa=interpl(Vnp(i,j),Vnp(i,j-1),da(i,j),da(i,j-1))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+dwa*Pka+cor
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+dwa*Pka
   end if
  end DO
 end DO
