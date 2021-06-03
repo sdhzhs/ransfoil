@@ -4,7 +4,7 @@ implicit none
 integer i,j
 real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor
 real(8) aP,aW,aE,aS,aN
-real(8),external:: interpl
+real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),dw(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
 !$OMP PARALLEL
 if(solctrl=='SIMPLE') then
@@ -113,7 +113,7 @@ DO j=1,Jc-1
     aN=aN-Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
     if(j==1.and.(i>Ib2.or.i<Ib1)) then
      aS=aS+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(Ic+1-i,j)/Ma)
-    else
+    else if(j>1) then
      aS=aS+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(i,j-1)/Ma)
     end if
     aP=aP+Rap*((0.5+we)*Unk(i+1,j)*dy-(0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx-(0.5-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)

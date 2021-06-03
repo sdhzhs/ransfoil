@@ -6,13 +6,26 @@ real(8) Ym,Yt
 real(8) Dwplus,phi1,F1
 real(8) ksplus(Ib1:Ib2),deltaB(Ib1:Ib2),Prough(Ib1:Ib2),lamda(Ib1:Ib2),Uplusl(Ib1:Ib2),Uplust(Ib1:Ib2),Tplusl(Ib1:Ib2),&
 Tplust(Ib1:Ib2),Twplusl(Ib1:Ib2),Twplust(Ib1:Ib2),Twplus(Ib1:Ib2),betai(Ib1:Ib2)
+character(6) wallfunutype,wallfunktype
+
+wallfunutype='parvel'
+wallfunktype='genlaw'
+
 Ym=11.225
 Yt=11.8
 DO i=Ib1,Ib2
   if(Turmod=='sst') then
-   ustar(i)=((mu(i,1)*abs(Un(i,1))/da(i,1)/(rho(i,1)*Yp(i)))**2+(alpha1*Tk(i,1))**2)**0.25
+   if(wallfunutype=='parvel') then
+    ustar(i)=((mu(i,1)*abs(Un(i,1))/da(i,1)/(rho(i,1)*Yp(i)))**2+(alpha1*Tk(i,1))**2)**0.25
+   else
+    ustar(i)=((mu(i,1)*sqrt(U(i,1)**2+V(i,1)**2)/(rho(i,1)*Yp(i)))**2+(alpha1*Tk(i,1))**2)**0.25
+   end if
   else if(Turmod=='sa') then
-   ustar(i)=((mu(i,1)*abs(Un(i,1))/da(i,1)/(rho(i,1)*Yp(i)))**2+(mut(i,1)/(rho(i,1)*kapa*Yp(i)))**4)**0.25
+   if(wallfunutype=='parvel') then
+    ustar(i)=((mu(i,1)*abs(Un(i,1))/da(i,1)/(rho(i,1)*Yp(i)))**2+(mut(i,1)/(rho(i,1)*kapa*Yp(i)))**4)**0.25
+   else
+    ustar(i)=((mu(i,1)*sqrt(U(i,1)**2+V(i,1)**2)/(rho(i,1)*Yp(i)))**2+(mut(i,1)/(rho(i,1)*kapa*Yp(i)))**4)**0.25
+   end if
   else if(Turmod=='ke') then
    ustar(i)=Cu**0.25*Tk(i,1)**0.5
   end if
@@ -112,6 +125,14 @@ if(Turmod=='sst') then
  end if
  Tw(Ib1:Ib2,1)=rho(Ib1:Ib2,1)*ustar**2*Twplus/mu(Ib1:Ib2,1)
 else if(Turmod=='ke') then
- Te(Ib1:Ib2,1)=ustar**2*abs(Un(Ib1:Ib2,1))/da(Ib1:Ib2,1)/Yp
+ if(wallfunktype=='genlaw') then
+  if(wallfunutype=='parvel') then
+   Te(Ib1:Ib2,1)=ustar**2*abs(Un(Ib1:Ib2,1))/da(Ib1:Ib2,1)/Yp
+  else if(wallfunutype=='orivel') then
+   Te(Ib1:Ib2,1)=ustar**2*sqrt(U(Ib1:Ib2,1)**2+V(Ib1:Ib2,1)**2)/Yp
+  end if
+ else if(wallfunktype=='loglaw') then
+  Te(Ib1:Ib2,1)=ustar**3/(kapa*Yp)
+ end if
 end if
 end Subroutine Wallfunc

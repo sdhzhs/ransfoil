@@ -27,9 +27,11 @@ else if(scalar=='Tn') then
 else if(scalar=='Tk') then
  F=Tk
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
+ !Fwall=Tk(Ib1:Ib2,1)
 else if(scalar=='Tw') then
  F=Tw
  Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
+ !Fwall=Tw(Ib1:Ib2,1)
 else if(scalar=='mux') then
  F=(mu+mut)*Ux
  Fwall=1.5*(mu(Ib1:Ib2,1)+mut(Ib1:Ib2,1))*Ux(Ib1:Ib2,1)-0.5*(mu(Ib1:Ib2,2)+mut(Ib1:Ib2,2))*Ux(Ib1:Ib2,2)

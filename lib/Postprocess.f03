@@ -3,6 +3,10 @@ use Aero2DCOM
 implicit none
 integer i,n,iter
 real(8) Cx,Cy,Ctx,Cty,Cpm,Ctm
+character(6) wallfunutype
+
+wallfunutype='parvel'
+
 n=3
 if(mod(iter,100)==0) then
  DO i=1,n-1
@@ -57,8 +61,13 @@ DO i=Ib1,Ib2
   else
    hcv(i)=Q(i)
   end if
-  Ax(i)=rho(i,1)*ustar(i)*Un(i,1)*Yga(i,1)/Uplus(i)/da(i,1)**2
-  Ay(i)=-rho(i,1)*ustar(i)*Un(i,1)*Xga(i,1)/Uplus(i)/da(i,1)**2
+  if(wallfunutype=='parvel') then
+   Ax(i)=rho(i,1)*ustar(i)*Un(i,1)*Yga(i,1)/Uplus(i)/da(i,1)**2
+   Ay(i)=-rho(i,1)*ustar(i)*Un(i,1)*Xga(i,1)/Uplus(i)/da(i,1)**2
+  else
+   Ax(i)=rho(i,1)*ustar(i)*U(i,1)/Uplus(i)
+   Ay(i)=rho(i,1)*ustar(i)*V(i,1)/Uplus(i)
+  end if
  end if
 end DO
 Cx=0

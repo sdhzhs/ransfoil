@@ -73,12 +73,12 @@ DO s=1,maxs
    Call StabSol('dP')
   end if
   P=P+Rap*dP
+  Call Derivatives('dP')
+  Call Velcorrect
   if(Proctrl=='com') then
    rho=rho+Rap*dP*Ma/(R*T)
    Call Densityinterp
   end if
-  Call Derivatives('dP')
-  Call Velcorrect
   Call Derivatives('U')
   Call Derivatives('V')
   Call Derivatives('P')

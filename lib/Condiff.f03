@@ -3,7 +3,7 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle
-real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin
+real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin,Dampk
 real(8) aP,aW,aE,aS,aN,DF
 real(8),external:: interpl
 real(8) Fwall(Ib1:Ib2)
@@ -54,7 +54,7 @@ else if(scalar=='Tk'.and.Turmod=='sst') then
  !$OMP WORKSHARE
  F=Tk
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
- !Fwall=0
+ !Fwall=Tk(Ib1:Ib2,1)
  Ga=mu+mut/sigmatk
  !$OMP END WORKSHARE
 else if(scalar=='Te') then
@@ -118,6 +118,7 @@ end DO
 !$OMP END DO
 !$OMP WORKSHARE
 Tmin=minval(Tplus)
+Dampk=0
 aM(1,:,:)=1
 aM(2,:,:)=0
 aM(3,:,:)=0
@@ -243,6 +244,7 @@ else if(scalar=='Tn') then
     fnu1=Xi**3/(Xi**3+Cnu1**3)
     fnu2=1-Tn(i,j)/(mu(i,j)/rho(i,j)+Tn(i,j)*fnu1)
     Sv=abs(Uy(i,j)-Vx(i,j))
+    !Sv=Sv+2.0*min(0.0,St(i,j)-Sv)
     Sm(i,j)=Sv+Tn(i,j)*fnu2/(kapa*d(i,j))**2
     rm=Tn(i,j)/(Sm(i,j)*(kapa*d(i,j))**2)
     gm=rm+Cw2*(rm**6-rm)
@@ -330,20 +332,21 @@ DO j=1,Jc-1
     rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/d(i,j))**2*Jg(i,j)*dx*dy
    else if(scalar=='Tk'.and.Turmod=='ke') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-     if(Proctrl=='com') then
-      if(wallfunktype=='genlaw') then
-       b(i,j)=g*mut(i,j)*rhoy(i,j)*Jg(i,j)*dx*dy/(rho(i,j)*Prt)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)+&
-       rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
-      else
-       b(i,j)=g*mut(i,j)*rhoy(i,j)*Jg(i,j)*dx*dy/(rho(i,j)*Prt)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)+&
-       rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
-      end if
-     else if(Proctrl=='incom') then
-      if(wallfunktype=='genlaw') then
+     if(wallfunktype=='genlaw') then
+      if(wallfunutype=='parvel') then
        b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
+      else
+       b(i,j)=rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/Yp(i)
+      end if       
+     else
+      if(wallfunutype=='parvel') then
+       b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
       else
        b(i,j)=rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
       end if
+     end if
+     if(Proctrl=='com') then
+      b(i,j)=b(i,j)+g*mut(i,j)*rhoy(i,j)*Jg(i,j)*dx*dy/(rho(i,j)*Prt)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)
      end if
     else
      if(Proctrl=='com') then
@@ -354,18 +357,30 @@ DO j=1,Jc-1
      end if
     end if
    else if(scalar=='Tk'.and.Turmod=='sst') then
+    Dampk=rho(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      if(Walltreat=='wf') then
       if(wallfunktype=='genlaw') then
-       b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j))/da(i,j)*Jg(i,j)*dx*dy/Yp(i)
+       if(wallfunutype=='parvel') then
+        b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j)/da(i,j))*Jg(i,j)*dx*dy/Yp(i)
+       else
+        b(i,j)=rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/Yp(i)
+       end if
       else
-       b(i,j)=rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
+       if(wallfunutype=='parvel') then
+        b(i,j)=rho(i,j)*ustar(i)**2*abs(Un(i,j)/da(i,j))*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
+       else
+        b(i,j)=rho(i,j)*ustar(i)**2*sqrt(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*kapa*Yp(i))
+       end if
       end if
-     else if(Walltreat=='lr') then
-      b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-rho(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
+      !b(i,j)=min(b(i,j),10*Dampk)
+     else if(Walltreat=='lr') then   
+      b(i,j)=min(mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy,10*Dampk)-Dampk
+      !b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-Dampk
      end if
     else
-     b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-rho(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
+     b(i,j)=min(mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy,10*Dampk)-Dampk
+     !b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-Dampk
     end if
    else if(scalar=='Te') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
