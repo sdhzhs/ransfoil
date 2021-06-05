@@ -134,12 +134,16 @@ DO k=1,maxl
  beta=(rho*alpha)/(rho0*omiga)
  !$OMP WORKSHARE
  p=rms+beta*(p-omiga*v)
- if(pretype=='JAC') then
-  y=a*p/aM(1,:,:)
- else
-  y=p
- end if
  !$OMP END WORKSHARE
+ if(pretype=='JAC') then
+  !$OMP WORKSHARE
+  y=a*p/aM(1,:,:)
+  !$OMP END WORKSHARE
+ else
+  !$OMP WORKSHARE
+  y=p
+  !$OMP END WORKSHARE
+ end if
  if(pretype=='ILU'.or.pretype=='SSOR') then
   Call Sorprecond(aM,aD,y,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
  end if
@@ -167,12 +171,16 @@ DO k=1,maxl
  alpha=rho/sumvrms
  !$OMP WORKSHARE
  s=rms-alpha*v
- if(pretype=='JAC') then
-  z=a*s/aM(1,:,:)
- else
-  z=s
- end if
  !$OMP END WORKSHARE
+ if(pretype=='JAC') then
+  !$OMP WORKSHARE
+  z=a*s/aM(1,:,:)
+  !$OMP END WORKSHARE
+ else
+  !$OMP WORKSHARE
+  z=s
+  !$OMP END WORKSHARE
+ end if
  if(pretype=='ILU'.or.pretype=='SSOR') then
   Call Sorprecond(aM,aD,z,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
  end if
@@ -194,13 +202,15 @@ DO k=1,maxl
    end DO
  end DO
  !$OMP END DO
- !$OMP WORKSHARE
  if(pretype=='JAC') then
+  !$OMP WORKSHARE
   pt=a*t/aM(1,:,:)
+  !$OMP END WORKSHARE
  else
+  !$OMP WORKSHARE
   pt=t
+  !$OMP END WORKSHARE
  end if
- !$OMP END WORKSHARE
  if(pretype=='ILU'.or.pretype=='SSOR') then
   Call Sorprecond(aM,aD,pt,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
  end if

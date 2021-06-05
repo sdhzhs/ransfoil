@@ -12,9 +12,11 @@ real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 character(*) scalar
 character(6) wallfunutype,wallfunktype
+logical(1) productlimit
 
 wallfunutype='parvel'
 wallfunktype='genlaw'
+productlimit=.true.
 
 !$OMP PARALLEL
 if(scalar=='U'.or.scalar=='V') then
@@ -374,13 +376,19 @@ DO j=1,Jc-1
        end if
       end if
       !b(i,j)=min(b(i,j),10*Dampk)
-     else if(Walltreat=='lr') then   
-      b(i,j)=min(mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy,10*Dampk)-Dampk
-      !b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-Dampk
+     else if(Walltreat=='lr') then
+      if(productlimit) then
+       b(i,j)=min(mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy,10*Dampk)-Dampk
+      else
+       b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-Dampk
+      end if
      end if
     else
-     b(i,j)=min(mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy,10*Dampk)-Dampk
-     !b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-Dampk
+     if(productlimit) then
+      b(i,j)=min(mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy,10*Dampk)-Dampk
+     else
+      b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy-Dampk
+     end if
     end if
    else if(scalar=='Te') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
