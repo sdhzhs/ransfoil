@@ -53,6 +53,10 @@ if(Pntctrl=='Y') then
    Ywu((Iw+1)/2+i)=Ywp(1)+i*(Ywp(Iw)-Ywp(1))/It
   end DO
  end if
+else
+ if(abs(Xwd(Iwd)-Xwd(Iwd-1))<tol.or.abs(Xwu(Iwu)-Xwu(Iwu-1))<tol) then
+  opentrail=.true.
+ end if
 end if
 Iw1=max(Iwd,Iwu)
 Iw2=Iw1+Iwd-1
@@ -128,5 +132,16 @@ open(unit=1,file=filename(1),status='old')
  end if
 close(1)
 print *,'Read airfoil coordinates completed!'
+if(Pntctrl=='N') then
+ if(Ywd(2)>=Ywu(2)) then
+  print *,'Error: The coordinates of lower airfoil should be given first in the xyz file!'
+  stop
+ end if
+else
+ if(Ywp0(2)<Ywp0(Iw0-1)) then
+  print *,'Error: The coordinates of upper airfoil should be given first in the cpt file!'
+  stop
+ end if
+end if
 
 end Subroutine Readfoil
