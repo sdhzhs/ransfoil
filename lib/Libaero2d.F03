@@ -2,7 +2,7 @@ Subroutine Aero2D(libmod,prtl,scptname)
 #include <config.h>
 use Aero2DCOM
 implicit none
-integer i,s,n
+integer s
 integer(C_INT),bind(C)::prtl
 character(*) libmod,scptname
 integer time0(8),time1(8)
@@ -51,15 +51,21 @@ DO s=1,maxs
 #ifdef HYPRE
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
 #else
-  Call sor(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
-  !Call CGSTAB(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+  if(Linsol=='sor') then
+   Call sor(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+  else if(Linsol=='pbicg') then
+   Call CGSTAB(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+  end if
 #endif
   Call Condiff('V')
 #ifdef HYPRE
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
 #else
-  Call sor(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
-  !Call CGSTAB(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+  if(Linsol=='sor') then
+   Call sor(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+  else if(Linsol=='pbicg') then
+   Call CGSTAB(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+  end if
 #endif
   Call PCEcoe
   rmsm=sum(abs(b))/(Ic*Jc)
@@ -88,8 +94,11 @@ DO s=1,maxs
 #ifdef HYPRE
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
 #else
-   Call sor(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
-   !Call CGSTAB(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+   if(Linsol=='sor') then
+    Call sor(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+   else if(Linsol=='pbicg') then
+    Call CGSTAB(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+   end if
 #endif
    if(Proctrl=='com') then
     Call StabSol('T')
@@ -109,8 +118,11 @@ DO s=1,maxs
 #ifdef HYPRE
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn')
 #else
-   Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
-   !Call CGSTAB(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+   if(Linsol=='sor') then
+    Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+   else if(Linsol=='pbicg') then
+    Call CGSTAB(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+   end if
 #endif
    Call StabSol('Tn')
   else if(Turmod=='ke') then
@@ -119,16 +131,22 @@ DO s=1,maxs
 #ifdef HYPRE
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
 #else
-   Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
-   !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   if(Linsol=='sor') then
+    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   else if(Linsol=='pbicg') then
+    Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   end if
 #endif
    Call StabSol('Tk')
    Call Condiff('Te')
 #ifdef HYPRE
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,solid,'Te')
 #else
-   Call sor(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
-   !Call CGSTAB(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+   if(Linsol=='sor') then
+    Call sor(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+   else if(Linsol=='pbicg') then
+    Call CGSTAB(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+   end if
 #endif
    Call StabSol('Te')
   else if(Turmod=='sst') then
@@ -139,16 +157,22 @@ DO s=1,maxs
 #ifdef HYPRE
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
 #else
-   Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
-   !Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   if(Linsol=='sor') then
+    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   else if(Linsol=='pbicg') then
+    Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   end if
 #endif
    Call StabSol('Tk')
    Call Condiff('Tw')
 #ifdef HYPRE
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tw')
 #else
-   Call sor(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
-   !Call CGSTAB(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+   if(Linsol=='sor') then
+    Call sor(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+   else if(Linsol=='pbicg') then
+    Call CGSTAB(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+   end if
 #endif
    Call StabSol('Tw')
   end if
@@ -224,47 +248,7 @@ end if
 if(s==maxs+1) then
  print *,'Reach maximum iteration steps!'
  if(s>1500) then
-  n=3
-  DO i=1,n
-   Cl=Cl+Clrec(i)
-   Cd=Cd+Cdrec(i)
-   Cf=Cf+Cfrec(i)
-   Cm=Cm+Cmrec(i)
-   Xpc=Xpc+Xpcrec(i)
-   Ypc=Ypc+Ypcrec(i)
-   hcv=hcv+hcvnw(:,i)
-   Ax=Ax+Axnw(:,i)
-   Ay=Ay+Aynw(:,i)
-   if(Turmod=='sa'.or.Turmod=='sst') then
-    Yplus=Yplus+Ypnw(:,i)
-   else if(Turmod=='ke') then
-    Ystar=Ystar+Ypnw(:,i)
-   end if
-   P(Ib1:Ib2,1)=P(Ib1:Ib2,1)+Pnw(:,i)
-   U(Ib1:Ib2,1)=U(Ib1:Ib2,1)+Unw(:,i)
-   V(Ib1:Ib2,1)=V(Ib1:Ib2,1)+Vnw(:,i)
-   T(Ib1:Ib2,1)=T(Ib1:Ib2,1)+Tnw(:,i)
-   mut(Ib1:Ib2,1)=mut(Ib1:Ib2,1)+mutnw(:,i)
-  end DO
-  Cl=Cl/(n+1)
-  Cd=Cd/(n+1)
-  Cf=Cf/(n+1)
-  Cm=Cm/(n+1)
-  Xpc=Xpc/(n+1)
-  Ypc=Ypc/(n+1)
-  hcv=hcv/(n+1)
-  Ax=Ax/(n+1)
-  Ay=Ay/(n+1)
-  if(Turmod=='sa'.or.Turmod=='sst') then
-   Yplus=Yplus/(n+1)
-  else if(Turmod=='ke') then
-   Ystar=Ystar/(n+1)
-  end if
-  P(Ib1:Ib2,1)=P(Ib1:Ib2,1)/(n+1)
-  U(Ib1:Ib2,1)=U(Ib1:Ib2,1)/(n+1)
-  V(Ib1:Ib2,1)=V(Ib1:Ib2,1)/(n+1)
-  T(Ib1:Ib2,1)=T(Ib1:Ib2,1)/(n+1)
-  mut(Ib1:Ib2,1)=mut(Ib1:Ib2,1)/(n+1)
+  Call AverageSol
  end if
 end if
 if(libmod=='S'.or.libmod=='I') then
@@ -343,6 +327,11 @@ DO i=1,8
  else
   denface(i:i)=' '
  end if
+ if(cLinsol(i)(1:1)/=C_NULL_CHAR) then
+  Linsol(i:i)=cLinsol(i)(1:1)
+ else
+  Linsol(i:i)=' '
+ end if
  if(cInit(i)(1:1)/=C_NULL_CHAR) then
   Init(i:i)=cInit(i)(1:1)
  else
@@ -404,6 +393,55 @@ if(Pntctrl=='Y') then
 end if
 
 end Subroutine ArraypointerF2C
+
+Subroutine AverageSol
+use Aero2DCOM
+implicit none
+integer i,n
+
+n=3
+DO i=1,n
+ Cl=Cl+Clrec(i)
+ Cd=Cd+Cdrec(i)
+ Cf=Cf+Cfrec(i)
+ Cm=Cm+Cmrec(i)
+ Xpc=Xpc+Xpcrec(i)
+ Ypc=Ypc+Ypcrec(i)
+ hcv=hcv+hcvnw(:,i)
+ Ax=Ax+Axnw(:,i)
+ Ay=Ay+Aynw(:,i)
+ if(Turmod=='sa'.or.Turmod=='sst') then
+  Yplus=Yplus+Ypnw(:,i)
+ else if(Turmod=='ke') then
+  Ystar=Ystar+Ypnw(:,i)
+ end if
+ P(Ib1:Ib2,1)=P(Ib1:Ib2,1)+Pnw(:,i)
+ U(Ib1:Ib2,1)=U(Ib1:Ib2,1)+Unw(:,i)
+ V(Ib1:Ib2,1)=V(Ib1:Ib2,1)+Vnw(:,i)
+ T(Ib1:Ib2,1)=T(Ib1:Ib2,1)+Tnw(:,i)
+ mut(Ib1:Ib2,1)=mut(Ib1:Ib2,1)+mutnw(:,i)
+end DO
+Cl=Cl/(n+1)
+Cd=Cd/(n+1)
+Cf=Cf/(n+1)
+Cm=Cm/(n+1)
+Xpc=Xpc/(n+1)
+Ypc=Ypc/(n+1)
+hcv=hcv/(n+1)
+Ax=Ax/(n+1)
+Ay=Ay/(n+1)
+if(Turmod=='sa'.or.Turmod=='sst') then
+ Yplus=Yplus/(n+1)
+else if(Turmod=='ke') then
+ Ystar=Ystar/(n+1)
+end if
+P(Ib1:Ib2,1)=P(Ib1:Ib2,1)/(n+1)
+U(Ib1:Ib2,1)=U(Ib1:Ib2,1)/(n+1)
+V(Ib1:Ib2,1)=V(Ib1:Ib2,1)/(n+1)
+T(Ib1:Ib2,1)=T(Ib1:Ib2,1)/(n+1)
+mut(Ib1:Ib2,1)=mut(Ib1:Ib2,1)/(n+1)
+
+end Subroutine AverageSol
 
 Subroutine Convergence(lconv,ldiv)
 use ieee_arithmetic

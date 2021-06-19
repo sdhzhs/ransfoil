@@ -32,6 +32,8 @@ if(libmod=='S') then
    read(10,*) denface
   end if
   read(10,*) ch
+  read(10,*) Linsol
+  read(10,*) ch
   read(10,*) Init
   if(Init=='Y') then
    read(10,*) ch
@@ -123,6 +125,8 @@ else if(libmod=='I') then
   print *,'Select density interpolation scheme(center/1upwind/2upwind/Quick/tvd):'
   read *,denface
  end if
+ print *,'Select type of linear solver for convective-diffusion equations(sor/pbicg):'
+ read *,Linsol
  print *,'Initialize from a file(Y/N)?'
  read *,Init
  if(Init=='Y') then

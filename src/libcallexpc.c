@@ -19,6 +19,7 @@ int main(void)
   strncpy(cwalltreat,"wf",2);
   strncpy(csolctrl,"SIMPLE",6);
   strncpy(cdiscret,"2upwind",7);
+  strncpy(clinsol,"sor",3);
   strncpy(cinit,"N",1);
   strncpy(cstag,"N",1);
   maxs=2000;

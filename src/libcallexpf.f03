@@ -14,6 +14,7 @@ Program libaero2dcaller
   Walltreat='wf'
   solctrl='SIMPLE'
   Discret='2upwind'
+  Linsol='sor'
   Init='N'
   Stag='N'
   maxs=2000
