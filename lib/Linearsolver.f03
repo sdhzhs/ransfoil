@@ -5,8 +5,7 @@ real(8) err,omiga,a,rms
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 real(8) Fo(Ic,Jc)
 character(*) scalar
-!$OMP PARALLEL PRIVATE(k)
-!$OMP SINGLE
+!$OMP PARALLEL PRIVATE(k,maxl,err,omiga)
 maxl=1000
 if(scalar=='dP') then
  err=1e-4
@@ -15,12 +14,11 @@ else
  err=1e-6
  omiga=1
 end if
-!$OMP END SINGLE
 DO k=1,maxl
   !$OMP WORKSHARE
   Fo=F
   !$OMP END WORKSHARE
-  !$OMP DO PRIVATE(i)
+  !$OMP DO
   DO j=1,Jc-1
     DO i=2,Ic-1
       if(j>1) then
@@ -43,11 +41,11 @@ DO k=1,maxl
   !$OMP SINGLE
   rms=0
   !$OMP END SINGLE
-  !$OMP DO REDUCTION(+:rms) PRIVATE(i)
+  !$OMP DO REDUCTION(+:rms)
   DO j=1,Jc
    DO i=1,Ic
     if(abs(Fo(i,j))>0) then
-     rms=rms+abs(F(i,j)-Fo(i,j))/abs(Fo(i,j))
+     rms=rms+abs((F(i,j)-Fo(i,j))/Fo(i,j))
     else
      rms=rms+abs(F(i,j)-Fo(i,j))
     end if
@@ -70,8 +68,7 @@ real(8) rmsi(Ic,Jc),rms(Ic,Jc),p(Ic,Jc),v(Ic,Jc),s(Ic,Jc),t(Ic,Jc),pt(Ic,Jc),y(I
 character(*) scalar
 character(4) pretype
 
-!$OMP PARALLEL PRIVATE(alpha,beta,rho,omiga,rho0,k)
-!$OMP SINGLE
+!$OMP PARALLEL PRIVATE(alpha,beta,rho,omiga,rho0,k,maxl,err,pretype)
 maxl=1000
 if(scalar=='dP') then
  err=1e-8
@@ -79,11 +76,10 @@ else
  err=1e-10
 end if
 pretype='ILU'
-!$OMP END SINGLE
 !$OMP WORKSHARE
 rms=0
 !$OMP END WORKSHARE
-!$OMP DO PRIVATE(i)
+!$OMP DO
 DO j=1,Jc-1
  DO i=2,Ic-1
   if(j>1) then
@@ -106,7 +102,7 @@ v=p
 aD=aM(1,:,:)
 !$OMP END WORKSHARE
 if(pretype=='ILU') then
- !$OMP DO PRIVATE(i)
+ !$OMP DO
  DO j=1,Jc-1
   DO i=2,Ic-1
    if(j==1) then
@@ -150,7 +146,7 @@ DO k=1,maxl
  !$OMP WORKSHARE
  v=y
  !$OMP END WORKSHARE
- !$OMP DO PRIVATE(i)
+ !$OMP DO
  DO j=1,Jc-1
   DO i=2,Ic-1
    if(j>1) then
@@ -187,7 +183,7 @@ DO k=1,maxl
  !$OMP WORKSHARE
  t=z
  !$OMP END WORKSHARE
- !$OMP DO PRIVATE(i)
+ !$OMP DO
  DO j=1,Jc-1
    DO i=2,Ic-1
     if(j>1) then
