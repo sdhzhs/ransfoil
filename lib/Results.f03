@@ -2,6 +2,7 @@ Subroutine Saveresults
 use Aero2DCOM
 implicit none
 integer i,j,ioerr
+real(8) Vel
 real(8) Ug(Ip,Jp),Vg(Ip,Jp),Pg(Ip,Jp),rhog(Ip,Jp),Tg(Ip,Jp),Tng(Ip,Jp),Tkg(Ip,Jp),Teg(Ip,Jp),Twg(Ip,Jp)
 Call Cell2node(Ug,U,'U')
 Call Cell2node(Vg,V,'V')
@@ -169,7 +170,7 @@ open(unit=4,file=filename(6),status='replace')
  end DO
 close(4)
 open(unit=4,file=filename(7),status='replace')
-  write(4,'(11(A11,2X))',advance='no') '#        X=','Y=','S=','P=','U=','V=','T=','mut=','hcv=','Ax=','Ay='
+  write(4,'(12(A11,2X))',advance='no') '#        X=','Y=','S=','P=','U=','V=','Vel=','T=','mut=','hcv=','Ax=','Ay='
   if(Turmod=='sa'.or.Turmod=='sst') then
    write(4,'(A11)') 'Yplus='
   else if(Turmod=='ke') then
@@ -178,7 +179,8 @@ open(unit=4,file=filename(7),status='replace')
    write(4,*) ''
   end if
   DO i=Ib1,Ib2
-   write(4,'(11(ES11.4,2X))',advance='no') Xw(i),Yw(i),Sw(i),P(i,1),U(i,1),V(i,1),T(i,1),mut(i,1),hcv(i),Ax(i),Ay(i)
+   Vel=sqrt(U(i,1)**2+V(i,1)**2)
+   write(4,'(12(ES11.4,2X))',advance='no') Xw(i),Yw(i),Sw(i),P(i,1),U(i,1),V(i,1),Vel,T(i,1),mut(i,1),hcv(i),Ax(i),Ay(i)
    if(Turmod=='sa'.or.Turmod=='sst') then
     write(4,'(ES11.4)') Yplus(i)
    else if(Turmod=='ke') then

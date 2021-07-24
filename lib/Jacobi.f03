@@ -37,13 +37,13 @@ DO i=Ib1,Ib2
   Imin=i
  end if
 end DO
-Sw(Imin)=sqrt((Xg(Imin+1,1)-Xg(Imin,1))**2+(Yg(Imin+1,1)-Yg(Imin,1))**2)/2
-Sw(Imin-1)=-sqrt((Xg(Imin,1)-Xg(Imin-1,1))**2+(Yg(Imin,1)-Yg(Imin-1,1))**2)/2
+Sw(Imin)=DR(Imin)/2
+Sw(Imin-1)=-DR(Imin-1)/2
 DO i=Imin+1,Ib2
- Sw(i)=Sw(i-1)+sqrt((Xw(i)-Xw(i-1))**2+(Yw(i)-Yw(i-1))**2)
+ Sw(i)=Sw(i-1)+DR(i-1)/2+DR(i)/2
 end DO
 DO i=Imin-2,Ib1,-1
- Sw(i)=Sw(i+1)-sqrt((Xw(i+1)-Xw(i))**2+(Yw(i+1)-Yw(i))**2)
+ Sw(i)=Sw(i+1)-DR(i+1)/2-DR(i)/2
 end DO
 DO j=1,Jc
  DO i=1,Ic

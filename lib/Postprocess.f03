@@ -48,10 +48,11 @@ if(mod(iter,100)==0) then
 end if
 DO i=Ib1,Ib2
  if(Turmod=='sa'.and.Walltreat=='lr'.or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
+  Q(i)=ca*(ka/ca+mut(i,1)/Prt)*(T(i,1)-Tf)/Yp(i)
   if(Ta-Tf/=0) then
-   hcv(i)=ca*(ka/ca+mut(i,1)/Prt)*(T(i,1)-Tf)/Yp(i)/(Ta-Tf)
+   hcv(i)=Q(i)/(Ta-Tf)
   else
-   hcv(i)=ca*(ka/ca+mut(i,1)/Prt)*(T(i,1)-Tf)/Yp(i)
+   hcv(i)=Q(i)
   end if
   Ax(i)=(mu(i,1)+mut(i,1))*U(i,1)/Yp(i)
   Ay(i)=(mu(i,1)+mut(i,1))*V(i,1)/Yp(i)
