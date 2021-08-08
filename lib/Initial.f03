@@ -13,7 +13,7 @@ mui=mu0*(Ta/Ti)**1.5*(Ti+Si)/(Ta+Si)
 Re=rhoi*Vfar*c/mui
 Mach=Vfar/sqrt(gama*R*Ta/Ma)
 if(Turmod=='sa') then
- Tni=1e-3
+ Tni=1
  DO i=1,100
   Tni0=Tni
   Tni=Tni-((rhoi/mui)**3*Tni**4-tvr*(rhoi/mui)**2*Tni**3-mui*tvr*Cnu1**3/rhoi)/(4*(rhoi/mui)**3*Tni**3-&
