@@ -12,11 +12,13 @@ real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 character(*) scalar
 character(6) wallfunutype,wallfunktype
-logical(1) productlimit
+logical(1) productlimit,sstlowre,sstcom
 
 wallfunutype='parvel'
-wallfunktype='genlaw'
+wallfunktype='loglaw'
 productlimit=.true.
+sstlowre=.false.
+sstcom=.false.
 
 !$OMP PARALLEL
 if(scalar=='U'.or.scalar=='V') then
@@ -36,8 +38,17 @@ if(scalar=='U'.or.scalar=='V') then
 else if(scalar=='T') then
  !$OMP WORKSHARE
  F=T
- Fwall=Tf
  Ga=ka/ca+mut/Prt
+ if(Tmptype=='fixed') then
+  Fwall=Tf
+ else if(Tmptype=='flux') then
+  if(Walltreat=='wf') then
+   Fwall=T(Ib1:Ib2,1)+Qf*Tplus/(ca*rho(Ib1:Ib2,1)*ustar)
+  else
+   Fwall=T(Ib1:Ib2,1)+Qf*Yp/(ca*Ga(Ib1:Ib2,1))
+  end if
+  Tf=Fwall((Ib1+Ib2)/2)
+ end if
  !$OMP END WORKSHARE
 else if(scalar=='Tn') then
  !$OMP WORKSHARE
@@ -166,8 +177,10 @@ DO j=1,Jc-1
        aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)
       end if
      else if(scalar=='T') then
-      if(Tmin>=0) then
-       aP=aP+rho(i,j)*ustar(i)*DR(i)/Tplus(i)
+      if(Tmptype=='fixed') then
+        if(Tmin>=0) then
+         aP=aP+rho(i,j)*ustar(i)*DR(i)/Tplus(i)
+        end if
       end if
      else if(scalar=='Tn') then
       aP=aP+2*Ds(i,j)
@@ -213,22 +226,35 @@ if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
  DO j=1,Jc-1
    DO i=2,Ic-1
     Dwplus=max(2*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
-    phi1=min(max(sqrt(Tk(i,j))/(0.09*Tw(i,j)*d(i,j)),500*mu(i,j)/(rho(i,j)*d(i,j)**2*Tw(i,j))),&
+    phi1=min(max(sqrt(Tk(i,j))/(betastarf*Tw(i,j)*d(i,j)),500*mu(i,j)/(rho(i,j)*d(i,j)**2*Tw(i,j))),&
     4*rho(i,j)*Tk(i,j)/(sigmaw2*Dwplus*d(i,j)**2))
     F1=tanh(phi1**4)
     betai=F1*betai1+(1-F1)*betai2
-    Ret=rho(i,j)*Tk(i,j)/(mu(i,j)*Tw(i,j))
-    alphastar(i,j)=alphastarf*(betai/3+Ret/Rk)/(1+Ret/Rk)
-    if(sqrt(2*Tk(i,j)/(gama*R*T(i,j)/Ma))<=Mt0) then
-     Fmt=0
+    if(sstlowre) then
+      Ret=rho(i,j)*Tk(i,j)/(mu(i,j)*Tw(i,j))
+      alphastar(i,j)=alphastarf*(betai/3+Ret/Rk)/(1+Ret/Rk)
+      betaistar=betastarf*(4./15+(Ret/Rbeta)**4)/(1+(Ret/Rbeta)**4)
     else
-     Fmt=2*Tk(i,j)/(gama*R*T(i,j)/Ma)-Mt0**2
+      alphastar(i,j)=alphastarf
+      betaistar=betastarf
     end if
-    betaistar=betastarf*(4./15+(Ret/Rbeta)**4)/(1+(Ret/Rbeta)**4)
+    if(sstcom) then
+      if(sqrt(2*Tk(i,j)/(gama*R*T(i,j)/Ma))<=Mt0) then
+       Fmt=0
+      else
+       Fmt=2*Tk(i,j)/(gama*R*T(i,j)/Ma)-Mt0**2
+      end if
+    else
+      Fmt=0
+    end if
     betastar(i,j)=betaistar*(1+Zetastar*Fmt)
     alphaf=F1*(betai1/betastarf-kapa**2/(sigmaw1*sqrt(betastarf)))+&
     (1-F1)*(betai2/betastarf-kapa**2/(sigmaw2*sqrt(betastarf)))
-    alpha(i,j)=alphaf/alphastar(i,j)*(alpha0+Ret/Rw)/(1+Ret/Rw)
+    if(sstlowre) then
+      alpha(i,j)=alphaf/alphastar(i,j)*(betai/3+Ret/Rw)/(1+Ret/Rw)
+    else
+      alpha(i,j)=alphaf/alphastar(i,j)
+    end if
     beta(i,j)=betai*(1-betaistar/betai*Zetastar*Fmt)
     Dwt(i,j)=2*(1-F1)*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(Tw(i,j)*sigmaw2)
    end DO
@@ -285,33 +311,58 @@ DO j=1,Jc-1
     end if
    else if(scalar=='T') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-     if((Turmod=='sa'.and.Walltreat=='lr').or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
-      if(Proctrl=='com') then
-       if(visheat=='Y') then
-        b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
-        (mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca+2*Ds(i,j)*Tf
-       else if(visheat=='N') then
-        b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+2*Ds(i,j)*Tf
+     if(Tmptype=='fixed') then
+       if((Turmod=='sa'.and.Walltreat=='lr').or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
+        if(Proctrl=='com') then
+         if(visheat=='Y') then
+          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
+          (mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca+2*Ds(i,j)*Tf
+         else if(visheat=='N') then
+          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+2*Ds(i,j)*Tf
+         end if
+        else if(Proctrl=='incom') then
+         if(visheat=='Y') then
+          b(i,j)=Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca+2*Ds(i,j)*Tf
+         else if(visheat=='N') then
+          b(i,j)=2*Ds(i,j)*Tf
+         end if
+        end if
+       else if(Turmod=='sst'.and.Walltreat=='wf'.or.(Turmod=='sa'.and.Walltreat=='wf').or.Turmod=='ke') then
+        if(Proctrl=='com') then
+         b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
+         if(Tmin<0) then
+          b(i,j)=b(i,j)-rho(i,j)*ustar(i)*T(i,j)*DR(i)/Tplus(i)
+         end if
+        else if(Proctrl=='incom') then
+         b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
+         if(Tmin<0) then
+          b(i,j)=b(i,j)-rho(i,j)*ustar(i)*T(i,j)*DR(i)/Tplus(i)
+         end if
+        end if
        end if
-      else if(Proctrl=='incom') then
-       if(visheat=='Y') then
-        b(i,j)=Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca+2*Ds(i,j)*Tf
-       else if(visheat=='N') then
-        b(i,j)=2*Ds(i,j)*Tf
+     else if(Tmptype=='flux') then
+       if((Turmod=='sa'.and.Walltreat=='lr').or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
+        if(Proctrl=='com') then
+         if(visheat=='Y') then
+          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
+          (mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca+Qf*DR(i)/ca
+         else if(visheat=='N') then
+          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+Qf*DR(i)/ca
+         end if
+        else if(Proctrl=='incom') then
+         if(visheat=='Y') then
+          b(i,j)=Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca+Qf*DR(i)/ca
+         else if(visheat=='N') then
+          b(i,j)=Qf*DR(i)/ca
+         end if
+        end if
+       else if(Turmod=='sst'.and.Walltreat=='wf'.or.(Turmod=='sa'.and.Walltreat=='wf').or.Turmod=='ke') then
+         if(Proctrl=='com') then
+          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+Qf*DR(i)/ca
+         else if(Proctrl=='incom') then
+          b(i,j)=Qf*DR(i)/ca
+         end if
        end if
-      end if
-     else if(Turmod=='sst'.and.Walltreat=='wf'.or.(Turmod=='sa'.and.Walltreat=='wf').or.Turmod=='ke') then
-      if(Proctrl=='com') then
-       b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
-       if(Tmin<0) then
-        b(i,j)=b(i,j)-rho(i,j)*ustar(i)*T(i,j)*DR(i)/Tplus(i)
-       end if
-      else if(Proctrl=='incom') then
-       b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
-       if(Tmin<0) then
-        b(i,j)=b(i,j)-rho(i,j)*ustar(i)*T(i,j)*DR(i)/Tplus(i)
-       end if
-      end if
      end if
     else
      if(Proctrl=='com') then

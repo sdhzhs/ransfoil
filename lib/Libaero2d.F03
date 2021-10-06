@@ -332,6 +332,11 @@ DO i=1,8
  else
   Linsol(i:i)=' '
  end if
+ if(cTmptype(i)(1:1)/=C_NULL_CHAR) then
+  Tmptype(i:i)=cTmptype(i)(1:1)
+ else
+  Tmptype(i:i)=' '
+ end if
  if(cInit(i)(1:1)/=C_NULL_CHAR) then
   Init(i:i)=cInit(i)(1:1)
  else

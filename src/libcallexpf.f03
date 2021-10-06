@@ -15,6 +15,7 @@ Program libaero2dcaller
   solctrl='SIMPLE'
   Discret='2upwind'
   Linsol='sor'
+  Tmptype='fixed'
   Init='N'
   Stag='N'
   maxs=2000

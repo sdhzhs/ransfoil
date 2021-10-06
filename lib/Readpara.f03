@@ -33,6 +33,10 @@ if(libmod=='S') then
   end if
   read(10,*) ch
   read(10,*) Linsol
+  if(Energy=='Y') then
+   read(10,*) ch
+   read(10,*) Tmptype
+  end if
   read(10,*) ch
   read(10,*) Init
   if(Init=='Y') then
@@ -81,7 +85,11 @@ if(libmod=='S') then
   read(10,*) ch
   read(10,*) Ta
   read(10,*) ch
-  read(10,*) Tf
+  if(Tmptype=='fixed') then
+    read(10,*) Tf
+  else if(Tmptype=='flux') then
+    read(10,*) Qf
+  end if
   read(10,*) ch
   read(10,*) Po
   if(Turmod=='ke'.or.Turmod=='sst') then
@@ -127,6 +135,10 @@ else if(libmod=='I') then
  end if
  print *,'Select type of linear solver for convective-diffusion equations(sor/pbicg):'
  read *,Linsol
+ if(Energy=='Y') then
+   print *,'Set boundary condition type of tempreture(fixed/flux):'
+   read *, Tmptype
+ end if
  print *,'Initialize from a file(Y/N)?'
  read *,Init
  if(Init=='Y') then
@@ -174,8 +186,13 @@ else if(libmod=='I') then
  read *,AoA
  print *,'Input temperature of free stream(K):'
  read *,Ta
- print *,'Input temperature of wall(K):'
- read *,Tf
+ if(Tmptype=='fixed') then
+   print *,'Input temperature of wall(K):'
+   read *, Tf
+ else if(Tmptype=='flux') then
+   print *,'Input heat flux of wall(J/m^2s):'
+   read *, Qf
+ end if
  print *,'Input ambient pressure(Pa):'
  read *,Po
  if(Turmod=='ke'.or.Turmod=='sst') then

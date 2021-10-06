@@ -20,6 +20,8 @@ Select discretization scheme(1upwind/2upwind/Quick/tvd):
 2upwind
 Select type of linear solver for convective-diffusion equations(sor/pbicg):
 sor
+Set boundary condition type of tempreture(fixed/flux):
+fixed
 Initialize from a file(Y/N)?
 Y
 Initialize using stagnation values(Y/N)? (or Input a filename for initialization:)

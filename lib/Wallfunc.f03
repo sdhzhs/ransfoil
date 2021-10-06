@@ -9,7 +9,7 @@ Tplust(Ib1:Ib2),Twplusl(Ib1:Ib2),Twplust(Ib1:Ib2),Twplus(Ib1:Ib2),betai(Ib1:Ib2)
 character(6) wallfunutype,wallfunktype
 
 wallfunutype='parvel'
-wallfunktype='genlaw'
+wallfunktype='loglaw'
 
 Ym=11.225
 Yt=11.8
@@ -63,16 +63,24 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
    Tplusl(i)=Pr(i,1)*Uplusl(i)
    Tplust(i)=Prt*(Uplust(i)+Prough(i))
    Tplus(i)=exp(lamda(i))*Tplusl(i)+exp(1./lamda(i))*Tplust(i)
-   Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-exp(lamda(i))*0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)-&
-   exp(1./lamda(i))*0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2))/Tplus(i)
-   Tplusl(i)=Pr(i,1)*Uplusl(i)+0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)/Q(i)
-   Tplust(i)=Prt*(Uplust(i)+Prough(i))+0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)/Q(i)
-   Tplus(i)=exp(lamda(i))*Tplusl(i)+exp(1./lamda(i))*Tplust(i)
+   if(Tmptype=='fixed') then
+    Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-exp(lamda(i))*0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)-&
+    exp(1./lamda(i))*0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2))/Tplus(i)
+    Tplusl(i)=Pr(i,1)*Uplusl(i)+0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)/Q(i)
+    Tplust(i)=Prt*(Uplust(i)+Prough(i))+0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)/Q(i)
+    Tplus(i)=exp(lamda(i))*Tplusl(i)+exp(1./lamda(i))*Tplust(i)
+   else if(Tmptype=='flux') then
+    Q(i)=Qf
+   end if
   else
    Tplusl(i)=Pr(i,1)*Uplusl(i)
    Tplust(i)=Prt*(Uplust(i)+Prough(i))
    Tplus(i)=exp(lamda(i))*Tplusl(i)+exp(1./lamda(i))*Tplust(i)
-   Q(i)=ca*rho(i,1)*ustar(i)*(Tf-T(i,1))/Tplus(i)
+   if(Tmptype=='fixed') then
+    Q(i)=ca*rho(i,1)*ustar(i)*(Tf-T(i,1))/Tplus(i)
+   else if(Tmptype=='flux') then
+    Q(i)=Qf
+   end if
   end if
  end DO
 else if(Turmod=='ke') then
@@ -80,12 +88,20 @@ else if(Turmod=='ke') then
   Uplus(i)=log(Ep*Ystar(i))/kapa-deltaB(i)
   if(visheat=='Y') then
    Tplus(i)=Prt*(Uplus(i)+Prough(i))
-   Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+&
-   (Pr(i,1)-Prt)*(Yt*ustar(i))**2))/Tplus(i)
-   Tplus(i)=Prt*(Uplus(i)+Prough(i))+0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)/Q(i)
+   if(Tmptype=='fixed') then
+    Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+&
+    (Pr(i,1)-Prt)*(Yt*ustar(i))**2))/Tplus(i)
+    Tplus(i)=Prt*(Uplus(i)+Prough(i))+0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)/Q(i)
+   else if(Tmptype=='flux') then
+    Q(i)=Qf
+   end if
   else
    Tplus(i)=Prt*(Uplus(i)+Prough(i))
-   Q(i)=ca*rho(i,1)*ustar(i)*(Tf-T(i,1))/Tplus(i)
+   if(Tmptype=='fixed') then
+    Q(i)=ca*rho(i,1)*ustar(i)*(Tf-T(i,1))/Tplus(i)
+   else if(Tmptype=='flux') then
+    Q(i)=Qf
+   end if
   end if
  end DO
 end if
@@ -93,7 +109,7 @@ if(Turmod=='sst') then
  DO j=1,Jc
   DO i=1,Ic
    Dwplus=max(2*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
-   phi1=min(max(sqrt(Tk(i,j))/(0.09*Tw(i,j)*d(i,j)),500*mu(i,j)/(rho(i,j)*d(i,j)**2*Tw(i,j))),&
+   phi1=min(max(sqrt(Tk(i,j))/(betastarf*Tw(i,j)*d(i,j)),500*mu(i,j)/(rho(i,j)*d(i,j)**2*Tw(i,j))),&
    4*rho(i,j)*Tk(i,j)/(sigmaw2*Dwplus*d(i,j)**2))
    F1=tanh(phi1**4)
    sigmatk(i,j)=1/(F1/sigmak1+(1-F1)/sigmak2)

@@ -20,6 +20,7 @@ int main(void)
   strncpy(csolctrl,"SIMPLE",6);
   strncpy(cdiscret,"2upwind",7);
   strncpy(clinsol,"sor",3);
+  strncpy(ctmptype,"fixed",5);
   strncpy(cinit,"N",1);
   strncpy(cstag,"N",1);
   maxs=2000;

@@ -4,6 +4,7 @@ implicit none
 integer i,n,iter
 real(8) Cx,Cy,Ctx,Cty,Cpm,Ctm
 character(6) wallfunutype
+real(8) Fwall(Ib1:Ib2)
 
 wallfunutype='parvel'
 
@@ -46,19 +47,28 @@ if(mod(iter,100)==0) then
   Ypnw(:,n)=Ystar
  end if
 end if
+if(Tmptype=='fixed') then
+ Fwall=Tf
+else if(Tmptype=='flux') then
+ if(Walltreat=='wf') then
+  Fwall=T(Ib1:Ib2,1)+Qf*Tplus/(ca*rho(Ib1:Ib2,1)*ustar)
+ else
+  Fwall=T(Ib1:Ib2,1)+Qf*Yp/(ka+ca*mut(Ib1:Ib2,1)/Prt)
+ end if
+end if
 DO i=Ib1,Ib2
  if(Turmod=='sa'.and.Walltreat=='lr'.or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
-  Q(i)=ca*(ka/ca+mut(i,1)/Prt)*(T(i,1)-Tf)/Yp(i)
-  if(Ta-Tf/=0) then
-   hcv(i)=Q(i)/(Ta-Tf)
+  Q(i)=ca*(ka/ca+mut(i,1)/Prt)*(T(i,1)-Fwall(i))/Yp(i)
+  if(Ta-Fwall(i)/=0) then
+   hcv(i)=Q(i)/(Ta-Fwall(i))
   else
    hcv(i)=Q(i)
   end if
   Ax(i)=(mu(i,1)+mut(i,1))*U(i,1)/Yp(i)
   Ay(i)=(mu(i,1)+mut(i,1))*V(i,1)/Yp(i)
  else if(Turmod=='ke'.or.(Turmod=='sa'.and.Walltreat=='wf').or.(Turmod=='sst'.and.Walltreat=='wf')) then
-  if(Ta-Tf/=0) then
-   hcv(i)=Q(i)/(Tf-Ta)
+  if(Ta-Fwall(i)/=0) then
+   hcv(i)=Q(i)/(Fwall(i)-Ta)
   else
    hcv(i)=Q(i)
   end if

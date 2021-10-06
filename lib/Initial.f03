@@ -5,7 +5,11 @@ integer i,j,ioerr
 real(8),external:: interpl
 real(8) Tni0
 ca=1006.43
-ka=0.00008*(Ta-Tf)+0.0244
+if(Tmptype=='fixed') then
+  ka=0.00008*(Ta-Tf)+0.0244
+else if(Tmptype=='flux') then
+  ka=0.0244
+end if
 Ui=Vfar*cos(AoA*Pi/180)
 Vi=Vfar*sin(AoA*Pi/180)
 rhoi=Po*Ma/(R*Ta)
