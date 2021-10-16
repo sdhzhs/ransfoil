@@ -12,13 +12,14 @@ real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 character(*) scalar
 character(6) wallfunutype,wallfunktype
-logical(1) productlimit,sstlowre,sstcom
+logical(1) productlimit,sstlowre,sstcom,savortex
 
 wallfunutype='parvel'
 wallfunktype='loglaw'
 productlimit=.true.
-sstlowre=.false.
-sstcom=.false.
+sstlowre=.true.
+sstcom=.true.
+savortex=.false.
 
 !$OMP PARALLEL
 if(scalar=='U'.or.scalar=='V') then
@@ -151,7 +152,8 @@ DO j=1,Jc-1
    aN=Dn(i,j)+max(-Fn(i,j),0.0)
    if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
     aS=0
-    aP=aW+aE+aS+aN+DF
+    aP=aW+aE+aS+aN
+    if(DF>0.and.Mach>1) aP=aP+DF
     if((Turmod=='sa'.and.Walltreat=='lr').or.(Turmod=='sst'.and.Walltreat=='lr').or.Turmod=='lam'.or.Turmod=='inv') then
      if(scalar=='Tn'.and.ks(i)>0) then
       aP=aP+2*Ds(i,j)*Yp(i)/d(i,j)
@@ -205,7 +207,8 @@ DO j=1,Jc-1
     end if
    else
     aS=Ds(i,j)+max(Fs(i,j),0.0)
-    aP=aW+aE+aS+aN+DF
+    aP=aW+aE+aS+aN
+    if(DF>0.and.Mach>1) aP=aP+DF
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW
@@ -232,7 +235,7 @@ if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
     betai=F1*betai1+(1-F1)*betai2
     if(sstlowre) then
       Ret=rho(i,j)*Tk(i,j)/(mu(i,j)*Tw(i,j))
-      alphastar(i,j)=alphastarf*(betai/3+Ret/Rk)/(1+Ret/Rk)
+      alphastar(i,j)=alphastarf*(0.024+Ret/Rk)/(1+Ret/Rk)
       betaistar=betastarf*(4./15+(Ret/Rbeta)**4)/(1+(Ret/Rbeta)**4)
     else
       alphastar(i,j)=alphastarf
@@ -251,7 +254,7 @@ if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
     alphaf=F1*(betai1/betastarf-kapa**2/(sigmaw1*sqrt(betastarf)))+&
     (1-F1)*(betai2/betastarf-kapa**2/(sigmaw2*sqrt(betastarf)))
     if(sstlowre) then
-      alpha(i,j)=alphaf/alphastar(i,j)*(betai/3+Ret/Rw)/(1+Ret/Rw)
+      alpha(i,j)=alphaf/alphastar(i,j)*(alpha0+Ret/Rw)/(1+Ret/Rw)
     else
       alpha(i,j)=alphaf/alphastar(i,j)
     end if
@@ -272,7 +275,7 @@ else if(scalar=='Tn') then
     fnu1=Xi**3/(Xi**3+Cnu1**3)
     fnu2=1-Tn(i,j)/(mu(i,j)/rho(i,j)+Tn(i,j)*fnu1)
     Sv=abs(Uy(i,j)-Vx(i,j))
-    !Sv=Sv+2.0*min(0.0,St(i,j)-Sv)
+    if(savortex) Sv=Sv+2.0*min(0.0,St(i,j)-Sv)
     Sm(i,j)=Sv+Tn(i,j)*fnu2/(kapa*d(i,j))**2
     rm=Tn(i,j)/(Sm(i,j)*(kapa*d(i,j))**2)
     gm=rm+Cw2*(rm**6-rm)
@@ -381,8 +384,13 @@ DO j=1,Jc-1
      end if
     end if
    else if(scalar=='Tn') then
-    b(i,j)=Cb2*rho(i,j)*(Tnx(i,j)**2+Tny(i,j)**2)*Jg(i,j)*dx*dy/sigman+rho(i,j)*Cb1*Sm(i,j)*Tn(i,j)*Jg(i,j)*dx*dy-&
+    if(Walltreat=='wf') then
+     b(i,j)=Cb2*rho(i,j)*(Tnx(i,j)**2+Tny(i,j)**2)*Jg(i,j)*dx*dy/sigman+rho(i,j)*Cb1*Sm(i,j)*Tn(i,j)*Jg(i,j)*dx*dy-&
+    rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/(kapa*d(i,j)))**2*Jg(i,j)*dx*dy
+    else
+     b(i,j)=Cb2*rho(i,j)*(Tnx(i,j)**2+Tny(i,j)**2)*Jg(i,j)*dx*dy/sigman+rho(i,j)*Cb1*Sm(i,j)*Tn(i,j)*Jg(i,j)*dx*dy-&
     rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/d(i,j))**2*Jg(i,j)*dx*dy
+    end if
    else if(scalar=='Tk'.and.Turmod=='ke') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      if(wallfunktype=='genlaw') then

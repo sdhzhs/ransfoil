@@ -4,7 +4,7 @@ implicit none
 integer i,j
 real(8) Xi,fnu1,Dwplus,phi1,F1,betai,St,phi2,F2,Ret,alphastar
 logical(1) sstlowre
- sstlowre=.false.
+ sstlowre=.true.
  DO j=1,Jc
   DO i=1,Ic
    if(Turmod=='sa') then
@@ -28,7 +28,7 @@ logical(1) sstlowre
     F2=tanh(phi2**2)
     if(sstlowre) then
       Ret=rho(i,j)*Tk(i,j)/(mu(i,j)*Tw(i,j))
-      alphastar=alphastarf*(betai/3+Ret/Rk)/(1+Ret/Rk)
+      alphastar=alphastarf*(0.024+Ret/Rk)/(1+Ret/Rk)
     else
       alphastar=alphastarf
     end if

@@ -27,17 +27,17 @@ Y
 Initialize using stagnation values(Y/N)? (or Input a filename for initialization:)
 'whitcomb1/Autosave.dat'
 Input maximum iteration steps:
-500
+2000
 Input minimum residual of iteration:
 1e-4
 Input relaxation factor of velocity:
-3e-1
+7e-1
 Input relaxation factor of pressure:
 3e-1
 Input relaxation factor of temperature:
-2e-1
+3e-1
 Input relaxation factor of turbulence:
-2e-1
+3e-1
 Input dimensionless near wall mesh spacing:
 1e-5
 Input layers of uniform near wall mesh:
