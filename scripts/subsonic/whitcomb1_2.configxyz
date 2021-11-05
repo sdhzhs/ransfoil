@@ -43,7 +43,7 @@ Input dimensionless near wall mesh spacing:
 Input layers of uniform near wall mesh:
 5
 Input total number of grid points normal to the airfoil surface:
-90
+85
 Input chord length(m):
 1.0
 Input velocity of free stream(m/s):

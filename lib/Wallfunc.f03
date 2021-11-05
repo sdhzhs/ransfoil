@@ -2,10 +2,10 @@ Subroutine Wallfunc
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Ym,Yt
-real(8) Dwplus,phi1,F1
-real(8) ksplus(Ib1:Ib2),deltaB(Ib1:Ib2),Prough(Ib1:Ib2),lamda(Ib1:Ib2),Uplusl(Ib1:Ib2),Uplust(Ib1:Ib2),Tplusl(Ib1:Ib2),&
-Tplust(Ib1:Ib2),Twplusl(Ib1:Ib2),Twplust(Ib1:Ib2),Twplus(Ib1:Ib2),betai(Ib1:Ib2)
+real(8) Ym,Yt,Ymax
+real(8) Dwplus,phi1,F1,Tplusl,Tplust,Tplusc,Dl,Dt
+real(8) ksplus(Ib1:Ib2),deltaB(Ib1:Ib2),Prough(Ib1:Ib2),lamda(Ib1:Ib2),Uplusl(Ib1:Ib2),Uplust(Ib1:Ib2),&
+Twplusl(Ib1:Ib2),Twplust(Ib1:Ib2),Twplus(Ib1:Ib2),betai(Ib1:Ib2)
 character(6) wallfunutype,wallfunktype
 
 wallfunutype='parvel'
@@ -58,24 +58,32 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
  Uplust=log(Ep*Yplus)/kapa-deltaB
  Uplus=exp(lamda)*Uplusl+exp(1./lamda)*Uplust
  lamda=-0.01*(Pr(Ib1:Ib2,1)*Yplus)**4/(1+5.*Pr(Ib1:Ib2,1)**3*Yplus)
+ Ymax=maxval(Yplus)
  DO i=Ib1,Ib2
-  if(visheat=='Y') then
-   Tplusl(i)=Pr(i,1)*Uplusl(i)
-   Tplust(i)=Prt*(Uplust(i)+Prough(i))
-   Tplus(i)=exp(lamda(i))*Tplusl(i)+exp(1./lamda(i))*Tplust(i)
+  if(visheat=='Y'.and.Ymax>10) then
+   Tplusl=Pr(i,1)*Uplusl(i)
+   Tplust=Prt*(Uplust(i)+Prough(i))
+   Tplusc=exp(lamda(i))*Tplusl+exp(1./lamda(i))*Tplust
    if(Tmptype=='fixed') then
-    Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-exp(lamda(i))*0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)-&
-    exp(1./lamda(i))*0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2))/Tplus(i)
-    Tplusl(i)=Pr(i,1)*Uplusl(i)+0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)/Q(i)
-    Tplust(i)=Prt*(Uplust(i)+Prough(i))+0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)/Q(i)
-    Tplus(i)=exp(lamda(i))*Tplusl(i)+exp(1./lamda(i))*Tplust(i)
+    if(wallfunutype=='parvel') then
+     Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(Un(i,1)/da(i,1))**2
+     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(Un(i,1)/da(i,1))**2+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
+    else
+     Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)
+     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
+    end if
+    Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-exp(lamda(i))*Dl-exp(1./lamda(i))*Dt)/Tplusc
+    Tplusl=Tplusl+Dl/Q(i)
+    Tplust=Tplust+Dt/Q(i)
+    Tplus(i)=exp(lamda(i))*Tplusl+exp(1./lamda(i))*Tplust
    else if(Tmptype=='flux') then
     Q(i)=Qf
+    Tplus(i)=Tplusc
    end if
   else
-   Tplusl(i)=Pr(i,1)*Uplusl(i)
-   Tplust(i)=Prt*(Uplust(i)+Prough(i))
-   Tplus(i)=exp(lamda(i))*Tplusl(i)+exp(1./lamda(i))*Tplust(i)
+   Tplusl=Pr(i,1)*Uplusl(i)
+   Tplust=Prt*(Uplust(i)+Prough(i))
+   Tplus(i)=exp(lamda(i))*Tplusl+exp(1./lamda(i))*Tplust
    if(Tmptype=='fixed') then
     Q(i)=ca*rho(i,1)*ustar(i)*(Tf-T(i,1))/Tplus(i)
    else if(Tmptype=='flux') then
@@ -87,13 +95,18 @@ else if(Turmod=='ke') then
  DO i=Ib1,Ib2
   Uplus(i)=log(Ep*Ystar(i))/kapa-deltaB(i)
   if(visheat=='Y') then
-   Tplus(i)=Prt*(Uplus(i)+Prough(i))
+   Tplusc=Prt*(Uplus(i)+Prough(i))
    if(Tmptype=='fixed') then
-    Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+&
-    (Pr(i,1)-Prt)*(Yt*ustar(i))**2))/Tplus(i)
-    Tplus(i)=Prt*(Uplus(i)+Prough(i))+0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)/Q(i)
+    if(wallfunutype=='parvel') then
+     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(Un(i,1)/da(i,1))**2+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
+    else
+     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
+    end if
+    Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-Dt)/Tplusc
+    Tplus(i)=Tplusc+Dt/Q(i)
    else if(Tmptype=='flux') then
     Q(i)=Qf
+    Tplus(i)=Tplusc
    end if
   else
    Tplus(i)=Prt*(Uplus(i)+Prough(i))
@@ -142,11 +155,7 @@ if(Turmod=='sst') then
  Tw(Ib1:Ib2,1)=rho(Ib1:Ib2,1)*ustar**2*Twplus/mu(Ib1:Ib2,1)
 else if(Turmod=='ke') then
  if(wallfunktype=='genlaw') then
-  if(wallfunutype=='parvel') then
-   Te(Ib1:Ib2,1)=ustar**2*abs(Un(Ib1:Ib2,1))/da(Ib1:Ib2,1)/Yp
-  else if(wallfunutype=='orivel') then
-   Te(Ib1:Ib2,1)=ustar**2*sqrt(U(Ib1:Ib2,1)**2+V(Ib1:Ib2,1)**2)/Yp
-  end if
+  Te(Ib1:Ib2,1)=ustar**3*Uplus/Yp
  else if(wallfunktype=='loglaw') then
   Te(Ib1:Ib2,1)=ustar**3/(kapa*Yp)
  end if

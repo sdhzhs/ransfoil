@@ -35,13 +35,13 @@ Input relaxation factor of pressure:
 Input relaxation factor of temperature:
 3e-1
 Input relaxation factor of turbulence:
-1e-1
+3e-1
 Input dimensionless near wall mesh spacing:
 1e-5
 Input layers of uniform near wall mesh:
 5
 Input total number of grid points normal to the airfoil surface:
-90
+85
 Input chord length(m):
 1.0
 Input velocity of free stream(m/s):

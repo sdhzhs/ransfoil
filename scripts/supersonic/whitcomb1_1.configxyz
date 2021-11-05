@@ -31,13 +31,13 @@ Input maximum iteration steps:
 Input minimum residual of iteration:
 1e-4
 Input relaxation factor of velocity:
-1e-2
+1e-1
 Input relaxation factor of pressure:
-5e-2
+1e-1
 Input relaxation factor of temperature:
 1e-1
 Input relaxation factor of turbulence:
-1e-3
+1e-1
 Input dimensionless near wall mesh spacing:
 1e-6
 Input layers of uniform near wall mesh:

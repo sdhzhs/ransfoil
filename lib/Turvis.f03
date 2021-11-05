@@ -4,7 +4,7 @@ implicit none
 integer i,j
 real(8) Xi,fnu1,Dwplus,phi1,F1,betai,St,phi2,F2,Ret,alphastar
 logical(1) sstlowre
- sstlowre=.true.
+ sstlowre=.false.
  DO j=1,Jc
   DO i=1,Ic
    if(Turmod=='sa') then

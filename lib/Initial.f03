@@ -63,77 +63,48 @@ else if(Init=='N') then
   P=Po*(1+(gama-1)/2*Mach**2)**(gama/(gama-1))-Po
   T=Ta*(1+(gama-1)/2*Mach**2)
  end if
- U(:,Jc)=Ui
- U(1,:)=Ui
- U(Ic,:)=Ui
- V(:,Jc)=Vi
- V(1,:)=Vi
- V(Ic,:)=Vi
- P(:,Jc)=0
- P(1,:)=0
- P(Ic,:)=0
- T(:,Jc)=Ta
- T(1,:)=Ta
- T(Ic,:)=Ta
- rho=(Po+P)*Ma/(R*T)
  if(Turmod=='sa') then
   Tn=Tni
-  Tn(:,Jc)=Tni
-  Tn(1,:)=Tni
-  Tn(Ic,:)=Tni
  else if(Turmod=='ke') then
   Tk=Tki
-  Tk(:,Jc)=Tki
-  Tk(1,:)=Tki
-  Tk(Ic,:)=Tki
   Te=Tei
-  Te(:,Jc)=Tei
-  Te(1,:)=Tei
-  Te(Ic,:)=Tei
  else if(Turmod=='sst') then
   Tk=Tki
-  Tk(:,Jc)=Tki
-  Tk(1,:)=Tki
-  Tk(Ic,:)=Tki
   Tw=Twi
-  Tw(:,Jc)=Twi
-  Tw(1,:)=Twi
-  Tw(Ic,:)=Twi
- end if
-else if(Init=='A') then
- U(:,Jc)=Ui
- U(1,:)=Ui
- U(Ic,:)=Ui
- V(:,Jc)=Vi
- V(1,:)=Vi
- V(Ic,:)=Vi
- P(:,Jc)=0
- P(1,:)=0
- P(Ic,:)=0
- T(:,Jc)=Ta
- T(1,:)=Ta
- T(Ic,:)=Ta
- rho=(Po+P)*Ma/(R*T)
- if(Turmod=='sa') then
-  Tn(:,Jc)=Tni
-  Tn(1,:)=Tni
-  Tn(Ic,:)=Tni
- else if(Turmod=='ke') then
-  Tk(:,Jc)=Tki
-  Tk(1,:)=Tki
-  Tk(Ic,:)=Tki
-  Te(:,Jc)=Tei
-  Te(1,:)=Tei
-  Te(Ic,:)=Tei
- else if(Turmod=='sst') then
-  Tk(:,Jc)=Tki
-  Tk(1,:)=Tki
-  Tk(Ic,:)=Tki
-  Tw(:,Jc)=Twi
-  Tw(1,:)=Twi
-  Tw(Ic,:)=Twi
  end if
 end if
+U(:,Jc)=Ui
+U(1,:)=Ui
+U(Ic,:)=Ui
+V(:,Jc)=Vi
+V(1,:)=Vi
+V(Ic,:)=Vi
+P(:,Jc)=0
+P(1,:)=0
+P(Ic,:)=0
+T(:,Jc)=Ta
+T(1,:)=Ta
+T(Ic,:)=Ta
+if(Turmod=='sa') then
+ Tn(:,Jc)=Tni
+ Tn(1,:)=Tni
+ Tn(Ic,:)=Tni
+else if(Turmod=='ke') then
+ Tk(:,Jc)=Tki
+ Tk(1,:)=Tki
+ Tk(Ic,:)=Tki
+ Te(:,Jc)=Tei
+ Te(1,:)=Tei
+ Te(Ic,:)=Tei
+else if(Turmod=='sst') then
+ Tk(:,Jc)=Tki
+ Tk(1,:)=Tki
+ Tk(Ic,:)=Tki
+ Tw(:,Jc)=Twi
+ Tw(1,:)=Twi
+ Tw(Ic,:)=Twi
+end if
+rho=(Po+P)*Ma/(R*T)
 ks=ksi
 if(Turmod=='inv') then
  mu=0
