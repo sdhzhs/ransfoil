@@ -68,6 +68,7 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
     if(wallfunutype=='parvel') then
      Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(Un(i,1)/da(i,1))**2
      Dt=0.5*rho(i,1)*ustar(i)*(Prt*(Un(i,1)/da(i,1))**2+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
+     !Dt=0.5*rho(i,1)*ustar(i)*Prt*(Un(i,1)/da(i,1))**2*10
     else
      Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)
      Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)

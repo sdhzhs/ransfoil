@@ -40,17 +40,25 @@ else if(scalar=='T') then
  !$OMP WORKSHARE
  F=T
  Ga=ka/ca+mut/Prt
+ !$OMP END WORKSHARE
  if(Tmptype=='fixed') then
+  !$OMP WORKSHARE
   Fwall=Tf
+  !$OMP END WORKSHARE
  else if(Tmptype=='flux') then
   if(Walltreat=='wf') then
+   !$OMP WORKSHARE
    Fwall=T(Ib1:Ib2,1)+Qf*Tplus/(ca*rho(Ib1:Ib2,1)*ustar)
+   !$OMP END WORKSHARE
   else
+   !$OMP WORKSHARE
    Fwall=T(Ib1:Ib2,1)+Qf*Yp/(ca*Ga(Ib1:Ib2,1))
+   !$OMP END WORKSHARE
   end if
+  !$OMP SINGLE
   Tf=Fwall((Ib1+Ib2)/2)
+  !$OMP END SINGLE
  end if
- !$OMP END WORKSHARE
 else if(scalar=='Tn') then
  !$OMP WORKSHARE
  F=Tn
