@@ -197,6 +197,8 @@ itmax = 1000
 prlv = 0
 if(scalar=='dP') then
  tol = 1.0e-3
+else if(scalar=='T') then
+ tol = 1.0e-8
 else
  tol = 1.0e-5
 end if

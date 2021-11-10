@@ -74,6 +74,10 @@ int main(void)
     if(cp[i]<min) min=cp[i];
   printf("Maximum and minmum values of pressure are %le,%le.\n",max,min);
   deallocarray_(mode,strlen(mode));
+  free(cxwd);
+  free(cywd);
+  free(cxwu);
+  free(cywu);
   
   return 0;
 }
