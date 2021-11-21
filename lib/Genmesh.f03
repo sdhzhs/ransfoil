@@ -134,13 +134,11 @@ close(1)
 print *,'Read airfoil coordinates completed!'
 if(Pntctrl=='N') then
  if(Ywd(2)>=Ywu(2)) then
-  print *,'Error: The coordinates of lower airfoil should be given first in the xyz file!'
-  stop
+  stop 'Error: The coordinates of lower airfoil should be given first in the xyz file!'
  end if
 else
  if(Ywp0(2)<Ywp0(Iw0-1)) then
-  print *,'Error: The coordinates of upper airfoil should be given first in the cpt file!'
-  stop
+  stop 'Error: The coordinates of upper airfoil should be given first in the cpt file!'
  end if
 end if
 

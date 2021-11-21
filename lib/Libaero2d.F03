@@ -215,8 +215,7 @@ DO s=1,maxs
    exit
   end if
   if(ldiv) then
-   print *,'RANS Equations diverge!'
-   stop
+   stop 'RANS Equations diverge!'
   end if
   U0=U
   V0=V

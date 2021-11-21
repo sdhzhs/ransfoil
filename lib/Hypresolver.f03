@@ -196,11 +196,11 @@ Call HYPRE_SStructVectorGetObject(x, parx, ierr)
 itmax = 1000
 prlv = 0
 if(scalar=='dP') then
- tol = 1.0e-3
+ tol = 1.0e-4
 else if(scalar=='T') then
  tol = 1.0e-8
 else
- tol = 1.0e-5
+ tol = 1.0e-6
 end if
 
 if(solid==1) then

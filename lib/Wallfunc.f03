@@ -58,21 +58,21 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
  Uplust=log(Ep*Yplus)/kapa-deltaB
  Uplus=exp(lamda)*Uplusl+exp(1./lamda)*Uplust
  lamda=-0.01*(Pr(Ib1:Ib2,1)*Yplus)**4/(1+5.*Pr(Ib1:Ib2,1)**3*Yplus)
- Ymax=maxval(Yplus)
+ if(Turmod=='ke') then
+   Ymax=maxval(Ystar)
+ else
+   Ymax=maxval(Yplus)
+ end if
  DO i=Ib1,Ib2
   if(visheat=='Y'.and.Ymax>10) then
    Tplusl=Pr(i,1)*Uplusl(i)
    Tplust=Prt*(Uplust(i)+Prough(i))
+   !Tplust=Prt*Uplust(i)
    Tplusc=exp(lamda(i))*Tplusl+exp(1./lamda(i))*Tplust
    if(Tmptype=='fixed') then
-    if(wallfunutype=='parvel') then
-     Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(Un(i,1)/da(i,1))**2
-     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(Un(i,1)/da(i,1))**2+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
-     !Dt=0.5*rho(i,1)*ustar(i)*Prt*(Un(i,1)/da(i,1))**2*10
-    else
-     Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)
-     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
-    end if
+    Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)
+    Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
+!    Dt=0.5*rho(i,1)*ustar(i)*Prt*(U(i,1)**2+V(i,1)**2)
     Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-exp(lamda(i))*Dl-exp(1./lamda(i))*Dt)/Tplusc
     Tplusl=Tplusl+Dl/Q(i)
     Tplust=Tplust+Dt/Q(i)
@@ -97,12 +97,10 @@ else if(Turmod=='ke') then
   Uplus(i)=log(Ep*Ystar(i))/kapa-deltaB(i)
   if(visheat=='Y') then
    Tplusc=Prt*(Uplus(i)+Prough(i))
+   !Tplusc=Prt*Uplus(i)
    if(Tmptype=='fixed') then
-    if(wallfunutype=='parvel') then
-     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(Un(i,1)/da(i,1))**2+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
-    else
-     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
-    end if
+    Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
+    !Dt=0.5*rho(i,1)*ustar(i)*Prt*(U(i,1)**2+V(i,1)**2)
     Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-Dt)/Tplusc
     Tplus(i)=Tplusc+Dt/Q(i)
    else if(Tmptype=='flux') then
