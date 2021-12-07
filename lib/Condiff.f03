@@ -356,6 +356,7 @@ DO j=1,Jc-1
        else if(Turmod=='sst'.and.Walltreat=='wf'.or.(Turmod=='sa'.and.Walltreat=='wf').or.Turmod=='ke') then
         if(Proctrl=='com') then
          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
+         !b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
          if(visheat=='Y'.and.(Turmod=='sst'.or.Ymax<=10)) b(i,j)=b(i,j)+Jg(i,j)*(-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+(mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca
         else if(Proctrl=='incom') then
          b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
@@ -405,7 +406,7 @@ DO j=1,Jc-1
     end if
    else if(scalar=='Tn') then
     b(i,j)=Cb2*rho(i,j)*(Tnx(i,j)**2+Tny(i,j)**2)*Jg(i,j)*dx*dy/sigman+rho(i,j)*Cb1*Sm(i,j)*Tn(i,j)*Jg(i,j)*dx*dy
-    if(Walltreat=='wf') then
+    if(Walltreat=='wf'.and.Ymax>10) then
      b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/(kapa*d(i,j)))**2*Jg(i,j)*dx*dy
     else
      b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/d(i,j))**2*Jg(i,j)*dx*dy

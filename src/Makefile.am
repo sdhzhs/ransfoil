@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 FCFLAGS = -Wall -ffree-line-length-none -O3
 if DEBUG
-FCFLAGS += -g -O0
+FCFLAGS += -g -O0 -fcheck=bounds -ffpe-trap=invalid,zero,overflow
 endif
 if PROF
 FCFLAGS += -g -pg

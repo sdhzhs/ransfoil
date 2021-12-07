@@ -18,7 +18,7 @@ FCFLAGS += -fopenmp
 libaero2d_la_LDFLAGS += -lgomp
 endif
 if DEBUG
-FCFLAGS += -g -O0
+FCFLAGS += -g -O0 -fcheck=bounds -ffpe-trap=invalid,zero,overflow
 endif
 if PROF
 FCFLAGS += -g -pg

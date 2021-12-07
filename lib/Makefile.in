@@ -85,7 +85,7 @@ host_triplet = @host@
 @LINKHYPRE_TRUE@am__append_4 = -L$(hypredir)/lib -lHYPRE
 @LINKOMP_TRUE@am__append_5 = -fopenmp
 @LINKOMP_TRUE@am__append_6 = -lgomp
-@DEBUG_TRUE@am__append_7 = -g -O0
+@DEBUG_TRUE@am__append_7 = -g -O0 -fcheck=bounds -ffpe-trap=invalid,zero,overflow
 @PROF_TRUE@am__append_8 = -g -pg
 subdir = lib
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am

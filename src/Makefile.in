@@ -79,7 +79,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@DEBUG_TRUE@am__append_1 = -g -O0
+@DEBUG_TRUE@am__append_1 = -g -O0 -fcheck=bounds -ffpe-trap=invalid,zero,overflow
 @PROF_TRUE@am__append_2 = -g -pg
 bin_PROGRAMS = ransfoil$(EXEEXT)
 EXTRA_PROGRAMS = libcallexp$(EXEEXT)
