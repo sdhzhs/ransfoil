@@ -8,45 +8,6 @@ real(8) Fwall(Ib1:Ib2)
 
 wallfunutype='parvel'
 
-n=3
-if(mod(iter,100)==0) then
- DO i=1,n-1
-  Clrec(i)=Clrec(i+1)
-  Cdrec(i)=Cdrec(i+1)
-  Cfrec(i)=Cfrec(i+1)
-  Cmrec(i)=Cmrec(i+1)
-  Xpcrec(i)=Xpcrec(i+1)
-  Ypcrec(i)=Ypcrec(i+1)
-  Pnw(:,i)=Pnw(:,i+1)
-  Unw(:,i)=Unw(:,i+1)
-  Vnw(:,i)=Vnw(:,i+1)
-  Tnw(:,i)=Tnw(:,i+1)
-  mutnw(:,i)=mutnw(:,i+1)
-  hcvnw(:,i)=hcvnw(:,i+1)
-  Axnw(:,i)=Axnw(:,i+1)
-  Aynw(:,i)=Aynw(:,i+1)
-  Ypnw(:,i)=Ypnw(:,i+1)
- end DO
- Clrec(n)=Cl
- Cdrec(n)=Cd
- Cfrec(n)=Cf
- Cmrec(n)=Cm
- Xpcrec(n)=Xpc
- Ypcrec(n)=Ypc
- Pnw(:,n)=P(Ib1:Ib2,1)
- Unw(:,n)=U(Ib1:Ib2,1)
- Vnw(:,n)=V(Ib1:Ib2,1)
- Tnw(:,n)=T(Ib1:Ib2,1)
- mutnw(:,n)=mut(Ib1:Ib2,1)
- hcvnw(:,n)=hcv
- Axnw(:,n)=Ax
- Aynw(:,n)=Ay
- if(Turmod=='sa'.or.Turmod=='sst') then
-  Ypnw(:,n)=Yplus
- else if(Turmod=='ke') then
-  Ypnw(:,n)=Ystar
- end if
-end if
 if(Tmptype=='fixed') then
  Fwall=Tf
 else if(Tmptype=='flux') then
@@ -101,4 +62,43 @@ Cl=((Cty+Cy)*cos(AoA*Pi/180)-(Ctx+Cx)*sin(AoA*Pi/180))/(0.5*rhoi*Vfar**2*c)
 Cd=(Cy*sin(AoA*Pi/180)+Cx*cos(AoA*Pi/180))/(0.5*rhoi*Vfar**2*c)
 Cf=(Cty*sin(AoA*Pi/180)+Ctx*cos(AoA*Pi/180))/(0.5*rhoi*Vfar**2*c)
 Cm=-(Cpm+Ctm)/(0.5*rhoi*Vfar**2*c**2)
+n=3
+if(mod(iter,100)==0) then
+ DO i=1,n-1
+  Clrec(i)=Clrec(i+1)
+  Cdrec(i)=Cdrec(i+1)
+  Cfrec(i)=Cfrec(i+1)
+  Cmrec(i)=Cmrec(i+1)
+  Xpcrec(i)=Xpcrec(i+1)
+  Ypcrec(i)=Ypcrec(i+1)
+  Pnw(:,i)=Pnw(:,i+1)
+  Unw(:,i)=Unw(:,i+1)
+  Vnw(:,i)=Vnw(:,i+1)
+  Tnw(:,i)=Tnw(:,i+1)
+  mutnw(:,i)=mutnw(:,i+1)
+  hcvnw(:,i)=hcvnw(:,i+1)
+  Axnw(:,i)=Axnw(:,i+1)
+  Aynw(:,i)=Aynw(:,i+1)
+  Ypnw(:,i)=Ypnw(:,i+1)
+ end DO
+ Clrec(n)=Cl
+ Cdrec(n)=Cd
+ Cfrec(n)=Cf
+ Cmrec(n)=Cm
+ Xpcrec(n)=Xpc
+ Ypcrec(n)=Ypc
+ Pnw(:,n)=P(Ib1:Ib2,1)
+ Unw(:,n)=U(Ib1:Ib2,1)
+ Vnw(:,n)=V(Ib1:Ib2,1)
+ Tnw(:,n)=T(Ib1:Ib2,1)
+ mutnw(:,n)=mut(Ib1:Ib2,1)
+ hcvnw(:,n)=hcv
+ Axnw(:,n)=Ax
+ Aynw(:,n)=Ay
+ if(Turmod=='sa'.or.Turmod=='sst') then
+  Ypnw(:,n)=Yplus
+ else if(Turmod=='ke') then
+  Ypnw(:,n)=Ystar
+ end if
+end if
 end Subroutine Postprocess

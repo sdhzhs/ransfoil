@@ -9,6 +9,9 @@ endif
 bin_PROGRAMS = ransfoil
 ransfoil_SOURCES = console.f03
 ransfoil_LDADD = $(top_srcdir)/lib/libaero2d.la
+if BUILDSLL
+ransfoil_LDFLAGS = -all-static
+endif
 EXTRA_PROGRAMS = libcallexp
 libcallexp_SOURCES = libcallexpf.f03 libcallexpc.c
 libcallexp_LDADD = $(top_srcdir)/lib/libaero2d.la

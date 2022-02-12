@@ -8,7 +8,7 @@ real(8) Xb(Ip),Yb(Ip),ra(Jp)
 real(8) Xg(Ip,Jp),Yg(Ip,Jp)
 real(8) axE1,axW1,axP1,ayE1,ayW1,ayP1,b1,axE2,axW2,axP2,ayE2,ayW2,ayP2,b2,Se,a,cosa,df,txplus,txminus,typlus,tyminus,tx,ty,nx,ny,&
 dsp,dsm,dsp0,dsm0,Xgk,Ygk,Xga,Yga,Det,Xgkm,Ygkm,Xgam,Ygam,Detm,epsi,stab1,stab2,N
-real(8) V(Ip),V0(Ip),Xg0(Ip),Yg0(Ip),Xg00(Ip),Yg00(Ip),d(Ip),d0(Ip)
+real(8) V(Ip),V0(Ip),Vo(Ip),Xg0(Ip),Yg0(Ip),Xg00(Ip),Yg00(Ip),d(Ip),d0(Ip)
 real(8) Ap(2,2,Ip),Aw(2,2,Ip),Ae(2,2,Ip),B(2,Ip),X(2,Ip)
 
 Xg(:,1)=Xb
@@ -39,13 +39,14 @@ DO j=2,Jp
   V(i)=sqrt((Xg0(i+1)-Xg0(i-1))**2+(Yg0(i+1)-Yg0(i-1))**2)*dis/2
  end DO
  DO l=1,j-2
+  Vo=V
   DO i=2,Ip-1
   if(i==2) then
-   V(i)=(1-nua)*V(i)+nua*0.5*(V(i+1)+V(i))
+   V(i)=(1-nua)*Vo(i)+nua*0.5*(Vo(i+1)+Vo(i))
   else if(i==Ip-1) then
-   V(i)=(1-nua)*V(i)+nua*0.5*(V(i)+V(i-1))
+   V(i)=(1-nua)*Vo(i)+nua*0.5*(Vo(i)+Vo(i-1))
   else
-   V(i)=(1-nua)*V(i)+nua*0.5*(V(i+1)+V(i-1))
+   V(i)=(1-nua)*Vo(i)+nua*0.5*(Vo(i+1)+Vo(i-1))
   end if
   end DO
  end DO

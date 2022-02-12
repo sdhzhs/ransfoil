@@ -14,6 +14,8 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 AC_PROG_FC
 AC_PROG_INSTALL
+AC_ARG_ENABLE([static],[],[staticlib=${enableval}], [staticlib=no])
+AM_CONDITIONAL([BUILDSLL], [test "x${staticlib}" = xyes])
 AC_ARG_ENABLE([hyprelib],[AS_HELP_STRING([--enable-hyprelib],[enable hypre library])],[hyprelib=${enableval}], [hyprelib=no])
 AM_CONDITIONAL([LINKHYPRE], [test "x${hyprelib}" = xyes])
 AS_IF([test "x${hyprelib}" = xyes],[AC_DEFINE([HYPRE],[1],[Define to 1 if you have the HYPRE library])])

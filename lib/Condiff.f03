@@ -209,11 +209,17 @@ end DO
 !$OMP END DO
 !$OMP WORKSHARE
 Tmin=minval(Tplus)
+!$OMP END WORKSHARE
 if(Turmod=='ke') then
+!$OMP WORKSHARE
   Ymax=maxval(Ystar)
+!$OMP END WORKSHARE
 else
+!$OMP WORKSHARE
   Ymax=maxval(Yplus)
+!$OMP END WORKSHARE
 end if
+!$OMP WORKSHARE
 aM(1,:,:)=1
 aM(2,:,:)=0
 aM(3,:,:)=0
