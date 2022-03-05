@@ -2,10 +2,11 @@ Subroutine PCEcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor
+real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,noc
 real(8) aP,aW,aE,aS,aN
 real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),dw(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
+noc=1.d+0
 !$OMP PARALLEL
 if(solctrl=='SIMPLE') then
   !$OMP DO PRIVATE(i,Up,Vp)
@@ -60,7 +61,7 @@ DO j=1,Jc-1
    Pak=(P(i-1,j+1)+P(i,j+1)-P(i-1,j-1)-P(i,j-1))/(4*dy)
   end if
   cor=(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j)))
-  Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+cor+dwk*Pak
+  Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+cor+noc*dwk*Pak
  end DO
 end DO
 !$OMP END DO
@@ -73,7 +74,7 @@ DO j=1,Jc
    Pka=(P(Ic-i,j)+P(i+1,j)-P(Ic+2-i,j)-P(i-1,j))/(4*dx)
    Vnpa=interpl(Vnp(i,j),-Vnp(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+cor+dwa*Pka
+   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+cor+noc*dwa*Pka
   else if(j==1) then
    dva(i,j)=0
    Vna(i,j)=0
@@ -83,14 +84,14 @@ DO j=1,Jc
    Pka=(P(i+1,j-1)+P(i+1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
    Vnpa=interpl(Vnp(i,j-1),Vn(i,j),da(i,j-1),da(i,j))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+dwa*Pka
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+noc*dwa*Pka
   else
    dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j-1))
    dwa=interpl(dw(i,j)*dx,dw(i,j-1)*dx,da(i,j),da(i,j-1))
    Pka=(P(i+1,j-1)+P(i+1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
    Vnpa=interpl(Vnp(i,j),Vnp(i,j-1),da(i,j),da(i,j-1))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+dwa*Pka
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+noc*dwa*Pka
   end if
  end DO
 end DO

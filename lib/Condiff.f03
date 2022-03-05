@@ -302,8 +302,8 @@ DO j=1,Jc-1
     if(scalar=='Te'.and.Turmod=='ke') aP=aP+C2e*rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
     !if(scalar=='Tn'.and.Walltreat=='lr') aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
     !if(scalar=='Tn'.and.Walltreat=='wf') then
-    !if(Ymax>10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
-    !if(Ymax<=10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+    ! if(Ymax>10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
+    ! if(Ymax<=10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
     !end if
     if(scalar=='Tk'.and.Turmod=='sst') aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
     if(scalar=='Tw'.and.Turmod=='sst') aP=aP+rho(i,j)*beta(i,j)*Tw(i,j)*Jg(i,j)*dx*dy

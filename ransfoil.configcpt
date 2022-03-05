@@ -27,7 +27,7 @@ N
 Input maximum iteration steps:
 2000
 Input minimum residual of iteration:
-1e-4
+1e-5
 Input relaxation factor of velocity:
 7e-1
 Input relaxation factor of pressure:
@@ -35,7 +35,7 @@ Input relaxation factor of pressure:
 Input relaxation factor of temperature:
 7e-1
 Input relaxation factor of turbulence:
-3e-1
+7e-1
 Input number of grid points on whole airfoil(interpolation based on parametric spline):
 201
 Input dimensionless mesh spacing near leading edge:
