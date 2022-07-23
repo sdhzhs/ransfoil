@@ -18,7 +18,10 @@ jobs:
     - name: configure
       run: ./configure
       
-    - name: Install dependencies
+    - name: install dependencies
+      run: automake --add-missing
+      
+    - name: build
       run: make
       
     - name: clean
