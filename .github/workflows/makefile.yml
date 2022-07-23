@@ -19,3 +19,6 @@ jobs:
       
     - name: Install dependencies
       run: make
+      
+    - name: clean
+      run: make distclean
