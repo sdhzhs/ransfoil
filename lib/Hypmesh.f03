@@ -13,6 +13,8 @@ real(8) Ap(2,2,Ip),Aw(2,2,Ip),Ae(2,2,Ip),B(2,Ip),X(2,Ip)
 
 Xg(:,1)=Xb
 Yg(:,1)=Yb
+d=0
+d0=0
 Jmax=Jp
 jtran=int(3*Jmax/4)
 dis=fd

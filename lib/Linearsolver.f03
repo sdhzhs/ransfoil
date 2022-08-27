@@ -109,7 +109,8 @@ DO k=1,maxl
   !$OMP END WORKSHARE
  end if
  if(pretype=='ILU'.or.pretype=='SSOR') then
-  Call Sorprecond(aM,aD,y,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
+!  Call Sorprecond(aM,aD,y,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
+  Call SSorpcond(y,vec0)
  end if
  Call Multmatrixvector(aM,y,v,a,Ic,Jc,Ib1,Ib2,scalar)
  !$OMP WORKSHARE
@@ -129,7 +130,8 @@ DO k=1,maxl
   !$OMP END WORKSHARE
  end if
  if(pretype=='ILU'.or.pretype=='SSOR') then
-  Call Sorprecond(aM,aD,z,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
+!  Call Sorprecond(aM,aD,z,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
+  Call SSorpcond(z,vec0)
  end if
  Call Multmatrixvector(aM,z,t,a,Ic,Jc,Ib1,Ib2,scalar)
  if(pretype=='JAC') then
@@ -142,7 +144,8 @@ DO k=1,maxl
   !$OMP END WORKSHARE
  end if
  if(pretype=='ILU'.or.pretype=='SSOR') then
-  Call Sorprecond(aM,aD,pt,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
+!  Call Sorprecond(aM,aD,pt,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
+  Call SSorpcond(pt,vec0)
  end if
  !$OMP WORKSHARE
  sumptz=sum(pt*z)
@@ -157,6 +160,111 @@ DO k=1,maxl
 end DO
 !$OMP END PARALLEL
 !print *,sum(abs(rms))/(Ic*Jc),k
+
+contains
+
+Subroutine SSorpcond(vt,vt0)
+!$ use omp_lib
+implicit none
+integer i,j,nt,tid,npt,rpt
+real(8) vt(Ic,Jc),vt0(Ic,Jc)
+real(8) omega
+logical(1) cond(4)
+
+if(pretype=='SSOR'.and.scalar=='dP') then
+ omega=1.5
+else
+ omega=1.0
+end if
+
+nt=1
+tid=0
+!$ nt=OMP_GET_NUM_THREADS()
+!$ tid=OMP_GET_THREAD_NUM()
+npt=(Jc-1)/nt
+rpt=mod(Jc-1,nt)
+
+!$OMP WORKSHARE
+vt(1,:)=omega*vt(1,:)
+vt(Ic,:)=omega*vt(Ic,:)
+vt(2:Ic-1,Jc)=omega*vt(2:Ic-1,Jc)
+!$ vt0=vt
+!$OMP END WORKSHARE
+
+cond(1)=(npt==0)
+cond(2)=(nt>1.and.tid>0)
+!$OMP DO
+!!$OMP SINGLE
+DO j=1,Jc-1
+ DO i=2,Ic-1
+  if(j>1) then
+!$   cond(3)=(tid<rpt.and.mod(j,npt+1)==1)
+!$   cond(4)=(tid>=rpt.and.(npt==1.or.mod(j-rpt*(npt+1),npt)==1))
+!$   if(cond(1).or.cond(2).and.(cond(3).or.cond(4))) then
+!$    vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j)+aM(4,i,j)*vt0(i,j-1))/aD(i,j)
+!$   else
+    vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j)+aM(4,i,j)*vt(i,j-1))/aD(i,j)
+!$   end if
+  else if(j==1.and.i>Ib2) then
+   vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j)+aM(4,i,j)*vt(Ic+1-i,j))/aD(i,j)
+  else if(i>=Ib1.and.(scalar=='Te'.or.scalar=='Tw')) then
+   vt(i,j)=omega*vt(i,j)
+  else
+   vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j))/aD(i,j)
+  end if
+ end DO
+end DO
+!!$OMP END SINGLE
+!$OMP END DO
+
+!$OMP WORKSHARE
+vt=(2-omega)*vt/omega
+!$OMP END WORKSHARE
+
+!$OMP DO
+DO j=1,Jc-1
+ DO i=2,Ic-1
+  if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
+   vt(i,j)=aD(i,j)*vt(i,j)/a
+  end if
+ end DO
+end DO
+!$OMP END DO
+
+!$OMP WORKSHARE
+vt(1,:)=omega*vt(1,:)
+vt(Ic,:)=omega*vt(Ic,:)
+vt(2:Ic-1,Jc)=omega*vt(2:Ic-1,Jc)
+!$ vt0=vt
+!$OMP END WORKSHARE
+
+!$OMP DO
+!!$OMP SINGLE
+DO j=Jc-1,1,-1
+ DO i=Ic-1,2,-1
+  if(j==1.and.i<Ib1) then
+!$   if(npt==0.or.npt==1) then
+!$    vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt0(i,j+1)+aM(4,i,j)*vt(Ic+1-i,j))/aD(i,j)
+!$   else
+    vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt(i,j+1)+aM(4,i,j)*vt(Ic+1-i,j))/aD(i,j)
+!$   end if
+  else if(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw')) then
+   vt(i,j)=omega*vt(i,j)
+  else
+!$   cond(3)=(tid<rpt.and.mod(Jc-j,npt+1)==1)
+!$   cond(4)=(tid>=rpt.and.(npt==1.or.mod(Jc-j-rpt*(npt+1),npt)==1))
+!$   if(cond(1).or.cond(2).and.(cond(3).or.cond(4))) then
+!$    vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt0(i,j+1))/aD(i,j)
+!$   else
+    vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt(i,j+1))/aD(i,j)
+!$   end if
+  end if
+ end DO
+end DO
+!!$OMP END SINGLE
+!$OMP END DO
+end Subroutine SSorpcond
+
 end Subroutine CGSTAB
 
 Subroutine Residual(aM,b,F,F0,rms,a,Ic,Jc,Ib1,Ib2,scalar)
