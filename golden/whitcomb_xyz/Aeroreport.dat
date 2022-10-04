@@ -1,0 +1,27 @@
+ File name of airfoil coordinates: cases/whitcomb.xyz                                              
+ Using control points based parametric spline? N       
+ Property: com     
+ Solving energy equation? Y       
+ Including viscous heating? Y       
+ Turbulence model: sa      
+ Wall treatment method: wf      
+ Coupling algorithm: SIMPLE  
+ Spatial discretization scheme: 2upwind 
+ Density interpolation scheme: 2upwind 
+ Initializing from a file? Y       
+ File name for initialization: whitcomb_xyz/Autosave.dat                                       
+ Momentum relaxation factor:  0.69999999999999996     
+ Pressure relaxation factor:  0.29999999999999999     
+ Energy relaxation factor:  0.29999999999999999     
+ Turbulence relaxation factor:  0.29999999999999999     
+ ----------------------------------------------
+ The aerodynamic parameters of this airfoil are:
+ Reynolds number:   21424850.880931877     
+ Mach number:  0.80000001017181221     
+ Angle of attack:   4.0000000000000000     
+ Average Y+:   3.1520771017051521     
+ Lift coefficient:  0.90053174359364629     
+ Drag coefficient:   8.1114867402126034E-002
+ Friction coefficient:   4.6402805939410154E-003
+ Pitching moment coefficient (1/4 chord): -0.18142912397183758     
+ Pressure center (unit chord):  0.45068485635312516        0.0000000000000000     

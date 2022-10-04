@@ -1,0 +1,62 @@
+Input a name of airfoil coordinates file(1D XYZ):
+'cases/GA_W-1.xyz'
+Using control points based parametric spline(Y/N)?
+N
+Select air property(com/incom):
+incom
+Solve Energy equation(Y/N)?
+Y
+Include Viscous Heating(Y/N)?
+N
+Select turbulence model(inv/lam/sa/ke/sst):
+sa
+Select wall treatment method(wf/lr):
+wf
+Select coupling method(SIMPLE/SIMPLEC):
+SIMPLE
+Select discretization scheme(1upwind/2upwind/Quick/tvd):
+2upwind
+Select type of linear solver for convective-diffusion equations(sor/pbicg):
+sor
+Set boundary condition type of tempreture(fixed/flux):
+fixed
+Initialize from a file(Y/N)?
+N
+Initialize using stagnation values(Y/N)? (or Input a filename for initialization:)
+N
+Input maximum iteration steps:
+2000
+Input minimum residual of iteration:
+1e-3
+Input relaxation factor of velocity:
+7e-1
+Input relaxation factor of pressure:
+3e-1
+Input relaxation factor of temperature:
+7e-1
+Input relaxation factor of turbulence:
+3e-1
+Input dimensionless near wall mesh spacing:
+1e-5
+Input layers of uniform near wall mesh:
+5
+Input total number of grid points normal to the airfoil surface:
+85
+Input chord length(m):
+0.5842
+Input velocity of free stream(m/s):
+48.63
+Input angle of attack(deg):
+8.02
+Input temperature of free stream(K):
+262.04
+Input temperature of wall(K):
+273.15
+Input ambient pressure(Pa):
+276494
+Input turbulent viscosity ratio of free stream:
+50
+Input wall roughness(m):
+0
+Input a directory of export files:
+GA_W-1_xyz

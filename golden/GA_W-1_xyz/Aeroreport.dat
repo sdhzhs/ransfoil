@@ -1,0 +1,26 @@
+ File name of airfoil coordinates: cases/GA_W-1.xyz                                                
+ Using control points based parametric spline? N       
+ Property: incom   
+ Solving energy equation? Y       
+ Including viscous heating? N       
+ Turbulence model: sa      
+ Wall treatment method: wf      
+ Coupling algorithm: SIMPLE  
+ Spatial discretization scheme: 2upwind 
+ Initializing from a file? N       
+ Initializing using stagnation values? N       
+ Momentum relaxation factor:  0.69999999999999996     
+ Pressure relaxation factor:  0.29999999999999999     
+ Energy relaxation factor:  0.69999999999999996     
+ Turbulence relaxation factor:  0.29999999999999999     
+ ----------------------------------------------
+ The aerodynamic parameters of this airfoil are:
+ Reynolds number:   6299464.8818376791     
+ Mach number:  0.14998745754354983     
+ Angle of attack:   8.0199999999999996     
+ Average Y+:   1.5639636160232464     
+ Lift coefficient:   1.3886434698985266     
+ Drag coefficient:   2.6060921697256913E-002
+ Friction coefficient:   7.3377216853791668E-003
+ Pitching moment coefficient (1/4 chord): -0.13177451996269005     
+ Pressure center (unit chord):  0.34599788496627593        0.0000000000000000     

@@ -1,0 +1,70 @@
+Input a name of airfoil coordinates file(1D XYZ/CPT):
+'cases/NACA001264.cpt'
+Using control points based parametric spline(Y/N)?
+Y
+Select air property(com/incom):
+incom
+Solve Energy equation(Y/N)?
+Y
+Include Viscous Heating(Y/N)?
+N
+Select turbulence model(inv/lam/sa/ke/sst):
+sst
+Select wall treatment method(wf/lr):
+lr
+Select coupling method(SIMPLE/SIMPLEC):
+SIMPLE
+Select discretization scheme(1upwind/2upwind/Quick/tvd):
+2upwind
+Select type of linear solver for convective-diffusion equations(sor/pbicg):
+sor
+Set boundary condition type of tempreture(fixed/flux):
+fixed
+Initialize from a file(Y/N)?
+N
+Initialize using stagnation values(Y/N)? (or Input a filename for initialization:)
+N
+Input maximum iteration steps:
+2000
+Input minimum residual of iteration:
+1e-4
+Input relaxation factor of velocity:
+7e-1
+Input relaxation factor of pressure:
+3e-1
+Input relaxation factor of temperature:
+7e-1
+Input relaxation factor of turbulence:
+7e-1
+Input number of grid points on whole airfoil(interpolation based on parametric spline):
+201
+Input dimensionless mesh spacing near leading edge:
+5e-4
+Input dimensionless mesh spacing near trailing edge:
+5e-3
+Input dimensionless near wall mesh spacing:
+1e-5
+Input layers of uniform near wall mesh:
+5
+Input total number of grid points normal to the airfoil surface:
+85
+Input chord length(m):
+0.5334
+Input velocity of free stream(m/s):
+75
+Input angle of attack(deg):
+4
+Input temperature of free stream(K):
+263.15
+Input temperature of wall(K):
+273.15
+Input ambient pressure(Pa):
+100000
+Input turbulent viscosity ratio of free stream:
+1e-2
+Input turbulent viscosity ratio of free stream:
+10
+Input wall roughness(m):
+0
+Input a directory of export files:
+naca001264_cpt
