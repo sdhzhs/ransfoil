@@ -50,7 +50,7 @@ tol = 1e-2
 flag = True
 for i in range(len(aeropara)):
   if(aeroparagolden[i] != 0.0):
-    res = abs(aeropara[i]-aeroparagolden[i])/aeroparagolden[i]
+    res = abs((aeropara[i]-aeroparagolden[i])/aeroparagolden[i])
   else:
     res = abs(aeropara[i]-aeroparagolden[i])
   if(res > tol):

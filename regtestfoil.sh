@@ -12,11 +12,12 @@ mkdir GA_W-1_cpt
 ransfoil --script test/ransfoil.config.GA_W-1.cpt
 python comgolden.py GA_W-1_cpt golden/GA_W-1_cpt
 mkdir whitcomb_xyz
-ransfoil --script test/ransfoil.config.whitcomb.1.xyz
-ransfoil --script test/ransfoil.config.whitcomb.2.xyz
+ransfoil --script test/ransfoil.config.whitcomb.xyz.1
+ransfoil --script test/ransfoil.config.whitcomb.xyz.2
 python comgolden.py whitcomb_xyz golden/whitcomb_xyz
 mkdir whitcomb_cpt
-ransfoil --script test/ransfoil.config.whitcomb.cpt
+ransfoil --script test/ransfoil.config.whitcomb.cpt.1
+ransfoil --script test/ransfoil.config.whitcomb.cpt.2
 python comgolden.py whitcomb_cpt golden/whitcomb_cpt
 mkdir goe495_cpt
 ransfoil --script test/ransfoil.config.goe495.cpt
