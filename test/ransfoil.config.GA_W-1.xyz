@@ -55,7 +55,7 @@ Input temperature of wall(K):
 Input ambient pressure(Pa):
 276494
 Input turbulent viscosity ratio of free stream:
-50
+10
 Input wall roughness(m):
 0
 Input a directory of export files:
