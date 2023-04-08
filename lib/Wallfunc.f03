@@ -58,11 +58,7 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
  Uplust=log(Ep*Yplus)/kapa-deltaB
  Uplus=exp(lamda)*Uplusl+exp(1./lamda)*Uplust
  lamda=-0.01*(Pr(Ib1:Ib2,1)*Yplus)**4/(1+5.*Pr(Ib1:Ib2,1)**3*Yplus)
- if(Turmod=='ke') then
-   Ymax=maxval(Ystar)
- else
-   Ymax=maxval(Yplus)
- end if
+ Ymax=maxval(Yplus)
  DO i=Ib1,Ib2
   if(visheat=='Y'.and.Ymax>10) then
    Tplusl=Pr(i,1)*Uplusl(i)

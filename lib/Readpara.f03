@@ -84,10 +84,11 @@ if(libmod=='S') then
   read(10,*) AoA
   read(10,*) ch
   read(10,*) Ta
-  read(10,*) ch
   if(Tmptype=='fixed') then
+    read(10,*) ch
     read(10,*) Tf
   else if(Tmptype=='flux') then
+    read(10,*) ch
     read(10,*) Qf
   end if
   read(10,*) ch
