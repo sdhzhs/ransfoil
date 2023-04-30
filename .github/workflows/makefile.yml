@@ -17,6 +17,9 @@ jobs:
 
     - name: install dependencies
       run: automake --add-missing
+      
+    - name: reconfig autotools for different version
+      run: autoreconf
     
     - name: configure
       run: ./configure
