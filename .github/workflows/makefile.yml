@@ -24,5 +24,8 @@ jobs:
     - name: build
       run: make
       
+    - name: run executable
+      run: src/ransfoil --script ransfoil.configxyz
+      
     - name: clean
       run: make distclean
