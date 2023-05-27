@@ -5,11 +5,9 @@ ransfoil-x.x.tar.gz is a source package following open source standard
 (not strict GNU standard) for developers or users who want to modify or 
 build the program.
 
-ransfoilxx_win64_binary.zip is a binary package (built by native
+ransfoilxx_win64_static.zip is a binary package (built by cross
 MinGW-w64) target Windows X64 platform (Windows Vista, 7, 8 or 10, 64bit
-version). ransfoilxx_win32_binary.zip is a binary package (built by
-native MinGW) target Windows X86 platform (Windows XP, Vista, 7
-or 8, 32bit version).
+version).
 
 A git repository is available at git://git.code.sf.net/p/ransfoil/code
 since the commitment of version 1.4, which is identical to the contents in
