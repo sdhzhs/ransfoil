@@ -109,27 +109,30 @@ end Subroutine Genmesh
 Subroutine Readfoil
 use Aero2DCOM
 implicit none
-integer i
+integer i,stat
+character(128) ioerrmsg
 
-open(unit=1,file=filename(1),status='old')
+open(unit=1,file=filename(1),status='old',IOSTAT=stat,IOMSG=ioerrmsg)
+if(stat>0) stop ioerrmsg
  if(Pntctrl=='N') then
-  read(1,*) Iwd
+  read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) Iwd
   allocate(Xwd(Iwd),Ywd(Iwd))
   DO i=1,Iwd
-   read(1,*) Xwd(i),Ywd(i)
+   read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) Xwd(i),Ywd(i)
   end DO
-  read(1,*) Iwu
+  read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) Iwu
   allocate(Xwu(Iwu),Ywu(Iwu))
   DO i=1,Iwu
-   read(1,*) Xwu(i),Ywu(i)
+   read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) Xwu(i),Ywu(i)
   end DO
  else
-  read(1,*) Iw0
+  read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) Iw0
   allocate(Xwp0(Iw0),Ywp0(Iw0))
   DO i=1,Iw0
-   read(1,*) Xwp0(i),Ywp0(i)
+   read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) Xwp0(i),Ywp0(i)
   end DO
  end if
+if(stat>0) stop filename(1)//ioerrmsg
 close(1)
 print *,'Read airfoil coordinates completed!'
 if(Pntctrl=='N') then

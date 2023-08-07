@@ -3,6 +3,8 @@ use Aero2DCOM
 implicit none
 character(1) ch
 character(*) libmod,scptname
+character(128) ioerrmsg
+integer stat
 if(libmod=='S') then
  open(unit=10,file=scptname,status='old')
   read(10,*) ch
@@ -47,63 +49,86 @@ if(libmod=='S') then
    read(10,*) Stag
   end if
   read(10,*) ch
-  read(10,*) maxs
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) maxs
+  if(stat>0) STOP 'max iter num: '//ioerrmsg
   read(10,*) ch
-  read(10,*) delta
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) delta
+  if(stat>0) STOP 'min residue: '//ioerrmsg
   read(10,*) ch
-  read(10,*) Rau
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Rau
+  if(stat>0) STOP 'relax u: '//ioerrmsg
   read(10,*) ch
-  read(10,*) Rap
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Rap
+  if(stat>0) STOP 'relax p: '//ioerrmsg
   if(Energy=='Y') then
    read(10,*) ch
-   read(10,*) Rae
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Rae
+   if(stat>0) STOP 'relax e: '//ioerrmsg
   end if
   if(Turmod/='inv'.and.Turmod/='lam') then
    read(10,*) ch
-   read(10,*) Rat
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Rat
+   if(stat>0) STOP 'relax tur: '//ioerrmsg
   end if
   if(Pntctrl=='Y') then
    read(10,*) ch
-   read(10,*) Iw
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Iw
+   if(stat>0) STOP 'nump on profile: '//ioerrmsg
    read(10,*) ch
-   read(10,*) fb
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) fb
+   if(stat>0) STOP 'fd on LE: '//ioerrmsg
    read(10,*) ch
-   read(10,*) eb
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) eb
+   if(stat>0) STOP 'fd on TE: '//ioerrmsg
   end if
   read(10,*) ch
-  read(10,*) fd
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) fd
+  if(stat>0) STOP 'fd normal: '//ioerrmsg
   read(10,*) ch
-  read(10,*) Ifd
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Ifd
+  if(stat>0) STOP 'numlay normal: '//ioerrmsg
   read(10,*) ch
-  read(10,*) Jp
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Jp
+  if(stat>0) STOP 'nump normal: '//ioerrmsg
   read(10,*) ch
-  read(10,*) c
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) c
+  if(stat>0) STOP 'chord length: '//ioerrmsg
   read(10,*) ch
-  read(10,*) Vfar
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Vfar
+  if(stat>0) STOP 'velocity: '//ioerrmsg
   read(10,*) ch
-  read(10,*) AoA
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) AoA
+  if(stat>0) STOP 'AoA: '//ioerrmsg
   read(10,*) ch
-  read(10,*) Ta
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Ta
+  if(stat>0) STOP 'Free Temp: '//ioerrmsg
   if(Tmptype=='fixed') then
     read(10,*) ch
-    read(10,*) Tf
+    read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Tf
+    if(stat>0) STOP 'Wall Temp: '//ioerrmsg
   else if(Tmptype=='flux') then
     read(10,*) ch
-    read(10,*) Qf
+    read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Qf
+    if(stat>0) STOP 'Wall Flux: '//ioerrmsg
   end if
   read(10,*) ch
-  read(10,*) Po
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Po
+  if(stat>0) STOP 'ambient press: '//ioerrmsg
   if(Turmod=='ke'.or.Turmod=='sst') then
    read(10,*) ch
-   read(10,*) Itur
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Itur
+   if(stat>0) STOP 'tur intensity: '//ioerrmsg
    read(10,*) ch
-   read(10,*) tvr
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) tvr
+   if(stat>0) STOP 'tur ratio: '//ioerrmsg
   else if(Turmod=='sa') then
    read(10,*) ch
-   read(10,*) tvr
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) tvr
+   if(stat>0) STOP 'tur ratio: '//ioerrmsg
   end if
   read(10,*) ch
-  read(10,*) ksi
+  read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) ksi
+  if(stat>0) STOP 'rough: '//ioerrmsg
   read(10,*) ch
   read(10,*) dir
  close(10)
@@ -150,63 +175,86 @@ else if(libmod=='I') then
   read *,Stag
  end if
  print *,'Input maximum iteration steps:'
- read *,maxs
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) maxs
+ if(stat>0) STOP ioerrmsg
  print *,'Input minimum residual of iteration:'
- read *,delta
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) delta
+ if(stat>0) STOP ioerrmsg
  print *,'Input relaxation factor of velocity:'
- read *,Rau
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Rau
+ if(stat>0) STOP ioerrmsg
  print *,'Input relaxation factor of pressure:'
- read *,Rap
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Rap
+ if(stat>0) STOP ioerrmsg
  if(Energy=='Y') then
   print *,'Input relaxation factor of temperature:'
-  read *,Rae
+  read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Rae
+  if(stat>0) STOP ioerrmsg
  end if
  if(Turmod/='inv'.and.Turmod/='lam') then
   print *,'Input relaxation factor of turbulence:'
-  read *,Rat
+  read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Rat
+  if(stat>0) STOP ioerrmsg
  end if
  if(Pntctrl=='Y') then
    print *,'Input number of grid points on whole airfoil(interpolation based on parametric spline):'
-   read *,Iw
+   read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Iw
+   if(stat>0) STOP ioerrmsg
    print *,'Input dimensionless mesh spacing near leading edge:'
-   read *,fb
+   read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) fb
+   if(stat>0) STOP ioerrmsg
    print *,'Input dimensionless mesh spacing near trailing edge:'
-   read *,eb
+   read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) eb
+   if(stat>0) STOP ioerrmsg
  end if
  print *,'Input dimensionless near wall mesh spacing:'
- read *,fd
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) fd
+ if(stat>0) STOP ioerrmsg
  print *,'Input layers of uniform near wall mesh:'
- read *,Ifd
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Ifd
+ if(stat>0) STOP ioerrmsg
  print *,'Input total number of grid points normal to the airfoil surface:'
- read *,Jp
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Jp
+ if(stat>0) STOP ioerrmsg
  print *,'Input chord length(m):'
- read *,c
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) c
+ if(stat>0) STOP ioerrmsg
  print *,'Input velocity of free stream(m/s):'
- read *,Vfar
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Vfar
+ if(stat>0) STOP ioerrmsg
  print *,'Input angle of attack(deg):'
- read *,AoA
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) AoA
+ if(stat>0) STOP ioerrmsg
  print *,'Input temperature of free stream(K):'
- read *,Ta
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Ta
+ if(stat>0) STOP ioerrmsg
  if(Tmptype=='fixed') then
    print *,'Input temperature of wall(K):'
-   read *, Tf
+   read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Tf
+   if(stat>0) STOP ioerrmsg
  else if(Tmptype=='flux') then
    print *,'Input heat flux of wall(J/m^2s):'
-   read *, Qf
+   read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Qf
+   if(stat>0) STOP ioerrmsg
  end if
  print *,'Input ambient pressure(Pa):'
- read *,Po
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Po
+ if(stat>0) STOP ioerrmsg
  if(Turmod=='ke'.or.Turmod=='sst') then
   print *,'Input turbulence intensity of free stream:'
-  read *,Itur
+  read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) Itur
+  if(stat>0) STOP ioerrmsg
   print *,'Input turbulent viscosity ratio of free stream:'
-  read *,tvr
+  read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) tvr
+  if(stat>0) STOP ioerrmsg
  else if(Turmod=='sa') then
   print *,'Input turbulent viscosity ratio of free stream:'
-  read *,tvr
+  read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) tvr
+  if(stat>0) STOP ioerrmsg
  end if
  print *,'Input wall roughness(m):'
- read *,ksi
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) ksi
+ if(stat>0) STOP ioerrmsg
  print *,'Input a directory of output files:'
  read *,dir
 end if
