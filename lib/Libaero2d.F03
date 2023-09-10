@@ -178,7 +178,7 @@ DO s=1,maxs
   end if
   Call Turvis
   Call Postprocess(s)
-  if((libmod=='S'.or.libmod=='I').and.mod(s,100)==0) then
+  if((libmod=='S'.or.libmod=='I').and.(s==1.or.mod(s,100)==0)) then
    Call Saveresults
    print *,'Output results completed!'
   end if

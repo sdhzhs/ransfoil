@@ -33,6 +33,7 @@ DO j=2,Jp
  if(j>=3) then
   Xg00=Xg(:,j-2)
   Yg00=Yg(:,j-2)
+  Call checkJacobi(Xg0,Yg0,Xg00,Yg00,Ip)
  else
   Xg00=Xg0
   Yg00=Yg0
@@ -171,3 +172,21 @@ DO j=2,Jp
 end DO
 
 end Subroutine hypmeshgen
+
+Subroutine checkJacobi(Xg,Yg,Xg0,Yg0,Ip)
+integer i,Ip,Ic
+real(8) Xgk,Ygk,Xga,Yga,Jg
+real(8) Xg(Ip),Yg(Ip),Xg0(Ip),Yg0(Ip)
+
+Ic=Ip-1
+
+DO i=1,Ic
+  Xgk=((Xg(i+1)+Xg0(i+1))-(Xg(i)+Xg0(i)))/2
+  Ygk=((Yg(i+1)+Yg0(i+1))-(Yg(i)+Yg0(i)))/2
+  Xga=((Xg(i)+Xg(i+1))-(Xg0(i)+Xg0(i+1)))/2
+  Yga=((Yg(i)+Yg(i+1))-(Yg0(i)+Yg0(i+1)))/2
+  Jg=Xgk*Yga-Xga*Ygk
+  if(Jg<=0) stop 'Error: The Jacobi of generated mesh is less than zero!' 
+end DO
+  
+end Subroutine checkJacobi
