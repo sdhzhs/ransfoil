@@ -72,7 +72,7 @@ int main(void)
   min=1e+5;
   for(i=0;i<ic*jc;i++)
     if(cp[i]<min) min=cp[i];
-  printf("Maximum and minmum values of pressure are %le,%le.\n",max,min);
+  printf("Maximum and minimum values of pressure are %le,%le.\n",max,min);
   deallocarray_(mode,strlen(mode));
   free(cxwd);
   free(cywd);

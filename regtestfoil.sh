@@ -25,4 +25,9 @@ python comgolden.py goe495_cpt golden/goe495_cpt
 cd scripts
 ./runwhitcomb.bat
 python ../comgolden.py whitcomb1 ../golden/whitcomb_xyz_super
+cd ../src
+gfcompile.sh
+./caller.exe
+gccompile.sh
+./caller.exe
 cd ..

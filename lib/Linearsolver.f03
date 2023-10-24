@@ -60,7 +60,7 @@ end Subroutine sor
 
 Subroutine CGSTAB(aM,b,F,F0,a,Ic,Jc,Ib1,Ib2,scalar)
 implicit none
-integer maxl,k,Ic,Jc,Ib1,Ib2
+integer maxl,k,Ic,Jc,Ib1,Ib2,iter
 real(8) err,a
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 real(8) alpha,beta,rho,omega,rho0,sumrmsi,sumvrms,sumptz,sumpts
@@ -156,10 +156,13 @@ DO k=1,maxl
  F=F+alpha*y+omega*z
  rms=s-omega*t
  !$OMP END WORKSHARE
+ !!$OMP SINGLE
+ !iter=k
+ !!$OMP END SINGLE
  if(sum(abs(rms))/(Ic*Jc)<err) exit
 end DO
 !$OMP END PARALLEL
-!print *,sum(abs(rms))/(Ic*Jc),k
+!print *,sum(abs(rms))/(Ic*Jc),iter
 
 contains
 
