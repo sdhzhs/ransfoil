@@ -6,6 +6,7 @@ integer s
 integer(C_INT),bind(C)::prtl
 character(*) libmod,scptname
 integer time0(8),time1(8)
+real(8) rtime0,rtime1
 logical(1) lconv,ldiv
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
@@ -41,6 +42,7 @@ end if
 #endif
 print *,'RANS equations iteration is beginning...'
 Call DATE_AND_TIME(VALUES=time0)
+Call CPU_TIME(rtime0)
 DO s=1,maxs
   Call Derivatives('mux')
   Call Derivatives('muy')
@@ -231,17 +233,19 @@ DO s=1,maxs
   end if
 end DO
 Call DATE_AND_TIME(VALUES=time1)
+Call CPU_TIME(rtime1)
+write(*,'(1X,A19,1X,F7.2,A1)') 'Iteration CPU time:',rtime1-rtime0,'s'
 if(time1(6)-time0(6)>=0) then
  if(time1(7)-time0(7)>=0) then
-  print *,'Iteration time:',time1(6)-time0(6),'m',time1(7)-time0(7),'s'
+  print *,'Iteration elapsed time:',time1(6)-time0(6),'m',time1(7)-time0(7),'s'
  else
-  print *,'Iteration time:',time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
+  print *,'Iteration elapsed time:',time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
  end if
 else
  if(time1(7)-time0(7)>=0) then
-  print *,'Iteration time:',60+time1(6)-time0(6),'m',time1(7)-time0(7),'s'
+  print *,'Iteration elapsed time:',60+time1(6)-time0(6),'m',time1(7)-time0(7),'s'
  else
-  print *,'Iteration time:',60+time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
+  print *,'Iteration elapsed time:',60+time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
  end if
 end if
 if(s==maxs+1) then
