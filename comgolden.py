@@ -7,7 +7,7 @@ def readaeropara(filename,tokenlist,aeropara):
       continue
     if(flag):
       parts=[str for str in line.strip().split(' ') if str!='']
-#     print "split line:",parts
+#     print("split line:",parts)
       for i in range(len(tokenlist)):
         if(tokenlist[i] in parts[0]):
           if(i<8):
@@ -43,9 +43,9 @@ readaeropara(filename,tokenlist,aeropara)
 filename=sys.argv[2]+'/Aeroreport.dat'
 readaeropara(filename,tokenlist,aeroparagolden)
 #for a in aeropara:
-#  print '%E'%a
+#  print('%E'%a)
 #for a in aeroparagolden:
-#  print '%E'%a
+#  print('%E'%a)
 tol = 1e-2
 flag = True
 for i in range(len(aeropara)):
@@ -56,8 +56,8 @@ for i in range(len(aeropara)):
   if(res > tol):
     flag = False
     if(i<9):
-      print "The relative error of",tokenlist[i],"with golden is bigger than",tol
+      print("The relative error of",tokenlist[i],"with golden is",res)
     else:
-      print "The relative error of",tokenlist[i-1],"with golden is bigger than",tol
+      print("The relative error of",tokenlist[i-1],"with golden is",res)
 if(flag):	  
-  print "The relative errors of all the aeropara with golden are smaller than",tol 
+  print("The relative errors of all the aeropara with golden are smaller than",tol)

@@ -6,7 +6,7 @@ integer s
 integer(C_INT),bind(C)::prtl
 character(*) libmod,scptname
 integer time0(8),time1(8)
-real(8) rtime0,rtime1
+real(8) rtime0,rtime1,cputime,walltime
 logical(1) lconv,ldiv
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
@@ -234,20 +234,24 @@ DO s=1,maxs
 end DO
 Call DATE_AND_TIME(VALUES=time1)
 Call CPU_TIME(rtime1)
-write(*,'(1X,A19,1X,F7.2,A1)') 'Iteration CPU time:',rtime1-rtime0,'s'
+cputime=rtime1-rtime0
 if(time1(6)-time0(6)>=0) then
  if(time1(7)-time0(7)>=0) then
   print *,'Iteration elapsed time:',time1(6)-time0(6),'m',time1(7)-time0(7),'s'
  else
   print *,'Iteration elapsed time:',time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
  end if
+ walltime=60.*(time1(6)-time0(6))+time1(7)-time0(7)
 else
  if(time1(7)-time0(7)>=0) then
   print *,'Iteration elapsed time:',60+time1(6)-time0(6),'m',time1(7)-time0(7),'s'
  else
   print *,'Iteration elapsed time:',60+time1(6)-time0(6)-1,'m',60+time1(7)-time0(7),'s'
  end if
+ walltime=60.*(60+time1(6)-time0(6))+time1(7)-time0(7)
 end if
+write(*,'(1X,A19,14X,F7.2,A1)') 'Iteration CPU time:',cputime,'s'
+write(*,'(1X,A8,25X,F7.2)') 'Scaling:',cputime/walltime
 if(s==maxs+1) then
  print *,'Reach maximum iteration steps!'
  if(s>1500) then
