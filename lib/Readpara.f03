@@ -5,7 +5,7 @@ character(1) ch
 character(*) libmod,scptname
 character(128) ioerrmsg
 integer stat
-if(libmod=='S') then
+if(libmod=='S'.or.libmod=='M') then
  open(unit=10,file=scptname,status='old')
   read(10,*) ch
   read(10,*) filename(1)

@@ -16,6 +16,7 @@ Program RANSFOIL
    print *,"Options:"
    print *,"--stdin        interactive mode, read parameters from standard input"
    print *,"--script       batch mode, read parameters from a configuration file"
+   print *,"--mesh         batch mode, read parameters from a configuration file, then read mesh from an existed plot3d mesh file"
    print *,"--version      show the current version"
    print *,"-h, --help     show this message"
   else if(argc==1) then
@@ -32,6 +33,9 @@ Program RANSFOIL
    else if(trim(argv(2))=="--script") then
     print *,"should input a name of the configuration file."
     print *,"usage: ",trim(argv(1))," [options] [configuration file]"
+   else if(trim(argv(2))=="--mesh") then
+    print *,"should input a name of the configuration file."
+    print *,"usage: ",trim(argv(1))," [options] [configuration file]"
    else if(trim(argv(2))=="--version") then
     print *,"ransfoil version 2.2.16"
     print *,"Copyright (c) 2012-2023, Hou Shuo"
@@ -45,6 +49,7 @@ Program RANSFOIL
     print *,"Options:"
     print *,"--stdin        interactive mode, read parameters from standard input"
     print *,"--script       batch mode, read parameters from a configuration file"
+    print *,"--mesh         batch mode, read parameters from a configuration file, then read mesh from an existed plot3d mesh file"
     print *,"--version      show the current version"
     print *,"-h, --help     show this message"
    else
@@ -55,6 +60,10 @@ Program RANSFOIL
    Call get_command_argument(2,argv(3))
    if(trim(argv(2))=="--script") then
     mode='S'
+    scptname=trim(argv(3))
+    Call Aero2D(mode,1,scptname)
+   else if(trim(argv(2))=="--mesh") then
+    mode='M'
     scptname=trim(argv(3))
     Call Aero2D(mode,1,scptname)
    else

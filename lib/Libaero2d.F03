@@ -13,7 +13,7 @@ integer(8) matA,vecb,vecx,solver,precond
 integer(1) solid
 #endif
 
-if(libmod=='S'.or.libmod=='I') then
+if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
  Call Readpara(libmod,scptname)
 else if(libmod=='C') then
  Call ConfigparaC2F
@@ -22,7 +22,7 @@ Call Genmesh(libmod)
 Call Jacobi
 Call Initial
 Call Densityinterp
-if(libmod=='S'.or.libmod=='I') then
+if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
  filename(2)=trim(dir)//'/iteration.txt'
  open(unit=2,file=filename(2),status='replace')
   write(2,*) 'Residual of RANS equations:'
@@ -180,7 +180,7 @@ DO s=1,maxs
   end if
   Call Turvis
   Call Postprocess(s)
-  if((libmod=='S'.or.libmod=='I').and.(s==1.or.mod(s,100)==0)) then
+  if((libmod=='S'.or.libmod=='I'.or.libmod=='M').and.(s==1.or.mod(s,100)==0)) then
    Call Saveresults
    print *,'Output results completed!'
   end if
@@ -200,7 +200,7 @@ DO s=1,maxs
    print *,'mass residual:'
    print *,rmsm,s
   end if
-  if(libmod=='S'.or.libmod=='I') then
+  if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
    if(Turmod=='sa') then
     write(2,'(5(ES11.4,2X),I5)') rmsu,rmsv,rmst,rmsn,rmsm,s
    else if(Turmod=='ke') then
@@ -258,7 +258,7 @@ if(s==maxs+1) then
   Call AverageSol
  end if
 end if
-if(libmod=='S'.or.libmod=='I') then
+if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
  close(2)
  Call Saveresults
  print *,'Save results successfully!'

@@ -28,11 +28,11 @@ Subroutine invMatrix(invA,A,N)
 implicit none
 integer i,j,k,N,kp,iq
 real(8) R,maxa,swap
-real(8) invA(N,N),A(N,N),B(N,N)
+real(8) invA(N,N),A(N,N)
 
-B=0
+invA=0
 DO i=1,N
- B(i,i)=1
+ invA(i,i)=1
 end DO
 DO k=1,N-1
  maxa=0
@@ -50,9 +50,9 @@ DO k=1,N-1
    A(kp,j)=swap
   end DO
   DO j=1,N
-   swap=B(k,j)
-   B(k,j)=B(kp,j)
-   B(kp,j)=swap
+   swap=invA(k,j)
+   invA(k,j)=invA(kp,j)
+   invA(kp,j)=swap
   end DO
  end if
  kp=k+1
@@ -62,14 +62,13 @@ DO k=1,N-1
    A(i,j)=A(i,j)-R*A(k,j)
   end DO
   DO j=1,N
-   B(i,j)=B(i,j)-R*B(k,j)
+   invA(i,j)=invA(i,j)-R*invA(k,j)
   end DO
  end DO
 end DO
 DO k=1,N
- invA(N,k)=B(N,k)/A(N,N)
+ invA(N,k)=invA(N,k)/A(N,N)
  DO i=N-1,1,-1
-  invA(i,k)=B(i,k)
   iq=i+1
   DO j=iq,N
    invA(i,k)=invA(i,k)-A(i,j)*invA(j,k)

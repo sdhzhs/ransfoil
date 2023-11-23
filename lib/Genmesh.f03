@@ -11,6 +11,9 @@ character(*) libmod
 opentrail=.false.
 if(libmod=='S'.or.libmod=='I') then
  Call Readfoil
+else if(libmod=='M') then
+ Call Readmesh(libmod)
+ return
 else if(libmod=='C') then
  if(Pntctrl=='N') then
   allocate(Xwd(Iwd),Ywd(Iwd))
@@ -146,3 +149,26 @@ else
 end if
 
 end Subroutine Readfoil
+
+Subroutine Readmesh(libmod)
+use Aero2DCOM
+implicit none
+integer blocks,i,j,stat
+character(128) ioerrmsg
+character(*) libmod
+
+open(unit=1,file=filename(1),status='old',IOSTAT=stat,IOMSG=ioerrmsg)
+if(stat>0) stop ioerrmsg
+ read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) blocks
+ read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) Ip,Jp,Ib1,Ib2
+ if(stat>0) stop filename(1)//ioerrmsg
+ Ic=Ip-1
+ Jc=Jp-1
+ Call Allocarray(libmod)
+ read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) ((Xg(i,j),i=1,Ip),j=1,Jp)
+ read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) ((Yg(i,j),i=1,Ip),j=1,Jp)
+ if(stat>0) stop filename(1)//ioerrmsg
+close(1)
+print *,'Read airfoil 2D C-type mesh completed!'
+
+end Subroutine Readmesh
