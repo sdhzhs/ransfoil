@@ -61,9 +61,9 @@ end Subroutine sor
 Subroutine CGSTAB(aM,b,F,F0,a,Ic,Jc,Ib1,Ib2,scalar)
 implicit none
 integer maxl,k,Ic,Jc,Ib1,Ib2,iter
-real(8) err,a
+real(8) err,a,normb
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
-real(8) alpha,beta,rho,omega,rho0,sumrmsi,sumvrms,sumptz,sumpts
+real(8) alpha,beta,rho,omega,rho0,sumrmsi,sumvrms,sumptz,sumpts,sumrms
 real(8) rmsi(Ic,Jc),rms(Ic,Jc),p(Ic,Jc),v(Ic,Jc),s(Ic,Jc),t(Ic,Jc),pt(Ic,Jc),y(Ic,Jc),z(Ic,Jc),aD(Ic,Jc),vec0(Ic,Jc)
 character(*) scalar
 character(4) pretype
@@ -82,6 +82,7 @@ rmsi=rms
 p=0
 v=p
 aD=aM(1,:,:)
+normb=sum(abs(b))
 !$OMP END WORKSHARE
 if(pretype=='ILU') then
  Call DILU(aM,aD,Ic,Jc,Ib2)
@@ -156,13 +157,20 @@ DO k=1,maxl
  F=F+alpha*y+omega*z
  rms=s-omega*t
  !$OMP END WORKSHARE
+ !$OMP WORKSHARE
+ sumrms=sum(abs(rms))
+ !$OMP END WORKSHARE
  !!$OMP SINGLE
  !iter=k
  !!$OMP END SINGLE
- if(sum(abs(rms))/(Ic*Jc)<err) exit
+ !if(normb==0) then
+  if(sumrms/(Ic*Jc)<err) exit
+ !else
+ ! if(sumrms/normb<err) exit
+ !end if
 end DO
 !$OMP END PARALLEL
-!print *,sum(abs(rms))/(Ic*Jc),iter
+!print *,sumrms/(Ic*Jc),iter
 
 contains
 

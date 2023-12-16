@@ -6,7 +6,8 @@ character(*) libmod,scptname
 character(128) ioerrmsg
 integer stat
 if(libmod=='S'.or.libmod=='M') then
- open(unit=10,file=scptname,status='old')
+ open(unit=10,file=scptname,status='old',IOSTAT=stat,IOMSG=ioerrmsg)
+ if(stat>0) stop ioerrmsg
   read(10,*) ch
   read(10,*) filename(1)
   read(10,*) ch

@@ -255,6 +255,7 @@ DO j=1,Jc-1
      end if
      !if(scalar=='Tn') aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
      if(scalar=='Tk') aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
+     if(scalar=='T'.and.Tmptype=='flux') aP=aP-2*Ds(i,j)
     else if(Turmod=='sa'.and.Walltreat=='wf'.or.(Turmod=='sst'.and.Walltreat=='wf').or.Turmod=='ke') then
      if(scalar=='U') then
       if(wallfunutype=='parvel') then
