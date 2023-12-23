@@ -104,7 +104,9 @@ else if(Turmod=='sst') then
  Tw(1,:)=Twi
  Tw(Ic,:)=Twi
 end if
-rho=(Po+P)*Ma/(R*T)
+if(Init=='N') then
+ rho=(Po+P)*Ma/(R*T)
+end if
 ks=ksi
 if(Turmod=='inv') then
  mu=0
