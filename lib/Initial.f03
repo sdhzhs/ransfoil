@@ -2,6 +2,7 @@ Subroutine Initial
 use Aero2DCOM
 implicit none
 integer i,j,ioerr
+character(128) ioerrmsg
 real(8),external:: interpl
 real(8) Tni0
 ca=1006.43
@@ -32,23 +33,25 @@ else if(Turmod=='sst') then
  Twi=rhoi*Tki/(mui*tvr)
 end if
 if(Init=='Y') then
- open(unit=1,file=filename(9),form='unformatted',status='old')
-  read(1,iostat=ioerr) U
-  read(1,iostat=ioerr) U
-  read(1,iostat=ioerr) U
-  read(1,iostat=ioerr) V
-  read(1,iostat=ioerr) P
-  read(1,iostat=ioerr) T
-  read(1,iostat=ioerr) rho
+ open(unit=1,file=filename(9),form='unformatted',status='old',IOSTAT=ioerr,IOMSG=ioerrmsg)
+ if(ioerr>0) stop ioerrmsg
+  read(1,iostat=ioerr,IOMSG=ioerrmsg) U
+  read(1,iostat=ioerr,IOMSG=ioerrmsg) U
+  read(1,iostat=ioerr,IOMSG=ioerrmsg) U
+  read(1,iostat=ioerr,IOMSG=ioerrmsg) V
+  read(1,iostat=ioerr,IOMSG=ioerrmsg) P
+  read(1,iostat=ioerr,IOMSG=ioerrmsg) T
+  read(1,iostat=ioerr,IOMSG=ioerrmsg) rho
   if(Turmod=='sa') then
-   read(1,iostat=ioerr) Tn
+   read(1,iostat=ioerr,IOMSG=ioerrmsg) Tn
   else if(Turmod=='ke') then
-   read(1,iostat=ioerr) Tk
-   read(1,iostat=ioerr) Te
+   read(1,iostat=ioerr,IOMSG=ioerrmsg) Tk
+   read(1,iostat=ioerr,IOMSG=ioerrmsg) Te
   else if(Turmod=='sst') then
-   read(1,iostat=ioerr) Tk
-   read(1,iostat=ioerr) Tw
+   read(1,iostat=ioerr,IOMSG=ioerrmsg) Tk
+   read(1,iostat=ioerr,IOMSG=ioerrmsg) Tw
   end if
+  if(ioerr>0) STOP ioerrmsg
  close(1)
  print *,'Read initial data completed!'
 else if(Init=='N') then
