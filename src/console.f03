@@ -38,7 +38,7 @@ Program RANSFOIL
     print *,"usage: ",trim(argv(1))," [options] [configuration file]"
    else if(trim(argv(2))=="--version") then
     print *,"ransfoil version 2.2.17"
-    print *,"Copyright (c) 2012-2023, Hou Shuo"
+    print *,"Copyright (c) 2012-2024, Hou Shuo"
    else if(trim(argv(2))=="-h".or.trim(argv(2))=="--help") then
     print *,"usage: ",trim(argv(1))," [options] [configuration file]"
     print *,"Console program to mainly calculate aerodynamic parameters of an airfoil by numerically solving the RANS equations. &

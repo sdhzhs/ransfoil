@@ -329,6 +329,7 @@ DO j=1,Jc-1
      b(i,j)=Jg(i,j)*(-Px(i,j)-2*(muxx(i,j)+mvyx(i,j))/3+muxx(i,j)+mvxy(i,j))*dx*dy
     else if(Proctrl=='incom') then
      b(i,j)=Jg(i,j)*(-Px(i,j)+muxx(i,j)+mvxy(i,j))*dx*dy
+     !if(Turmod=='ke'.or.Turmod=='sst') b(i,j)=b(i,j)-Jg(i,j)*2*rho(i,j)*Tkx(i,j)/3*dx*dy
     end if
     if(wallfunutype=='parvel'.and.j==1.and.(i>=Ib1.and.i<=Ib2).and.(Turmod=='sa'.and.Walltreat=='wf'.or.Turmod=='sst'.and.Walltreat=='wf'.or.Turmod=='ke')) then
      b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xga(i,j)*Yga(i,j)*V(i,j)/da(i,j)**2
@@ -338,6 +339,7 @@ DO j=1,Jc-1
      b(i,j)=Jg(i,j)*(-Py(i,j)-2*(muxy(i,j)+mvyy(i,j))/3+muyx(i,j)+mvyy(i,j))*dx*dy
     else if(Proctrl=='incom') then
      b(i,j)=Jg(i,j)*(-Py(i,j)+muyx(i,j)+mvyy(i,j))*dx*dy
+     !if(Turmod=='ke'.or.Turmod=='sst') b(i,j)=b(i,j)-Jg(i,j)*2*rho(i,j)*Tky(i,j)/3*dx*dy
     end if
     if(wallfunutype=='parvel'.and.j==1.and.(i>=Ib1.and.i<=Ib2).and.(Turmod=='sa'.and.Walltreat=='wf'.or.Turmod=='sst'.and.Walltreat=='wf'.or.Turmod=='ke')) then
      b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xga(i,j)*Yga(i,j)*U(i,j)/da(i,j)**2
@@ -437,7 +439,7 @@ DO j=1,Jc-1
      b(i,j)=(mu(i,j)+mut(i,j))*St(i,j)**2*Jg(i,j)*dx*dy
      !b(i,j)=b(i,j)-rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy
     end if
-    if(Proctrl=='com') b(i,j)=b(i,j)+g*mut(i,j)*rhoy(i,j)*Jg(i,j)*dx*dy/(rho(i,j)*Prt)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)
+    if(Proctrl=='com') b(i,j)=b(i,j)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)
    else if(scalar=='Tk'.and.Turmod=='sst') then
     Dampk=rho(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
     if(j==1.and.(i>=Ib1.and.i<=Ib2).and.Walltreat=='wf') then
@@ -468,7 +470,6 @@ DO j=1,Jc-1
     else
      b(i,j)=Te(i,j)*C1e*(mu(i,j)+mut(i,j))*St(i,j)**2*Jg(i,j)*dx*dy/Tk(i,j)
      !b(i,j)=b(i,j)-C2e*rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
-     if(Proctrl=='com') b(i,j)=b(i,j)+Te(i,j)*C3e(i,j)*g*mut(i,j)*rhoy(i,j)/(rho(i,j)*Prt)*Jg(i,j)*dx*dy/Tk(i,j)
     end if
    else if(scalar=='Tw') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
@@ -483,6 +484,8 @@ DO j=1,Jc-1
    else
     b(i,j)=b(i,j)+bno(i,j)+cor(i,j)
    end if
+   !DF=Fe(i,j)-Fw(i,j)+Fn(i,j)-Fs(i,j)
+   !if(DF<0) b(i,j)=b(i,j)-DF*F(i,j)
   end DO
 end DO
 !$OMP END DO
