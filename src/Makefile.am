@@ -15,4 +15,4 @@ endif
 EXTRA_PROGRAMS = libcallexp
 libcallexp_SOURCES = libcallexpf.f03 libcallexpc.c
 libcallexp_LDADD = $(top_srcdir)/lib/libaero2d.la
-dist_include_HEADERS = aero2dcom.h
+dist_include_HEADERS = aero2dcom.h gfcompile.sh gccompile.sh 
