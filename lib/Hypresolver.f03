@@ -236,14 +236,6 @@ else if(solid==3) then
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 1, ierr)
  !end if
  !Call HYPRE_BoomerAMGSetSmoothNumSwps(solver, 1, ierr)
- !Call HYPRE_BoomerAMGSetEuLevel(solver, 0, ierr)
- !Call HYPRE_BoomerAMGSetEuSparseA(solver, 0, ierr)
- !Call HYPRE_BoomerAMGSetEuBJ(solver, 1, ierr)
- !Call HYPRE_BoomerAMGSetVariant(solver, 0, ierr)
- !Call HYPRE_BoomerAMGSetOverlap(solver, 0, ierr)
- !Call HYPRE_BoomerAMGSetDomainType(solver, 2, ierr)     
- !Call HYPRE_BoomerAMGSetSchwarzRlxWt(solver, 0, ierr)
- !Call HYPRE_BoomerAMGSetSchwarzNonSym(solver, 1, ierr)
  Call HYPRE_BoomerAMGSetup(solver, parA, parb, parx, ierr)
  Call HYPRE_BoomerAMGSolve(solver, parA, parb, parx, ierr)
 else if(solid==4) then

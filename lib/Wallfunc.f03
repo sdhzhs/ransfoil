@@ -68,7 +68,7 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
    if(Tmptype=='fixed') then
     Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)
     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
-!    Dt=0.5*rho(i,1)*ustar(i)*Prt*(U(i,1)**2+V(i,1)**2)
+    !Dt=0.5*rho(i,1)*ustar(i)*Prt*(U(i,1)**2+V(i,1)**2)
     Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-exp(lamda(i))*Dl-exp(1./lamda(i))*Dt)/Tplusc
     Tplusl=Tplusl+Dl/Q(i)
     Tplust=Tplust+Dt/Q(i)
@@ -91,6 +91,7 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
 else if(Turmod=='ke') then
  DO i=Ib1,Ib2
   Uplus(i)=log(Ep*Ystar(i))/kapa-deltaB(i)
+  !if(Ystar(i)<Ym) Uplus(i)=Ystar(i)
   if(visheat=='Y') then
    Tplusc=Prt*(Uplus(i)+Prough(i))
    !Tplusc=Prt*Uplus(i)
@@ -105,6 +106,7 @@ else if(Turmod=='ke') then
    end if
   else
    Tplus(i)=Prt*(Uplus(i)+Prough(i))
+   !if(Ystar(i)<Yt) Tplus(i)=Pr(i,1)*Uplus(i)
    if(Tmptype=='fixed') then
     Q(i)=ca*rho(i,1)*ustar(i)*(Tf-T(i,1))/Tplus(i)
    else if(Tmptype=='flux') then
