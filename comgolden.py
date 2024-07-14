@@ -35,11 +35,8 @@ aeropara=[]
 aeroparagolden=[]
 tokenlist=[]
 buildtoken(tokenlist)
-#filename='cases/Aeroreport.dat'
 filename=sys.argv[1]+'/Aeroreport.dat'
 readaeropara(filename,tokenlist,aeropara)
-#filename='../2.2.10/ransfoil22-win64-binary/cases/Aeroreport.dat'
-#filename='D:\\CaseFiles\\ransfoil\\relaxfactor\\Aeroreport_simple_ra0.7.dat'
 filename=sys.argv[2]+'/Aeroreport.dat'
 readaeropara(filename,tokenlist,aeroparagolden)
 #for a in aeropara:
@@ -59,5 +56,8 @@ for i in range(len(aeropara)):
       print("The relative error of",tokenlist[i],"with golden is",res)
     else:
       print("The relative error of",tokenlist[i-1],"with golden is",res)
-if(flag):	  
+if(flag):
   print("The relative errors of all the aeropara with golden are smaller than",tol)
+  sys.exit(0)
+else:
+  sys.exit(1)
