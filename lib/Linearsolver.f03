@@ -18,6 +18,7 @@ DO k=1,maxl
   !$OMP WORKSHARE
   Fo=F
   !$OMP END WORKSHARE
+  if(scalar=='Te'.or.scalar=='Tw') then
   !$OMP DO
   DO j=1,Jc-1
     DO i=2,Ic-1
@@ -28,16 +29,29 @@ DO k=1,maxl
         F(i,j)=omega*(a*(aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(Ic+1-i,j)+aM(5,i,j)*F(i,j+1)+b(i,j))/aM(1,i,j)+(1-a)*F0(i,j))+&
         (1-omega)*F(i,j)
       else
-        if(scalar=='Te'.or.scalar=='Tw') then
-          cycle
-        else
-          F(i,j)=omega*(a*(aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(i,j)+aM(5,i,j)*F(i,j+1)+b(i,j))/aM(1,i,j)+(1-a)*F0(i,j))+&
-          (1-omega)*F(i,j)
-        end if
+        cycle
       end if
     end DO
   end DO
   !$OMP END DO
+  else
+  !$OMP DO
+  DO j=1,Jc-1
+    DO i=2,Ic-1
+      if(j>1) then
+        F(i,j)=omega*(a*(aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(i,j-1)+aM(5,i,j)*F(i,j+1)+b(i,j))/aM(1,i,j)+(1-a)*F0(i,j))+&
+        (1-omega)*F(i,j)
+      else if(j==1.and.(i>Ib2.or.i<Ib1)) then
+        F(i,j)=omega*(a*(aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(Ic+1-i,j)+aM(5,i,j)*F(i,j+1)+b(i,j))/aM(1,i,j)+(1-a)*F0(i,j))+&
+        (1-omega)*F(i,j)
+      else
+        F(i,j)=omega*(a*(aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(i,j)+aM(5,i,j)*F(i,j+1)+b(i,j))/aM(1,i,j)+(1-a)*F0(i,j))+&
+        (1-omega)*F(i,j)
+      end if
+    end DO
+  end DO
+  !$OMP END DO
+  end if
   !$OMP SINGLE
   rms=0
   !$OMP END SINGLE
@@ -204,6 +218,7 @@ vt(2:Ic-1,Jc)=omega*vt(2:Ic-1,Jc)
 
 cond(1)=(npt==0)
 cond(2)=(nt>1.and.tid>0)
+if(scalar=='Te'.or.scalar=='Tw') then
 !$OMP DO
 !!$OMP SINGLE
 DO j=1,Jc-1
@@ -218,7 +233,7 @@ DO j=1,Jc-1
 !$   end if
   else if(j==1.and.i>Ib2) then
    vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j)+aM(4,i,j)*vt(Ic+1-i,j))/aD(i,j)
-  else if(i>=Ib1.and.(scalar=='Te'.or.scalar=='Tw')) then
+  else if(i>=Ib1) then
    vt(i,j)=omega*vt(i,j)
   else
    vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j))/aD(i,j)
@@ -227,20 +242,53 @@ DO j=1,Jc-1
 end DO
 !!$OMP END SINGLE
 !$OMP END DO
+else
+!$OMP DO
+!!$OMP SINGLE
+DO j=1,Jc-1
+ DO i=2,Ic-1
+  if(j>1) then
+!$   cond(3)=(tid<rpt.and.mod(j,npt+1)==1)
+!$   cond(4)=(tid>=rpt.and.(npt==1.or.mod(j-rpt*(npt+1),npt)==1))
+!$   if(cond(1).or.cond(2).and.(cond(3).or.cond(4))) then
+!$    vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j)+aM(4,i,j)*vt0(i,j-1))/aD(i,j)
+!$   else
+    vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j)+aM(4,i,j)*vt(i,j-1))/aD(i,j)
+!$   end if
+  else if(j==1.and.i>Ib2) then
+   vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j)+aM(4,i,j)*vt(Ic+1-i,j))/aD(i,j)
+  else
+   vt(i,j)=a*omega*(vt(i,j)+aM(2,i,j)*vt(i-1,j))/aD(i,j)
+  end if
+ end DO
+end DO
+!!$OMP END SINGLE
+!$OMP END DO
+end if
 
 !$OMP WORKSHARE
 vt=(2-omega)*vt/omega
 !$OMP END WORKSHARE
 
+if(scalar=='Te'.or.scalar=='Tw') then
 !$OMP DO
 DO j=1,Jc-1
  DO i=2,Ic-1
-  if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
+  if(.not.(j==1.and.i>=Ib1.and.i<=Ib2)) then
    vt(i,j)=aD(i,j)*vt(i,j)/a
   end if
  end DO
 end DO
 !$OMP END DO
+else
+!$OMP DO
+DO j=1,Jc-1
+ DO i=2,Ic-1
+  vt(i,j)=aD(i,j)*vt(i,j)/a
+ end DO
+end DO
+!$OMP END DO
+end if
 
 !$OMP WORKSHARE
 vt(1,:)=omega*vt(1,:)
@@ -249,6 +297,7 @@ vt(2:Ic-1,Jc)=omega*vt(2:Ic-1,Jc)
 !$ vt0=vt
 !$OMP END WORKSHARE
 
+if(scalar=='Te'.or.scalar=='Tw') then
 !$OMP DO
 !!$OMP SINGLE
 DO j=Jc-1,1,-1
@@ -259,7 +308,7 @@ DO j=Jc-1,1,-1
 !$   else
     vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt(i,j+1)+aM(4,i,j)*vt(Ic+1-i,j))/aD(i,j)
 !$   end if
-  else if(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw')) then
+  else if(j==1.and.i>=Ib1.and.i<=Ib2) then
    vt(i,j)=omega*vt(i,j)
   else
 !$   cond(3)=(tid<rpt.and.mod(Jc-j,npt+1)==1)
@@ -274,6 +323,31 @@ DO j=Jc-1,1,-1
 end DO
 !!$OMP END SINGLE
 !$OMP END DO
+else
+!$OMP DO
+!!$OMP SINGLE
+DO j=Jc-1,1,-1
+ DO i=Ic-1,2,-1
+  if(j==1.and.i<Ib1) then
+!$   if(npt==0.or.npt==1) then
+!$    vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt0(i,j+1)+aM(4,i,j)*vt(Ic+1-i,j))/aD(i,j)
+!$   else
+    vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt(i,j+1)+aM(4,i,j)*vt(Ic+1-i,j))/aD(i,j)
+!$   end if
+  else
+!$   cond(3)=(tid<rpt.and.mod(Jc-j,npt+1)==1)
+!$   cond(4)=(tid>=rpt.and.(npt==1.or.mod(Jc-j-rpt*(npt+1),npt)==1))
+!$   if(cond(1).or.cond(2).and.(cond(3).or.cond(4))) then
+!$    vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt0(i,j+1))/aD(i,j)
+!$   else
+    vt(i,j)=a*omega*(vt(i,j)+aM(3,i,j)*vt(i+1,j)+aM(5,i,j)*vt(i,j+1))/aD(i,j)
+!$   end if
+  end if
+ end DO
+end DO
+!!$OMP END SINGLE
+!$OMP END DO
+end if
 end Subroutine SSorpcond
 
 end Subroutine CGSTAB
@@ -288,6 +362,7 @@ character(*) scalar
 !$OMP WORKSHARE
 rms=0
 !$OMP END WORKSHARE
+if(scalar=='Te'.or.scalar=='Tw') then
 !$OMP DO
 DO j=1,Jc-1
  DO i=2,Ic-1
@@ -295,12 +370,25 @@ DO j=1,Jc-1
    rms(i,j)=aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(i,j-1)+aM(5,i,j)*F(i,j+1)+b(i,j)+(1-a)*aM(1,i,j)*F0(i,j)/a-aM(1,i,j)*F(i,j)/a
   else if(j==1.and.(i>Ib2.or.i<Ib1)) then
    rms(i,j)=aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(Ic+1-i,j)+aM(5,i,j)*F(i,j+1)+b(i,j)+(1-a)*aM(1,i,j)*F0(i,j)/a-aM(1,i,j)*F(i,j)/a
-  else if(scalar/='Te'.and.scalar/='Tw') then
+  end if
+ end DO
+end DO
+!$OMP END DO
+else
+!$OMP DO
+DO j=1,Jc-1
+ DO i=2,Ic-1
+  if(j>1) then
+   rms(i,j)=aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(i,j-1)+aM(5,i,j)*F(i,j+1)+b(i,j)+(1-a)*aM(1,i,j)*F0(i,j)/a-aM(1,i,j)*F(i,j)/a
+  else if(j==1.and.(i>Ib2.or.i<Ib1)) then
+   rms(i,j)=aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(Ic+1-i,j)+aM(5,i,j)*F(i,j+1)+b(i,j)+(1-a)*aM(1,i,j)*F0(i,j)/a-aM(1,i,j)*F(i,j)/a
+  else
    rms(i,j)=aM(3,i,j)*F(i+1,j)+aM(2,i,j)*F(i-1,j)+aM(4,i,j)*F(i,j)+aM(5,i,j)*F(i,j+1)+b(i,j)+(1-a)*aM(1,i,j)*F0(i,j)/a-aM(1,i,j)*F(i,j)/a
   end if
  end DO
 end DO
 !$OMP END DO
+end if
 end Subroutine Residual
 
 Subroutine DILU(aM,aD,Ic,Jc,Ib2)
@@ -335,6 +423,7 @@ character(*) scalar
 !$OMP WORKSHARE
 v=u
 !$OMP END WORKSHARE
+if(scalar=='Te'.or.scalar=='Tw') then
 !$OMP DO
 DO j=1,Jc-1
   DO i=2,Ic-1
@@ -342,12 +431,25 @@ DO j=1,Jc-1
     v(i,j)=aM(1,i,j)*u(i,j)/a-aM(3,i,j)*u(i+1,j)-aM(2,i,j)*u(i-1,j)-aM(4,i,j)*u(i,j-1)-aM(5,i,j)*u(i,j+1)
    else if(j==1.and.(i>Ib2.or.i<Ib1)) then
     v(i,j)=aM(1,i,j)*u(i,j)/a-aM(3,i,j)*u(i+1,j)-aM(2,i,j)*u(i-1,j)-aM(4,i,j)*u(Ic+1-i,j)-aM(5,i,j)*u(i,j+1)
-   else if(scalar/='Te'.and.scalar/='Tw') then
+   end if
+  end DO
+end DO
+!$OMP END DO
+else
+!$OMP DO
+DO j=1,Jc-1
+  DO i=2,Ic-1
+   if(j>1) then
+    v(i,j)=aM(1,i,j)*u(i,j)/a-aM(3,i,j)*u(i+1,j)-aM(2,i,j)*u(i-1,j)-aM(4,i,j)*u(i,j-1)-aM(5,i,j)*u(i,j+1)
+   else if(j==1.and.(i>Ib2.or.i<Ib1)) then
+    v(i,j)=aM(1,i,j)*u(i,j)/a-aM(3,i,j)*u(i+1,j)-aM(2,i,j)*u(i-1,j)-aM(4,i,j)*u(Ic+1-i,j)-aM(5,i,j)*u(i,j+1)
+   else
     v(i,j)=aM(1,i,j)*u(i,j)/a-aM(3,i,j)*u(i+1,j)-aM(2,i,j)*u(i-1,j)-aM(4,i,j)*u(i,j)-aM(5,i,j)*u(i,j+1)
    end if
   end DO
 end DO
 !$OMP END DO
+end if
 end Subroutine Multmatrixvector
 
 Subroutine Sorprecond(aM,aD,b,b0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)

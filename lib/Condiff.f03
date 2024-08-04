@@ -253,7 +253,7 @@ DO j=1,Jc-1
      else
       aP=aP+2*Ds(i,j)
      end if
-     !if(scalar=='Tn') aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+     if(scalar=='Tn'.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
      if(scalar=='Tk') aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
      if(scalar=='T'.and.Tmptype=='flux') aP=aP-2*Ds(i,j)
     else if(Turmod=='sa'.and.Walltreat=='wf'.or.(Turmod=='sst'.and.Walltreat=='wf').or.Turmod=='ke') then
@@ -273,8 +273,8 @@ DO j=1,Jc-1
       if(Tmptype=='fixed'.and.Tmin>=0) aP=aP+rho(i,j)*ustar(i)*DR(i)/Tplus(i)
      else if(scalar=='Tn') then
       aP=aP+2*Ds(i,j)
-      !if(Ymax>10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
-      !if(Ymax<=10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+      if(Ymax>10.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
+      if(Ymax<=10.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
      else if(Turmod=='sst'.and.scalar=='Tk') then
       if(wallfunktype=='genlaw') then
        aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
@@ -301,11 +301,11 @@ DO j=1,Jc-1
     !aP=aP+DF
     if(scalar=='Tk'.and.Turmod=='ke') aP=aP+rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
     if(scalar=='Te'.and.Turmod=='ke') aP=aP+C2e*rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
-    !if(scalar=='Tn'.and.Walltreat=='lr') aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
-    !if(scalar=='Tn'.and.Walltreat=='wf') then
-    ! if(Ymax>10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
-    ! if(Ymax<=10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
-    !end if
+    if(scalar=='Tn'.and.Walltreat=='lr'.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+    if(scalar=='Tn'.and.Walltreat=='wf'.and.fw1(i,j)>=0) then
+     if(Ymax>10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
+     if(Ymax<=10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+    end if
     if(scalar=='Tk'.and.Turmod=='sst') aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
     if(scalar=='Tw'.and.Turmod=='sst') aP=aP+rho(i,j)*beta(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
    end if
@@ -415,10 +415,12 @@ DO j=1,Jc-1
     end if
    else if(scalar=='Tn') then
     b(i,j)=Cb2*rho(i,j)*(Tnx(i,j)**2+Tny(i,j)**2)*Jg(i,j)*dx*dy/sigman+rho(i,j)*Cb1*Sm(i,j)*Tn(i,j)*Jg(i,j)*dx*dy
-    if(Walltreat=='wf'.and.Ymax>10) then
-     b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/(kapa*d(i,j)))**2*Jg(i,j)*dx*dy
-    else
-     b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/d(i,j))**2*Jg(i,j)*dx*dy
+    if(fw1(i,j)<0) then
+     if(Walltreat=='wf'.and.Ymax>10) then
+      b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/(kapa*d(i,j)))**2*Jg(i,j)*dx*dy
+     else
+      b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/d(i,j))**2*Jg(i,j)*dx*dy
+     end if
     end if
    else if(scalar=='Tk'.and.Turmod=='ke') then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
