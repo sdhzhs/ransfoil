@@ -3,7 +3,7 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle
-real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin,Dampk,Ymax
+real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin,Dampk,Ymax,Ym
 real(8) aP,aW,aE,aS,aN,DF
 real(8),external:: interpl
 real(8) Fwall(Ib1:Ib2)
@@ -12,14 +12,15 @@ real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 character(*) scalar
 character(6) wallfunutype,wallfunktype
-logical(1) productlimit,sstlowre,sstcom,savortex
+logical(1) productlimit,sstlowre,sstcom,saprodlimit
 
 wallfunutype='parvel'
 wallfunktype='loglaw'
 productlimit=.false.
 sstlowre=.false.
 sstcom=.false.
-savortex=.false.
+saprodlimit=.false.
+Ym=11.225
 
 !$OMP PARALLEL
 if(scalar=='U'.or.scalar=='V') then
@@ -93,6 +94,15 @@ else if(scalar=='Tw') then
  Ga=mu+mut/sigmatw
  !$OMP END WORKSHARE
 end if
+if(Turmod=='ke') then
+!$OMP WORKSHARE
+  Ymax=maxval(Ystar)
+!$OMP END WORKSHARE
+else
+!$OMP WORKSHARE
+  Ymax=maxval(Yplus)
+!$OMP END WORKSHARE
+end if
 if(scalar=='T'.or.scalar=='Tk'.or.scalar=='Tw'.or.scalar=='Te') then
  !$OMP WORKSHARE
  St=sqrt(2*(Ux**2+Vy**2)+(Uy+Vx)**2)
@@ -147,9 +157,11 @@ else if(scalar=='Tn') then
      Xi=rho(i,j)*Tn(i,j)/mu(i,j)
     end if
     fnu1=Xi**3/(Xi**3+Cnu1**3)
+    !if(Ymax>Ym) fnu1=1.0
     fnu2=1-Tn(i,j)/(mu(i,j)/rho(i,j)+Tn(i,j)*fnu1)
+    !if(Ymax>Ym) fnu2=0.0
     Sv=abs(Uy(i,j)-Vx(i,j))
-    if(savortex) Sv=Sv+2.0*min(0.0,St(i,j)-Sv)
+    if(saprodlimit) Sv=Sv+2.0*min(0.0,St(i,j)-Sv)
     Sm(i,j)=Sv+Tn(i,j)*fnu2/(kapa*d(i,j))**2
     rm=Tn(i,j)/(Sm(i,j)*(kapa*d(i,j))**2)
     gm=rm+Cw2*(rm**6-rm)
@@ -210,15 +222,6 @@ end DO
 !$OMP WORKSHARE
 Tmin=minval(Tplus)
 !$OMP END WORKSHARE
-if(Turmod=='ke') then
-!$OMP WORKSHARE
-  Ymax=maxval(Ystar)
-!$OMP END WORKSHARE
-else
-!$OMP WORKSHARE
-  Ymax=maxval(Yplus)
-!$OMP END WORKSHARE
-end if
 !$OMP WORKSHARE
 aM(1,:,:)=1
 aM(2,:,:)=0
@@ -273,8 +276,9 @@ DO j=1,Jc-1
       if(Tmptype=='fixed'.and.Tmin>=0) aP=aP+rho(i,j)*ustar(i)*DR(i)/Tplus(i)
      else if(scalar=='Tn') then
       aP=aP+2*Ds(i,j)
-      if(Ymax>10.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
-      if(Ymax<=10.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+      if(Ymax>Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
+      if(Ymax<=Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+      !if(fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
      else if(Turmod=='sst'.and.scalar=='Tk') then
       if(wallfunktype=='genlaw') then
        aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
@@ -303,8 +307,9 @@ DO j=1,Jc-1
     if(scalar=='Te'.and.Turmod=='ke') aP=aP+C2e*rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
     if(scalar=='Tn'.and.Walltreat=='lr'.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
     if(scalar=='Tn'.and.Walltreat=='wf'.and.fw1(i,j)>=0) then
-     if(Ymax>10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
-     if(Ymax<=10) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+     if(Ymax>Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
+     if(Ymax<=Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+     !aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
     end if
     if(scalar=='Tk'.and.Turmod=='sst') aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
     if(scalar=='Tw'.and.Turmod=='sst') aP=aP+rho(i,j)*beta(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
@@ -366,10 +371,10 @@ DO j=1,Jc-1
         if(Proctrl=='com') then
          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
          !b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
-         if(visheat=='Y'.and.(Turmod=='sst'.or.Ymax<=10)) b(i,j)=b(i,j)+Jg(i,j)*(-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+(mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca
+         if(visheat=='Y'.and.(Turmod=='sst'.or.Ymax<=Ym)) b(i,j)=b(i,j)+Jg(i,j)*(-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+(mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca
         else if(Proctrl=='incom') then
          b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
-         if(visheat=='Y'.and.(Turmod=='sst'.or.Ymax<=10)) b(i,j)=b(i,j)+Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca
+         if(visheat=='Y'.and.(Turmod=='sst'.or.Ymax<=Ym)) b(i,j)=b(i,j)+Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca
         end if
         if(Tmin<0) b(i,j)=b(i,j)-rho(i,j)*ustar(i)*T(i,j)*DR(i)/Tplus(i)
        end if
@@ -416,7 +421,7 @@ DO j=1,Jc-1
    else if(scalar=='Tn') then
     b(i,j)=Cb2*rho(i,j)*(Tnx(i,j)**2+Tny(i,j)**2)*Jg(i,j)*dx*dy/sigman+rho(i,j)*Cb1*Sm(i,j)*Tn(i,j)*Jg(i,j)*dx*dy
     if(fw1(i,j)<0) then
-     if(Walltreat=='wf'.and.Ymax>10) then
+     if(Walltreat=='wf'.and.Ymax>Ym) then
       b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/(kapa*d(i,j)))**2*Jg(i,j)*dx*dy
      else
       b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/d(i,j))**2*Jg(i,j)*dx*dy

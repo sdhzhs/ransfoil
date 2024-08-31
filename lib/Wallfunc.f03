@@ -60,7 +60,7 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
  lamda=-0.01*(Pr(Ib1:Ib2,1)*Yplus)**4/(1+5.*Pr(Ib1:Ib2,1)**3*Yplus)
  Ymax=maxval(Yplus)
  DO i=Ib1,Ib2
-  if(visheat=='Y'.and.Ymax>10) then
+  if(visheat=='Y'.and.Ymax>Ym) then
    Tplusl=Pr(i,1)*Uplusl(i)
    Tplust=Prt*(Uplust(i)+Prough(i))
    !Tplust=Prt*Uplust(i)

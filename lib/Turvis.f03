@@ -2,9 +2,15 @@ Subroutine Turvis
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Xi,fnu1,Dwplus,phi1,F1,betai,St,phi2,F2,Ret,alphastar
+real(8) Xi,fnu1,Dwplus,phi1,F1,betai,St,phi2,F2,Ret,alphastar,Ymax,Ym
 logical(1) sstlowre
  sstlowre=.false.
+ Ym=11.225
+ if(Turmod=='ke') then
+  Ymax=maxval(Ystar)
+ else
+  Ymax=maxval(Yplus)
+ end if
  DO j=1,Jc
   DO i=1,Ic
    if(Turmod=='sa') then
@@ -14,6 +20,7 @@ logical(1) sstlowre
      Xi=rho(i,j)*Tn(i,j)/mu(i,j)
     end if
     fnu1=Xi**3/(Xi**3+Cnu1**3)
+    !if(Ymax>Ym) fnu1=1.0
     mut(i,j)=rho(i,j)*Tn(i,j)*fnu1
    else if(Turmod=='ke') then
     mut(i,j)=(rho(i,j)*Cu*Tk(i,j)**2)/Te(i,j)
