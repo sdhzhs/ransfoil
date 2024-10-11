@@ -143,9 +143,9 @@ if(Turmod=='sst') then
     else if(ksplus(i)>=25) then
      Twplusl(i)=100/ksplus(i)
     end if
-    Twplus(i)=min(Twplusl(i),6./(betai(i)*Yplus(i)**2))
+    Twplus(i)=min(Twplusl(i),60./(betai(i)*Yplus(i)**2))
    else
-    Twplus(i)=6./(betai(i)*Yplus(i)**2)
+    Twplus(i)=60./(betai(i)*Yplus(i)**2)
    end if
   end DO
  end if
