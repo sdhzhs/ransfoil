@@ -253,6 +253,7 @@ FC = @FC@
 FCFLAGS = -Wall -ffree-line-length-none -O3 $(am__append_1) \
 	$(am__append_2)
 FGREP = @FGREP@
+FILECMD = @FILECMD@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@

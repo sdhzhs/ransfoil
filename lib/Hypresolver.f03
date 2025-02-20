@@ -225,9 +225,14 @@ else if(solid==3) then
  else
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 1, ierr)
  end if
- !Call HYPRE_BoomerAMGSetCoarsenType(solver, 10, ierr)
+ !Call HYPRE_BoomerAMGSetCoarsenType(solver, 8, ierr)
  !Call HYPRE_BoomerAMGSetInterpType(solver, 6, ierr)
  !Call HYPRE_BoomerAMGSetRelaxType(solver, 6, ierr)
+ !Call HYPRE_BoomerAMGSetRelaxOrder(solver, .false., ierr)
+ !Call HYPRE_BoomerAMGSetAggNumLevels(solver, 5, ierr)
+ !Call HYPRE_BoomerAMGSetAggInterpType(solver, 5, ierr)
+ !Call HYPRE_BoomerAMGSetKeepTransp(solver, .true.)
+ !Call HYPRE_BoomerAMGSetRAP2(solver, .false.)
  !Call HYPRE_BoomerAMGSetNumSweeps(solver, 1, ierr)
  !Call HYPRE_BoomerAMGSetSmoothType(solver, 9, ierr)
  !if(scalar=='dP') then

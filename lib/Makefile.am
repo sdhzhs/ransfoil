@@ -13,6 +13,11 @@ FCFLAGS += -I$(hypredir)/include
 libaero2d_la_SOURCES += Hypresolver.f03
 libaero2d_la_LDFLAGS += -L$(hypredir)/lib -lHYPRE
 endif
+if LINKHYPRECUDA
+FCFLAGS += -I$(hypredir)/include
+libaero2d_la_SOURCES += cudaf.f03 HypreCUDAsolver.f03 
+libaero2d_la_LDFLAGS += -L$(hypredir)/lib -lHYPRE
+endif
 if LINKOMP
 FCFLAGS += -fopenmp
 libaero2d_la_LDFLAGS += -lgomp

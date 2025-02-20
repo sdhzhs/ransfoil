@@ -1,5 +1,6 @@
 Subroutine Aero2D(libmod,prtl,scptname)
 #include <config.h>
+!use, intrinsic :: iso_c_binding
 use Aero2DCOM
 implicit none
 integer s
@@ -10,6 +11,9 @@ real(8) rtime0,rtime1,cputime,walltime
 logical(1) lconv,ldiv
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
+integer(1) solid
+#endif
+#ifdef HYPRE_GPU
 integer(1) solid
 #endif
 
@@ -40,6 +44,9 @@ end if
   solid=3
   Call hypreinit(matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,solid)
 #endif
+#ifdef HYPRE_GPU
+  solid=3
+#endif
 print *,'RANS equations iteration is beginning...'
 Call DATE_AND_TIME(VALUES=time0)
 Call CPU_TIME(rtime0)
@@ -50,8 +57,10 @@ DO s=1,maxs
   Call Derivatives('mvy')
   Call Wallfunc
   Call Condiff('U')
-#ifdef HYPRE
+#if defined(HYPRE)
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
+#elif defined(HYPRE_GPU)
+  Call hypresolve_gpu(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
 #else
   if(Linsol=='sor') then
    Call sor(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
@@ -60,8 +69,10 @@ DO s=1,maxs
   end if
 #endif
   Call Condiff('V')
-#ifdef HYPRE
+#if defined(HYPRE)
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
+#elif defined(HYPRE_GPU)
+  Call hypresolve_gpu(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
 #else
   if(Linsol=='sor') then
    Call sor(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
@@ -71,8 +82,10 @@ DO s=1,maxs
 #endif
   Call PCEcoe
   rmsm=sum(abs(b))/(Ic*Jc)
-#ifdef HYPRE
+#if defined(HYPRE)
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
+#elif defined(HYPRE_GPU)
+  Call hypresolve_gpu(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
 #else
   !Call sor(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
   Call CGSTAB(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
@@ -93,8 +106,10 @@ DO s=1,maxs
   if(Energy=='Y') then
    Call Wallfunc
    Call Condiff('T')
-#ifdef HYPRE
+#if defined(HYPRE)
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
+#elif defined(HYPRE_GPU)
+   Call hypresolve_gpu(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
 #else
    if(Linsol=='sor') then
     Call sor(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
@@ -117,8 +132,10 @@ DO s=1,maxs
    Call Derivatives('Tn')
    Call Wallfunc
    Call Condiff('Tn')
-#ifdef HYPRE
+#if defined(HYPRE)
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn')
+#elif defined(HYPRE_GPU)
+   Call hypresolve_gpu(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn')
 #else
    if(Linsol=='sor') then
     Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
@@ -130,8 +147,10 @@ DO s=1,maxs
   else if(Turmod=='ke') then
    Call Wallfunc
    Call Condiff('Tk')
-#ifdef HYPRE
+#if defined(HYPRE)
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
+#elif defined(HYPRE_GPU)
+   Call hypresolve_gpu(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
 #else
    if(Linsol=='sor') then
     Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
@@ -141,8 +160,10 @@ DO s=1,maxs
 #endif
    Call StabSol('Tk')
    Call Condiff('Te')
-#ifdef HYPRE
+#if defined(HYPRE)
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,solid,'Te')
+#elif defined(HYPRE_GPU)
+   Call hypresolve_gpu(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,solid,'Te')
 #else
    if(Linsol=='sor') then
     Call sor(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
@@ -156,8 +177,10 @@ DO s=1,maxs
    Call Derivatives('Tw')
    Call Wallfunc
    Call Condiff('Tk')
-#ifdef HYPRE
+#if defined(HYPRE)
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
+#elif defined(HYPRE_GPU)
+   Call hypresolve_gpu(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
 #else
    if(Linsol=='sor') then
     Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
@@ -167,8 +190,10 @@ DO s=1,maxs
 #endif
    Call StabSol('Tk')
    Call Condiff('Tw')
-#ifdef HYPRE
+#if defined(HYPRE)
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tw')
+#elif defined(HYPRE_GPU)
+   Call hypresolve_gpu(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tw')
 #else
    if(Linsol=='sor') then
     Call sor(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
@@ -278,7 +303,7 @@ else if(libmod=='C') then
  end if
 end if
 #ifdef HYPRE
-  Call hyprerelease(matA,vecb,vecx,solver,precond,3)
+  Call hyprerelease(matA,vecb,vecx,solver,precond,solid)
 #endif
 
 end Subroutine Aero2D

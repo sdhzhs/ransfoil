@@ -33,6 +33,9 @@
 /* Define to 1 if you have the HYPRE library */
 #undef HYPRE
 
+/* Define to 1 if you have the HYPRE library with GPU support */
+#undef HYPRE_GPU
+
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 

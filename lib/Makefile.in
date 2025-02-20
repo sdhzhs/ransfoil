@@ -93,10 +93,13 @@ host_triplet = @host@
 @LINKHYPRE_TRUE@am__append_2 = -I$(hypredir)/include
 @LINKHYPRE_TRUE@am__append_3 = Hypresolver.f03
 @LINKHYPRE_TRUE@am__append_4 = -L$(hypredir)/lib -lHYPRE
-@LINKOMP_TRUE@am__append_5 = -fopenmp
-@LINKOMP_TRUE@am__append_6 = -lgomp
-@DEBUG_TRUE@am__append_7 = -g -O0 -fcheck=bounds -ffpe-trap=invalid,zero,overflow
-@PROF_TRUE@am__append_8 = -g -pg
+@LINKHYPRECUDA_TRUE@am__append_5 = -I$(hypredir)/include
+@LINKHYPRECUDA_TRUE@am__append_6 = cudaf.f03 HypreCUDAsolver.f03 
+@LINKHYPRECUDA_TRUE@am__append_7 = -L$(hypredir)/lib -lHYPRE
+@LINKOMP_TRUE@am__append_8 = -fopenmp
+@LINKOMP_TRUE@am__append_9 = -lgomp
+@DEBUG_TRUE@am__append_10 = -g -O0 -fcheck=bounds -ffpe-trap=invalid,zero,overflow
+@PROF_TRUE@am__append_11 = -g -pg
 subdir = lib
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -143,14 +146,15 @@ am__libaero2d_la_SOURCES_DIST = COM.f03 BlockTDMA.f03 Cell2node.f03 \
 	Interp1d.f03 Jacobi.f03 Libaero2d.F03 Linearsolver.f03 \
 	PCEcoe.f03 Postprocess.f03 Readpara.f03 Results.f03 RMS.f03 \
 	Spline.f03 Turvis.f03 Velcorrect.f03 Wallfunc.f03 \
-	Hypresolver.f03
+	Hypresolver.f03 cudaf.f03 HypreCUDAsolver.f03
 @LINKHYPRE_TRUE@am__objects_1 = Hypresolver.lo
+@LINKHYPRECUDA_TRUE@am__objects_2 = cudaf.lo HypreCUDAsolver.lo
 am_libaero2d_la_OBJECTS = COM.lo BlockTDMA.lo Cell2node.lo Condiff.lo \
 	Connector.lo Defercorrect.lo Densityinterp.lo Derivatives.lo \
 	Genmesh.lo Hypmesh.lo Initial.lo Interp1d.lo Jacobi.lo \
 	Libaero2d.lo Linearsolver.lo PCEcoe.lo Postprocess.lo \
 	Readpara.lo Results.lo RMS.lo Spline.lo Turvis.lo \
-	Velcorrect.lo Wallfunc.lo $(am__objects_1)
+	Velcorrect.lo Wallfunc.lo $(am__objects_1) $(am__objects_2)
 libaero2d_la_OBJECTS = $(am_libaero2d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -271,8 +275,10 @@ EXEEXT = @EXEEXT@
 FC = @FC@
 FCFLAGS = -Wall -ffree-line-length-none -fdefault-real-8 \
 	-fdefault-double-8 -J$(top_srcdir)/lib -O3 $(am__append_2) \
-	$(am__append_5) $(am__append_7) $(am__append_8)
+	$(am__append_5) $(am__append_8) $(am__append_10) \
+	$(am__append_11)
 FGREP = @FGREP@
+FILECMD = @FILECMD@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -374,9 +380,9 @@ libaero2d_la_SOURCES = COM.f03 BlockTDMA.f03 Cell2node.f03 Condiff.f03 \
 	Interp1d.f03 Jacobi.f03 Libaero2d.F03 Linearsolver.f03 \
 	PCEcoe.f03 Postprocess.f03 Readpara.f03 Results.f03 RMS.f03 \
 	Spline.f03 Turvis.f03 Velcorrect.f03 Wallfunc.f03 \
-	$(am__append_3)
+	$(am__append_3) $(am__append_6)
 libaero2d_la_LDFLAGS = -release 2.2 $(am__append_1) $(am__append_4) \
-	$(am__append_6)
+	$(am__append_7) $(am__append_9)
 nodist_include_HEADERS = aero2dcom.mod
 all: all-am
 
