@@ -3140,10 +3140,14 @@ fi
 
 
 # Define the identity of the package.
+ PACKAGE='ransfoil'
+ VERSION='2.2'
 
- PACKAGE=ransfoil
- VERSION=2.2
 
+printf "%s\n" "#define PACKAGE \"$PACKAGE\"" >>confdefs.h
+
+
+printf "%s\n" "#define VERSION \"$VERSION\"" >>confdefs.h
 
 # Some tools Automake needs.
 

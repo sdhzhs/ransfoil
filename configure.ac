@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT([ransfoil], [2.2], [sdhzhs@gmail.com])
-AM_INIT_AUTOMAKE(ransfoil, 2.2, sdhzhs@gmail.com)
+AM_INIT_AUTOMAKE
 LT_PREREQ([2.4])
 AC_CANONICAL_HOST
 AS_CASE([$host],[i?86-pc-mingw32], [LTIOP=win32-dll],[LTIOP=""])
