@@ -365,6 +365,7 @@ type(c_ptr) :: p_values, p_F, p_aM, p_ba
 integer :: stat
 
 stat = device_malloc_managed(int(5*Ic*Jc * 8, int64), p_values)
+!stat = device_malloc(int(5*Ic*Jc * 8, int64), p_values)
 Call c_f_pointer(p_values, values, [5*Ic*Jc])
 p_F = C_LOC(F)
 p_aM = C_LOC(aM)

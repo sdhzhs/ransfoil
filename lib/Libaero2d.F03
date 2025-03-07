@@ -1,10 +1,9 @@
 Subroutine Aero2D(libmod,prtl,scptname)
 #include <config.h>
-!use, intrinsic :: iso_c_binding
 use Aero2DCOM
 implicit none
 integer s
-integer(C_INT),bind(C)::prtl
+integer(C_INT)::prtl
 character(*) libmod,scptname
 integer time0(8),time1(8)
 real(8) rtime0,rtime1,cputime,walltime
@@ -14,6 +13,8 @@ integer(8) matA,vecb,vecx,solver,precond
 integer(1) solid
 #endif
 #ifdef HYPRE_GPU
+!type(c_ptr) :: p_values
+!integer(8) matA,vecb,vecx,solver,precond
 integer(1) solid
 #endif
 
@@ -46,6 +47,7 @@ end if
 #endif
 #ifdef HYPRE_GPU
   solid=3
+  !Call hypreinit_gpu(matA,vecb,vecx,solver,precond,p_values,Ic,Jc,Ib1,Ib2,solid)
 #endif
 print *,'RANS equations iteration is beginning...'
 Call DATE_AND_TIME(VALUES=time0)
@@ -61,6 +63,7 @@ DO s=1,maxs
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
 #elif defined(HYPRE_GPU)
   Call hypresolve_gpu(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
 #else
   if(Linsol=='sor') then
    Call sor(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
@@ -73,6 +76,7 @@ DO s=1,maxs
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
 #elif defined(HYPRE_GPU)
   Call hypresolve_gpu(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
 #else
   if(Linsol=='sor') then
    Call sor(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
@@ -86,6 +90,7 @@ DO s=1,maxs
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
 #elif defined(HYPRE_GPU)
   Call hypresolve_gpu(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
 #else
   !Call sor(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
   Call CGSTAB(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
@@ -110,6 +115,7 @@ DO s=1,maxs
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
 #elif defined(HYPRE_GPU)
    Call hypresolve_gpu(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
 #else
    if(Linsol=='sor') then
     Call sor(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
@@ -136,6 +142,7 @@ DO s=1,maxs
    Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn')
 #elif defined(HYPRE_GPU)
    Call hypresolve_gpu(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn')
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn') 
 #else
    if(Linsol=='sor') then
     Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
@@ -304,6 +311,9 @@ else if(libmod=='C') then
 end if
 #ifdef HYPRE
   Call hyprerelease(matA,vecb,vecx,solver,precond,solid)
+#endif
+#ifdef HYPRE_GPU
+  !Call hyprerelease_gpu(matA,vecb,vecx,solver,precond,p_values,solid)
 #endif
 
 end Subroutine Aero2D
