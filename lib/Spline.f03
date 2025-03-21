@@ -1,4 +1,8 @@
 subroutine spline(n, x, y, b, c, d)
+!Boundary conditions: The 3rd derivative of the spline at the
+!                     left and right endpoints is to match the 3rd deriv-
+!                     ative of the cubic passing through the
+!                     first or last 4 data points
 implicit none
 integer n
 real(8) x(n), y(n), b(n), c(n), d(n)

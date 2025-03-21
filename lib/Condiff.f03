@@ -78,6 +78,7 @@ else if(scalar=='Tk'.and.Turmod=='sst') then
  F=Tk
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
  !Fwall=Tk(Ib1:Ib2,1)
+ !Fwall=0
  Ga=mu+mut/sigmatk
  !$OMP END WORKSHARE
 else if(scalar=='Te') then
