@@ -3,10 +3,11 @@ use Aero2DCOM
 implicit none
 integer i,j,l,Iw1,Iw2,Iw3,maxl,It
 logical(1) opentrail
-real(8) err,ft,ltrail,lfar,ratio,ratio0
+real(8) err,ft,ltrail,lfar,ratio,ratio0,Xi,Yi
 real(8)::tol=1e-8
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
+character(6)::trailconfig=''
 
 opentrail=.false.
 if(libmod=='S'.or.libmod=='I') then
@@ -37,24 +38,38 @@ end if
 if(Pntctrl=='Y') then
  allocate(Xwp(Iw),Ywp(Iw))
  Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0)
- Iwd=(Iw+1)/2
- Iwu=Iwd
+ Iwu=(Iw+1)/2
+ Iwd=Iw-Iwu+1
  if(abs(Ywp(Iw)-Ywp(1))>tol) then
   opentrail=.true.
-  It=6
-  Iwu=Iwu+It
+  trailconfig='blunt'
+  if(trailconfig=='blunt') then
+   It=6
+   Iwu=Iwu+It
+  else if(trailconfig=='sharp') then
+   Iwu=Iwu+1
+   Iwd=Iwd+1
+  end if
  end if
  allocate(Xwd(Iwd),Ywd(Iwd))
  allocate(Xwu(Iwu),Ywu(Iwu))
- Xwd=Xwp((Iw+1)/2:Iw)
- Ywd=Ywp((Iw+1)/2:Iw)
+ Xwd(1:Iw+1-(Iw+1)/2)=Xwp((Iw+1)/2:Iw)
+ Ywd(1:Iw+1-(Iw+1)/2)=Ywp((Iw+1)/2:Iw)
  Xwu(1:(Iw+1)/2)=Xwp((Iw+1)/2:1:-1)
  Ywu(1:(Iw+1)/2)=Ywp((Iw+1)/2:1:-1)
- if(abs(Ywp(Iw)-Ywp(1))>tol) then
-  DO i=1,It
-   Xwu((Iw+1)/2+i)=Xwp(Iw)
-   Ywu((Iw+1)/2+i)=Ywp(1)+i*(Ywp(Iw)-Ywp(1))/It
-  end DO
+ if(opentrail) then
+  if(trailconfig=='blunt') then
+   DO i=1,It
+    Xwu((Iw+1)/2+i)=Xwp(Iw)
+    Ywu((Iw+1)/2+i)=Ywp(1)+i*(Ywp(Iw)-Ywp(1))/It
+   end DO
+  else if(trailconfig=='sharp') then
+   Call Segintersect(Xwd(Iwd-2:Iwd-1),Ywd(Iwd-2:Iwd-1),Xwu(Iwu-2:Iwu-1),Ywu(Iwu-2:Iwu-1),Xi,Yi)
+   Xwd(Iwd)=Xi
+   Ywd(Iwd)=Yi
+   Xwu(Iwu)=Xi
+   Ywu(Iwu)=Yi
+  end if
  end if
 else
  if(abs(Xwd(Iwd)-Xwd(Iwd-1))<tol.or.abs(Xwu(Iwu)-Xwu(Iwu-1))<tol) then
@@ -103,7 +118,7 @@ DO j=2,Jp
   fac(j)=ratio
  end if
 end DO
-Call hypmeshgen(Xg(:,1),Yg(:,1),Xg,Yg,fac,fd,Ip,Jp,opentrail)
+Call hypmeshgen(Xg(:,1),Yg(:,1),Xg,Yg,fac,fd,Ip,Jp,trailconfig)
 print *,'Generate 2D C-type structured mesh completed!'
 deallocate(Xt,fac)
 
@@ -172,3 +187,25 @@ close(1)
 print *,'Read airfoil 2D C-type mesh completed!'
 
 end Subroutine Readmesh
+
+Subroutine Segintersect(XL1,YL1,XL2,YL2,Xi,Yi)
+implicit none
+real(8) XL1(2),YL1(2),XL2(2),YL2(2)
+real(8) V0(2),V1(2),V2(2)
+real(8) V3,V4,t,Xi,Yi
+
+V0(1)=XL1(2)-XL1(1)
+V0(2)=YL1(2)-YL1(1)
+V1(1)=XL2(2)-XL2(1)
+V1(2)=YL2(2)-YL2(1)
+V2(1)=XL2(1)-XL1(1)
+V2(2)=YL2(1)-YL1(1)
+
+V3=V0(1)*V1(2)-V0(2)*V1(1)
+V4=V2(1)*V1(2)-V2(2)*V1(1)
+t=abs(V4/V3)
+
+Xi=XL1(1)+t*V0(1)
+Yi=YL1(1)+t*V0(2)
+
+end Subroutine Segintersect

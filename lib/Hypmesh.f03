@@ -1,7 +1,7 @@
-Subroutine hypmeshgen(Xb,Yb,Xg,Yg,ra,fd,Ip,Jp,opentrail)
+Subroutine hypmeshgen(Xb,Yb,Xg,Yg,ra,fd,Ip,Jp,trailconfig)
 implicit none
 real(8),parameter::Pi=3.1415926535897932e+0
-logical(1) opentrail
+character(*) trailconfig
 integer i,j,l,Ip,Jp,jtran,Jmax
 real(8) fd,dis,nua,nuj,theta,epsic
 real(8) Xb(Ip),Yb(Ip),ra(Jp)
@@ -19,7 +19,7 @@ Jmax=Jp
 jtran=int(3*Jmax/4)
 dis=fd
 nua=2./3
-if(opentrail) then
+if(trailconfig=='blunt') then
  theta=6
 else
  theta=1
