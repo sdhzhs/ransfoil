@@ -7,26 +7,52 @@ real(8) rp,rm,Psip,Psim
 real(8) F(Ic,Jc),Fwall(Ib1:Ib2),cor(Ic,Jc),Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc)
 !$OMP DO
 DO j=1,Jc-1
- DO i=2,Ic-1
+ DO i=Is,Ie
  Fcc=F(i,j)
- Fcw=F(i-1,j)
- Fce=F(i+1,j)
+ if(i==1) then
+  Fcw=F(Ic,j)
+  dkw=dk(Ic,j)
+ else
+  Fcw=F(i-1,j)
+  dkw=dk(i-1,j)
+ end if
+ if(i==Ic) then
+  Fce=F(1,j)
+  dke=dk(1,j)
+ else
+  Fce=F(i+1,j)
+  dke=dk(i+1,j)
+ end if
  Fcn=F(i,j+1)
  dkc=dk(i,j)
  dac=da(i,j)
- dkw=dk(i-1,j)
- dke=dk(i+1,j)
  dan=da(i,j+1)
- if(i==2) then
-  Fcww=F(i-1,j)
-  dkww=dk(i-1,j)
+ if(i==1) then
+  Fcww=F(Ic-1,j)
+  dkww=dk(Ic-1,j)
+ else if(i==2) then
+  if(Is>1) then
+   Fcww=F(i-1,j)
+   dkww=dk(i-1,j)
+  else
+   Fcww=F(Ic,j)
+   dkww=dk(Ic,j)
+  end if
  else
   Fcww=F(i-2,j)
   dkww=dk(i-2,j)
  end if
- if(i==Ic-1) then
-  Fcee=F(i+1,j)
-  dkee=dk(i+1,j)
+ if(i==Ic) then
+  Fcee=F(2,j)
+  dkee=dk(2,j)
+ else if(i==Ic-1) then
+  if(Is>1) then
+   Fcee=F(i+1,j)
+   dkee=dk(i+1,j)
+  else
+   Fcee=F(1,j)
+   dkee=dk(1,j)
+  end if
  else
   Fcee=F(i+2,j)
   dkee=dk(i+2,j)

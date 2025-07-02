@@ -14,6 +14,13 @@ if(libmod=='S'.or.libmod=='I') then
  Call Readfoil
 else if(libmod=='M') then
  Call Readmesh(libmod)
+ if(Ib1>1.and.Ib2<Ic) then
+  Is=2
+  Ie=Ic-1
+ else
+  Is=1
+  Ie=Ic
+ end if
  return
 else if(libmod=='C') then
  if(Pntctrl=='N') then
@@ -86,6 +93,13 @@ if(libmod=='S'.or.libmod=='I') then
  Ib1=Iw1
  Ib2=Iw3-1
  Call Allocarray(libmod)
+end if
+if(Ib1>1.and.Ib2<Ic) then
+ Is=2
+ Ie=Ic-1
+else
+ Is=1
+ Ie=Ic
 end if
 allocate(Xt(Iw1),fac(Jp))
 Xg(Iw2:Iw1:-1,1)=Xwd

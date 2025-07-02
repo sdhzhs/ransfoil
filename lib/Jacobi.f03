@@ -34,7 +34,7 @@ DO i=Ib1,Ib2
  DR(i)=sqrt((Xg(i+1,1)-Xg(i,1))**2+(Yg(i+1,1)-Yg(i,1))**2)
  if(Xg(i,1)<Xmin) then
   Xmin=Xg(i,1)
-  Imin=i
+  if(Is>1) Imin=i
  end if
 end DO
 Sw(Imin)=DR(Imin)/2

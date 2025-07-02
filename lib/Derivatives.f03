@@ -53,7 +53,7 @@ end if
 Fx=0
 Fy=0
 DO j=1,Jc-1
- DO i=2,Ic-1
+ DO i=Is,Ie
   Xgaw=(Xg(i,j+1)-Xg(i,j))/dy
   Ygaw=(Yg(i,j+1)-Yg(i,j))/dy
   Xgae=(Xg(i+1,j+1)-Xg(i+1,j))/dy
@@ -63,8 +63,16 @@ DO j=1,Jc-1
   Xgkn=(Xg(i+1,j+1)-Xg(i,j+1))/dx
   Ygkn=(Yg(i+1,j+1)-Yg(i,j+1))/dx
   Jgc=Jg(i,j)
-  Fw=interpl(F(i,j),F(i-1,j),dk(i,j),dk(i-1,j))
-  Fe=interpl(F(i,j),F(i+1,j),dk(i,j),dk(i+1,j))
+  if(i==1) then
+   Fw=interpl(F(i,j),F(Ic,j),dk(i,j),dk(Ic,j))
+  else
+   Fw=interpl(F(i,j),F(i-1,j),dk(i,j),dk(i-1,j))
+  end if
+  if(i==Ic) then
+   Fe=interpl(F(i,j),F(1,j),dk(i,j),dk(1,j))
+  else
+   Fe=interpl(F(i,j),F(i+1,j),dk(i,j),dk(i+1,j))
+  end if
   Fn=interpl(F(i,j),F(i,j+1),da(i,j),da(i,j+1))
   if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
    Fs=Fwall(i)

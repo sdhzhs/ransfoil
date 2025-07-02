@@ -12,15 +12,15 @@
  Momentum relaxation factor:  0.69999999999999996     
  Pressure relaxation factor:  0.29999999999999999     
  Energy relaxation factor:  0.69999999999999996     
- Turbulence relaxation factor:  0.29999999999999999     
+ Turbulence relaxation factor:  0.69999999999999996     
  ----------------------------------------------
  The aerodynamic parameters of this airfoil are:
  Reynolds number:   3208236.6833899114     
  Mach number:  0.23131933612515396     
  Angle of attack:   4.0000000000000000     
- Average Y+:   56.673684743008991     
- Lift coefficient:  0.40271473787574646     
- Drag coefficient:   3.8629746622486517E-003
- Friction coefficient:   6.3700104981370530E-003
- Pitching moment coefficient (1/4 chord):   5.9966301536360832E-003
- Pressure center (unit chord):  0.23527030620601669        0.0000000000000000     
+ Average Y+:   56.660975076372843     
+ Lift coefficient:  0.40207204436688532     
+ Drag coefficient:   3.9181063521933684E-003
+ Friction coefficient:   6.3685409934346555E-003
+ Pitching moment coefficient (1/4 chord):   5.9627864185051414E-003
+ Pressure center (unit chord):  0.23533001169236284        0.0000000000000000     

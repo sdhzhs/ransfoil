@@ -8,7 +8,7 @@ Cu=0.09,sigmak=1.0,sigmae=1.3,sigmak1=1.176,sigmak2=1.0,sigmaw1=2.0,sigmaw2=1.16
 alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,Mt0=0.25
 
 save
-integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Iwd,Iwu,Iw,Iw0,Ifd,maxs
+integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Is,Ie,Iwd,Iwu,Iw,Iw0,Ifd,maxs
 character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag,Pntctrl,Linsol,Tmptype
 character(64) filename(9),dir
 real(C_DOUBLE),bind(C)::dx,dy,fd,fb,eb,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Qf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&

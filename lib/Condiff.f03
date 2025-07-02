@@ -112,7 +112,7 @@ end if
 if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
  !$OMP DO PRIVATE(Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,i)
  DO j=1,Jc-1
-   DO i=2,Ic-1
+   DO i=Is,Ie
     Dwplus=max(2*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
     phi1=min(max(sqrt(Tk(i,j))/(betastarf*Tw(i,j)*d(i,j)),500*mu(i,j)/(rho(i,j)*d(i,j)**2*Tw(i,j))),&
     4*rho(i,j)*Tk(i,j)/(sigmaw2*Dwplus*d(i,j)**2))
@@ -151,7 +151,7 @@ if(Turmod=='sst'.and.(scalar=='Tk'.or.scalar=='Tw')) then
 else if(scalar=='Tn') then
  !$OMP DO PRIVATE(Xi,fnu1,fnu2,Sv,rm,gm,i)
  DO j=1,Jc-1
-   DO i=2,Ic-1
+   DO i=Is,Ie
     if(Walltreat=='lr') then
      Xi=rho(i,j)*Tn(i,j)/mu(i,j)+Cks*ksi/d(i,j)
     else
@@ -177,12 +177,22 @@ else if(scalar=='Te') then
 end if
 !$OMP DO PRIVATE(Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,i)
 DO j=1,Jc-1
- DO i=2,Ic-1
-  Dw(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy/dx
-  De(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy/dx
+ DO i=Is,Ie
+  if(i==1) then
+   Dw(i,j)=interpl(a1(i,j)*Ga(i,j),a1(Ic,j)*Ga(Ic,j),dk(i,j),dk(Ic,j))*dy/dx
+   Dnow=interpl(b1(i,j)*Ga(i,j),b1(Ic,j)*Ga(Ic,j),dk(i,j),dk(Ic,j))*dy
+  else
+   Dw(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy/dx
+   Dnow=interpl(b1(i,j)*Ga(i,j),b1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy
+  end if
+  if(i==Ic) then
+   De(i,j)=interpl(a1(i,j)*Ga(i,j),a1(1,j)*Ga(1,j),dk(i,j),dk(1,j))*dy/dx
+   Dnoe=interpl(b1(i,j)*Ga(i,j),b1(1,j)*Ga(1,j),dk(i,j),dk(1,j))*dy
+  else
+   De(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy/dx
+   Dnoe=interpl(b1(i,j)*Ga(i,j),b1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy
+  end if
   Dn(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j+1)*Ga(i,j+1),da(i,j),da(i,j+1))*dx/dy
-  Dnow=interpl(b1(i,j)*Ga(i,j),b1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy
-  Dnoe=interpl(b1(i,j)*Ga(i,j),b1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy
   Dnon=interpl(b1(i,j)*Ga(i,j),b1(i,j+1)*Ga(i,j+1),da(i,j),da(i,j+1))*dx
   if(j==1.and.(i<Ib1.or.i>Ib2)) then
    Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(Ic+1-i,j)*Ga(Ic+1-i,j),da(i,j),da(Ic+1-i,j))*dx/dy
@@ -204,10 +214,38 @@ DO j=1,Jc-1
    else
     Fwalle=0.5*(Fwall(i)+Fwall(i+1))
    end if
-   Faw=(0.25*(F(i-1,j+1)+F(i,j+1)+F(i-1,j)+F(i,j))-Fwallw)/dy
-   Fae=(0.25*(F(i+1,j+1)+F(i,j+1)+F(i+1,j)+F(i,j))-Fwalle)/dy
+   if(i==1) then
+    Faw=(0.25*(F(Ic,j+1)+F(i,j+1)+F(Ic,j)+F(i,j))-Fwallw)/dy
+   else
+    Faw=(0.25*(F(i-1,j+1)+F(i,j+1)+F(i-1,j)+F(i,j))-Fwallw)/dy
+   end if
+   if(i==Ic) then
+    Fae=(0.25*(F(1,j+1)+F(i,j+1)+F(1,j)+F(i,j))-Fwalle)/dy
+   else
+    Fae=(0.25*(F(i+1,j+1)+F(i,j+1)+F(i+1,j)+F(i,j))-Fwalle)/dy
+   end if
+   if(i==1) then
+    Fkn=(F(i+1,j+1)+F(i+1,j)-F(Ic,j+1)-F(Ic,j))/(4*dx)
+   else if(i==Ic) then
+    Fkn=(F(1,j+1)+F(1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
+   else
+    Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
+   end if
    Fks=(Fwalle-Fwallw)/dx
-   Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
+  else if(i==1) then
+   Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx/dy
+   Dnos=interpl(b1(i,j)*Ga(i,j),b1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx
+   Faw=(F(Ic,j+1)+F(i,j+1)-F(Ic,j-1)-F(i,j-1))/(4*dy)
+   Fae=(F(i+1,j+1)+F(i,j+1)-F(i+1,j-1)-F(i,j-1))/(4*dy)
+   Fks=(F(i+1,j-1)+F(i+1,j)-F(Ic,j-1)-F(Ic,j))/(4*dx)
+   Fkn=(F(i+1,j+1)+F(i+1,j)-F(Ic,j+1)-F(Ic,j))/(4*dx)
+  else if(i==Ic) then
+   Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx/dy
+   Dnos=interpl(b1(i,j)*Ga(i,j),b1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx
+   Faw=(F(i-1,j+1)+F(i,j+1)-F(i-1,j-1)-F(i,j-1))/(4*dy)
+   Fae=(F(1,j+1)+F(i,j+1)-F(1,j-1)-F(i,j-1))/(4*dy)
+   Fks=(F(1,j-1)+F(1,j)-F(i-1,j-1)-F(i-1,j))/(4*dx)
+   Fkn=(F(1,j+1)+F(1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
   else
    Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx/dy
    Dnos=interpl(b1(i,j)*Ga(i,j),b1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx
@@ -232,7 +270,7 @@ aM(5,:,:)=0
 !$OMP END WORKSHARE
 !$OMP DO PRIVATE(aP,aW,aE,aS,aN,DF,i)
 DO j=1,Jc-1
-  DO i=2,Ic-1
+  DO i=Is,Ie
    Fw(i,j)=dy*rhok(i,j)*Unk(i,j)
    Fe(i,j)=dy*rhok(i+1,j)*Unk(i+1,j)
    Fs(i,j)=dx*rhoa(i,j)*Vna(i,j)
@@ -329,7 +367,7 @@ b=F
 !$OMP END WORKSHARE
 !$OMP DO PRIVATE(i)
 DO j=1,Jc-1
-  DO i=2,Ic-1
+  DO i=Is,Ie
    if(scalar=='U') then
     if(Proctrl=='com') then
      b(i,j)=Jg(i,j)*(-Px(i,j)-2*(muxx(i,j)+mvyx(i,j))/3+muxx(i,j)+mvxy(i,j))*dx*dy

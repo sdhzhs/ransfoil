@@ -27,7 +27,7 @@ N
 Input maximum iteration steps:
 2000
 Input minimum residual of iteration:
-5e-5
+6e-5
 Input relaxation factor of velocity:
 7e-1
 Input relaxation factor of pressure:

@@ -77,35 +77,43 @@ else if(Init=='N') then
  end if
 end if
 U(:,Jc)=Ui
-U(1,:)=Ui
-U(Ic,:)=Ui
 V(:,Jc)=Vi
-V(1,:)=Vi
-V(Ic,:)=Vi
 P(:,Jc)=0
-P(1,:)=0
-P(Ic,:)=0
 T(:,Jc)=Ta
-T(1,:)=Ta
-T(Ic,:)=Ta
+if(Is>1) then
+ U(1,:)=Ui
+ U(Ic,:)=Ui
+ V(1,:)=Vi
+ V(Ic,:)=Vi
+ P(1,:)=0
+ P(Ic,:)=0
+ T(1,:)=Ta
+ T(Ic,:)=Ta
+end if
 if(Turmod=='sa') then
  Tn(:,Jc)=Tni
- Tn(1,:)=Tni
- Tn(Ic,:)=Tni
+ if(Is>1) then
+  Tn(1,:)=Tni
+  Tn(Ic,:)=Tni
+ end if
 else if(Turmod=='ke') then
  Tk(:,Jc)=Tki
- Tk(1,:)=Tki
- Tk(Ic,:)=Tki
  Te(:,Jc)=Tei
- Te(1,:)=Tei
- Te(Ic,:)=Tei
+ if(Is>1) then
+  Tk(1,:)=Tki
+  Tk(Ic,:)=Tki
+  Te(1,:)=Tei
+  Te(Ic,:)=Tei
+ end if
 else if(Turmod=='sst') then
  Tk(:,Jc)=Tki
- Tk(1,:)=Tki
- Tk(Ic,:)=Tki
  Tw(:,Jc)=Twi
- Tw(1,:)=Twi
- Tw(Ic,:)=Twi
+ if(Is>1) then
+  Tk(1,:)=Tki
+  Tk(Ic,:)=Tki
+  Tw(1,:)=Twi
+  Tw(Ic,:)=Twi
+ end if
 end if
 if(Init=='N') then
  rho=(Po+P)*Ma/(R*T)
@@ -129,12 +137,18 @@ Call Turvis
 Un=U*Yga-V*Xga
 Vn=V*Xgk-U*Ygk
 DO j=1,Jc-1
-  DO i=2,Ic
-  Unk(i,j)=interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
+  DO i=Is,Ie+1
+  if(i==1) then
+   Unk(i,j)=interpl(Un(i,j),Un(Ic,j),dk(i,j),dk(Ic,j))
+  else if(i==Ip) then
+   Unk(i,j)=interpl(Un(1,j),Un(i-1,j),dk(1,j),dk(i-1,j))
+  else
+   Unk(i,j)=interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
+  end if
   end DO
 end DO
 DO j=1,Jc
-  DO i=2,Ic-1
+  DO i=Is,Ie
   if(j==1.and.i>=Ib1.and.i<=Ib2) then
    Vna(i,j)=0
   else if(j==1) then

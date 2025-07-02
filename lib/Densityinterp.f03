@@ -6,22 +6,48 @@ real(8) rhoc,rhow,rhoe,rhos,rhon,rhoww,rhoss,dkc,dkw,dke,dkww,dac,das,dan,dass
 real(8) wk,wa,rwp,rwm,rsp,rsm,Psiwp,Psiwm,Psisp,Psism
 real(8),external:: interpl
   DO j=1,Jc-1
-   DO i=2,Ic
+   DO i=Is,Ie+1
     wk=sign(0.5,Unk(i,j))
-    rhoc=rho(i,j)
-    rhow=rho(i-1,j)
-    dkc=dk(i,j)
-    dkw=dk(i-1,j)
-    if(i==Ic) then
-     rhoe=rho(i,j)
-     dke=dk(i,j)
+    if(i==Ic+1) then
+     rhoc=rho(1,j)
+     dkc=dk(1,j)
+    else
+     rhoc=rho(i,j)
+     dkc=dk(i,j)
+    end if
+    if(i==1) then
+     rhow=rho(Ic,j)
+     dkw=dk(Ic,j)
+    else
+     rhow=rho(i-1,j)
+     dkw=dk(i-1,j)
+    end if
+    if(i==Ic+1) then
+     rhoe=rho(2,j)
+     dke=dk(2,j)
+    else if(i==Ic) then
+     if(Is>1) then
+      rhoe=rho(i,j)
+      dke=dk(i,j)
+     else
+      rhoe=rho(1,j)
+      dke=dk(1,j)
+     end if
     else
      rhoe=rho(i+1,j)
      dke=dk(i+1,j)
     end if
-    if(i==2) then
-     rhoww=rho(i-1,j)
-     dkww=dk(i-1,j)
+    if(i==1) then
+     rhoww=rho(Ic-1,j)
+     dkww=dk(Ic-1,j)
+    else if(i==2) then
+     if(Is>1) then
+      rhoww=rho(i-1,j)
+      dkww=dk(i-1,j)
+     else
+      rhoww=rho(Ic,j)
+      dkww=dk(Ic,j)
+     end if
     else
      rhoww=rho(i-2,j)
      dkww=dk(i-2,j)
@@ -57,7 +83,7 @@ real(8),external:: interpl
    end DO
   end DO
   DO j=1,Jc
-   DO i=2,Ic-1
+   DO i=Is,Ie
     wa=sign(0.5,Vna(i,j))
     rhoc=rho(i,j)
     dac=da(i,j)
