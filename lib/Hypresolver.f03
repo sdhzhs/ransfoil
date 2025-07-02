@@ -36,24 +36,45 @@ Call HYPRE_SStructGridCreate(MPI_COMM_WORLD,ndims,nparts,grid,ierr)
  Call HYPRE_SStructGridSetExtents(grid,part,ilower,iupper,ierr)
  Call HYPRE_SStructGridSetVariables(grid,part,nvars,vartypes,ierr)
  nb = 0
- bclower(1)=1
- bclower(2)=0
- bcupper(1)=Ib1-1
- bcupper(2)=0
- nblower(1)=Ic
- nblower(2)=1
- nbupper(1)=Ib2+1
- nbupper(2)=1
- map(1)=0
- map(2)=1
- dir(1)=-1
- dir(2)=-1
- Call HYPRE_SStructGridSetNeighborPart(grid,part,bclower,bcupper,nb,nblower,nbupper,map,dir,ierr)
- bclower(1)=Ib2+1
- bcupper(1)=Ic
- nblower(1)=Ib1-1
- nbupper(1)=1
- Call HYPRE_SStructGridSetNeighborPart(grid,part,bclower,bcupper,nb,nblower,nbupper,map,dir,ierr)
+ if(Ib1>1.and.Ib2<Ic) then
+  bclower(1)=1
+  bclower(2)=0
+  bcupper(1)=Ib1-1
+  bcupper(2)=0
+  nblower(1)=Ic
+  nblower(2)=1
+  nbupper(1)=Ib2+1
+  nbupper(2)=1
+  map(1)=0
+  map(2)=1
+  dir(1)=-1
+  dir(2)=-1
+  Call HYPRE_SStructGridSetNeighborPart(grid,part,bclower,bcupper,nb,nblower,nbupper,map,dir,ierr)
+  bclower(1)=Ib2+1
+  bcupper(1)=Ic
+  nblower(1)=Ib1-1
+  nbupper(1)=1
+  Call HYPRE_SStructGridSetNeighborPart(grid,part,bclower,bcupper,nb,nblower,nbupper,map,dir,ierr)
+ else
+  bclower(1)=0
+  bclower(2)=1
+  bcupper(1)=0
+  bcupper(2)=Jc
+  nblower(1)=Ic
+  nblower(2)=1
+  nbupper(1)=Ic
+  nbupper(2)=Jc
+  map(1)=0
+  map(2)=1
+  dir(1)=1
+  dir(2)=1
+  Call HYPRE_SStructGridSetNeighborPart(grid,part,bclower,bcupper,nb,nblower,nbupper,map,dir,ierr)
+  bclower(1)=Ic+1
+  bcupper(1)=Ic+1
+  nblower(1)=1
+  nbupper(1)=1
+  Call HYPRE_SStructGridSetNeighborPart(grid,part,bclower,bcupper,nb,nblower,nbupper,map,dir,ierr)
+ end if
 Call HYPRE_SStructGridAssemble(grid,ierr)
 
 Call HYPRE_SStructStencilCreate(ndims,nentries,stencil,ierr)
@@ -139,7 +160,7 @@ Subroutine hypresolve(A,b,x,solver,precond,aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,sca
 implicit none
 include 'HYPREf.h'
 
-integer      i,j,Ic,Jc,Ib1,Ib2
+integer      i,j,Ic,Jc,Ib1,Ib2,Is,Ie
 integer(1)   solid
 integer      ierr,nentries,part,var,itmax,prlv,iter,precond_id
 integer      ilower(2),iupper(2),stencil_indices(5)
@@ -155,9 +176,17 @@ integer(8)  parb
 integer(8)  parx
 integer(8)  solver,precond
 
+if(Ib1>1.and.Ib2<Ic) then
+ Is=2
+ Ie=Ic-1
+else
+ Is=1
+ Ie=Ic
+end if
+
 DO j=1,Jc
  DO i=1,Ic
-  if(i>1.and.i<Ic.and.j<Jc) then
+  if(i>=Is.and.i<=Ie.and.j<Jc) then
    if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
     ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
     aM(1,i,j)=aM(1,i,j)/Ra
