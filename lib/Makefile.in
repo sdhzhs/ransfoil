@@ -141,19 +141,19 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libaero2d_la_LIBADD =
 am__libaero2d_la_SOURCES_DIST = COM.f03 BlockTDMA.f03 Cell2node.f03 \
-	Condiff.f03 Connector.f03 Defercorrect.f03 Densityinterp.f03 \
-	Derivatives.f03 Genmesh.f03 Hypmesh.f03 Initial.f03 \
-	Interp1d.f03 Jacobi.f03 Libaero2d.F03 Linearsolver.f03 \
-	PCEcoe.f03 Postprocess.f03 Readpara.f03 Results.f03 RMS.f03 \
-	Spline.f03 Turvis.f03 Velcorrect.f03 Wallfunc.f03 \
+	Condiff.f03 Connector.f03 Csfit.f03 Defercorrect.f03 \
+	Densityinterp.f03 Derivatives.f03 Genmesh.f03 Hypmesh.f03 \
+	Initial.f03 Interp1d.f03 Jacobi.f03 Libaero2d.F03 \
+	Linearsolver.f03 PCEcoe.f03 Postprocess.f03 Readpara.f03 \
+	Results.f03 RMS.f03 Turvis.f03 Velcorrect.f03 Wallfunc.f03 \
 	Hypresolver.f03 cudaf.f03 HypreCUDAsolver.f03
 @LINKHYPRE_TRUE@am__objects_1 = Hypresolver.lo
 @LINKHYPRECUDA_TRUE@am__objects_2 = cudaf.lo HypreCUDAsolver.lo
 am_libaero2d_la_OBJECTS = COM.lo BlockTDMA.lo Cell2node.lo Condiff.lo \
-	Connector.lo Defercorrect.lo Densityinterp.lo Derivatives.lo \
-	Genmesh.lo Hypmesh.lo Initial.lo Interp1d.lo Jacobi.lo \
-	Libaero2d.lo Linearsolver.lo PCEcoe.lo Postprocess.lo \
-	Readpara.lo Results.lo RMS.lo Spline.lo Turvis.lo \
+	Connector.lo Csfit.lo Defercorrect.lo Densityinterp.lo \
+	Derivatives.lo Genmesh.lo Hypmesh.lo Initial.lo Interp1d.lo \
+	Jacobi.lo Libaero2d.lo Linearsolver.lo PCEcoe.lo \
+	Postprocess.lo Readpara.lo Results.lo RMS.lo Turvis.lo \
 	Velcorrect.lo Wallfunc.lo $(am__objects_1) $(am__objects_2)
 libaero2d_la_OBJECTS = $(am_libaero2d_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -375,12 +375,12 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 lib_LTLIBRARIES = libaero2d.la
 libaero2d_la_SOURCES = COM.f03 BlockTDMA.f03 Cell2node.f03 Condiff.f03 \
-	Connector.f03 Defercorrect.f03 Densityinterp.f03 \
+	Connector.f03 Csfit.f03 Defercorrect.f03 Densityinterp.f03 \
 	Derivatives.f03 Genmesh.f03 Hypmesh.f03 Initial.f03 \
 	Interp1d.f03 Jacobi.f03 Libaero2d.F03 Linearsolver.f03 \
 	PCEcoe.f03 Postprocess.f03 Readpara.f03 Results.f03 RMS.f03 \
-	Spline.f03 Turvis.f03 Velcorrect.f03 Wallfunc.f03 \
-	$(am__append_3) $(am__append_6)
+	Turvis.f03 Velcorrect.f03 Wallfunc.f03 $(am__append_3) \
+	$(am__append_6)
 libaero2d_la_LDFLAGS = -release 2.2 $(am__append_1) $(am__append_4) \
 	$(am__append_7) $(am__append_9)
 nodist_include_HEADERS = aero2dcom.mod

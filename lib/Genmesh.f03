@@ -7,13 +7,16 @@ real(8) err,ft,ltrail,lfar,ratio,ratio0,Xi,Yi
 real(8)::tol=1e-8
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
+character(1) gtype
 character(6)::trailconfig=''
 
+gtype='C'
 opentrail=.false.
+
 if(libmod=='S'.or.libmod=='I') then
  Call Readfoil
 else if(libmod=='M') then
- Call Readmesh(libmod)
+ Call Readmesh(libmod,gtype)
  if(Ib1>1.and.Ib2<Ic) then
   Is=2
   Ie=Ic-1
@@ -44,10 +47,14 @@ else if(libmod=='C') then
 end if
 if(Pntctrl=='Y') then
  allocate(Xwp(Iw),Ywp(Iw))
- Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0)
+ if(gtype=='C') then
+  Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0,'cubic4')
+ else if(gtype=='O') then
+  Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0,'cyclic')
+ end if
  Iwu=(Iw+1)/2
  Iwd=Iw-Iwu+1
- if(abs(Ywp(Iw)-Ywp(1))>tol) then
+ if(gtype=='C'.and.abs(Ywp(Iw)-Ywp(1))>tol) then
   opentrail=.true.
   trailconfig='blunt'
   if(trailconfig=='blunt') then
@@ -79,20 +86,52 @@ if(Pntctrl=='Y') then
   end if
  end if
 else
- if(abs(Xwd(Iwd)-Xwd(Iwd-1))<tol.or.abs(Xwu(Iwu)-Xwu(Iwu-1))<tol) then
+ if(gtype=='C'.and.(abs(Xwd(Iwd)-Xwd(Iwd-1))<tol.or.abs(Xwu(Iwu)-Xwu(Iwu-1))<tol)) then
   opentrail=.true.
+  trailconfig='blunt'
  end if
 end if
-Iw1=max(Iwd,Iwu)
-Iw2=Iw1+Iwd-1
-Iw3=Iw2+Iwu-1
-if(libmod=='S'.or.libmod=='I') then
- Ip=Iw3+Iw1-1
- Ic=Ip-1
- Jc=Jp-1
- Ib1=Iw1
- Ib2=Iw3-1
- Call Allocarray(libmod)
+if(gtype=='C') then
+ Iw1=max(Iwd,Iwu)
+ Iw2=Iw1+Iwd-1
+ Iw3=Iw2+Iwu-1
+ if(libmod=='S'.or.libmod=='I') then
+  Ip=Iw3+Iw1-1
+  Ic=Ip-1
+  Jc=Jp-1
+  Ib1=Iw1
+  Ib2=Iw3-1
+  Call Allocarray(libmod)
+ end if
+ allocate(Xt(Iw1))
+ Xg(Iw2:Iw1:-1,1)=Xwd
+ Yg(Iw2:Iw1:-1,1)=Ywd
+ Xg(Iw2:Iw3,1)=Xwu
+ Yg(Iw2:Iw3,1)=Ywu
+ ft=sqrt((Xwd(Iwd)-Xwd(Iwd-1))**2+(Ywd(Iwd)-Ywd(Iwd-1))**2)
+ ltrail=11
+ Call tanhgridline(ltrail,ft,Xt,Iw1)
+ DO i=Iw3+1,Ip
+  j=i-Iw3+1
+  Xg(i,1)=Xg(Iw3,1)+Xt(j)
+  Yg(i,1)=Yg(Iw3,1)
+ end DO
+ Xg(1:Iw1-1,1)=Xg(Ip:Iw3+1:-1,1)
+ Yg(1:Iw1-1,1)=Yg(Ip:Iw3+1:-1,1)
+ deallocate(Xt)
+else if(gtype=='O') then
+ if(libmod=='S'.or.libmod=='I') then
+  Ip=Iwd+Iwu-1
+  Ic=Ip-1
+  Jc=Jp-1
+  Ib1=1
+  Ib2=Ic
+  Call Allocarray(libmod)
+ end if
+ Xg(Iwd:1:-1,1)=Xwd
+ Yg(Iwd:1:-1,1)=Ywd
+ Xg(Iwd:Ip,1)=Xwu
+ Yg(Iwd:Ip,1)=Ywu
 end if
 if(Ib1>1.and.Ib2<Ic) then
  Is=2
@@ -101,21 +140,6 @@ else
  Is=1
  Ie=Ic
 end if
-allocate(Xt(Iw1),fac(Jp))
-Xg(Iw2:Iw1:-1,1)=Xwd
-Yg(Iw2:Iw1:-1,1)=Ywd
-Xg(Iw2:Iw3,1)=Xwu
-Yg(Iw2:Iw3,1)=Ywu
-ft=sqrt((Xwd(Iwd)-Xwd(Iwd-1))**2+(Ywd(Iwd)-Ywd(Iwd-1))**2)
-ltrail=11
-Call tanhgridline(ltrail,ft,Xt,Iw1)
-DO i=Iw3+1,Ip
- j=i-Iw3+1
- Xg(i,1)=Xg(Iw3,1)+Xt(j)
- Yg(i,1)=Yg(Iw3,1)
-end DO
-Xg(1:Iw1-1,1)=Xg(Ip:Iw3+1:-1,1)
-Yg(1:Iw1-1,1)=Yg(Ip:Iw3+1:-1,1)
 lfar=10
 ratio=2.0
 maxl=100
@@ -125,6 +149,7 @@ DO l=1,maxl
  ratio=ratio-(1-ratio**(Jp-Ifd)-(lfar/fd-Ifd+1)*(1-ratio))/(-(Jp-Ifd)*ratio**(Jp-Ifd-1)+lfar/fd-Ifd+1)
  if(abs(ratio-ratio0)<err) exit
 end DO
+allocate(fac(Jp))
 DO j=2,Jp
  if(j<=Ifd) then
   fac(j)=1.0
@@ -132,9 +157,13 @@ DO j=2,Jp
   fac(j)=ratio
  end if
 end DO
-Call hypmeshgen(Xg(:,1),Yg(:,1),Xg,Yg,fac,fd,Ip,Jp,trailconfig)
-print *,'Generate 2D C-type structured mesh completed!'
-deallocate(Xt,fac)
+Call hypmeshgen(Xg(:,1),Yg(:,1),Xg,Yg,fac,fd,Ip,Jp,trailconfig,gtype)
+if(gtype=='C') then
+ print *,'Generate 2D C-type structured mesh completed!'
+else if(gtype=='O') then
+ print *,'Generate 2D O-type structured mesh completed!'
+end if
+deallocate(fac)
 
 end Subroutine Genmesh
 
@@ -179,12 +208,12 @@ end if
 
 end Subroutine Readfoil
 
-Subroutine Readmesh(libmod)
+Subroutine Readmesh(libmod,gtype)
 use Aero2DCOM
 implicit none
 integer blocks,i,j,stat
 character(128) ioerrmsg
-character(*) libmod
+character(*) libmod,gtype
 
 open(unit=1,file=filename(1),status='old',IOSTAT=stat,IOMSG=ioerrmsg)
 if(stat>0) stop ioerrmsg
@@ -198,7 +227,11 @@ if(stat>0) stop ioerrmsg
  read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) ((Yg(i,j),i=1,Ip),j=1,Jp)
  if(stat>0) stop filename(1)//ioerrmsg
 close(1)
-print *,'Read airfoil 2D C-type mesh completed!'
+if(gtype=='C') then
+ print *,'Read airfoil 2D C-type mesh completed!'
+else if(gtype=='O') then
+ print *,'Read airfoil 2D O-type mesh completed!'
+end if
 
 end Subroutine Readmesh
 
