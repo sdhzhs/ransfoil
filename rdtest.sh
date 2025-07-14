@@ -6,3 +6,6 @@ rm -rf GA_W-1_cpt
 rm -rf whitcomb_xyz
 rm -rf whitcomb_cpt
 rm -rf goe495_cpt
+rm -rf cylinder_grd
+rm -rf cylinder_xyz
+rm -rf nasasup5_otype_cpt

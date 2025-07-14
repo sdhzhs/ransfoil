@@ -389,6 +389,11 @@ DO i=1,8
  else
   Stag(i:i)=' '
  end if
+ if(cgtype(i)(1:1)/=C_NULL_CHAR) then
+  gtype(i:i)=cgtype(i)(1:1)
+ else
+  gtype(i:i)=' '
+ end if
 end DO
 DO i=1,64
  if(cfilename(i)(1:1)/=C_NULL_CHAR) then

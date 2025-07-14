@@ -57,6 +57,30 @@ if [ $? -eq 0 ]; then
 else
   echo "goe495_cpt case: Fail"
 fi
+mkdir cylinder_grd
+ransfoil --mesh test/ransfoil.config.cylinder.grd > cylinder_grd/output.txt
+python comgolden.py cylinder_grd golden/cylinder_grd >> cylinder_grd/output.txt
+if [ $? -eq 0 ]; then
+  echo "cylinder_grd case: Pass"
+else
+  echo "cylinder_grd case: Fail"
+fi
+mkdir cylinder_xyz
+ransfoil --script test/ransfoil.config.cylinder.xyz > cylinder_xyz/output.txt
+python comgolden.py cylinder_xyz golden/cylinder_xyz >> cylinder_xyz/output.txt
+if [ $? -eq 0 ]; then
+  echo "cylinder_xyz case: Pass"
+else
+  echo "cylinder_xyz case: Fail"
+fi
+mkdir nasasup5_otype_cpt
+ransfoil --script test/ransfoil.config.nasasup5.otype.cpt > nasasup5_otype_cpt/output.txt
+python comgolden.py nasasup5_otype_cpt golden/nasasup5_otype_cpt >> nasasup5_otype_cpt/output.txt
+if [ $? -eq 0 ]; then
+  echo "nasasup5_otype_cpt case: Pass"
+else
+  echo "nasasup5_otype_cpt case: Fail"
+fi
 cd scripts
 ./runwhitcomb.bat
 python ../comgolden.py whitcomb1 ../golden/whitcomb_xyz_super > 3.txt

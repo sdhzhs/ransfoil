@@ -7,16 +7,15 @@ real(8) err,ft,ltrail,lfar,ratio,ratio0,Xi,Yi
 real(8)::tol=1e-8
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
-character(1) gtype
 character(6)::trailconfig=''
 
-gtype='C'
+if(gtype=='') gtype='C'
 opentrail=.false.
 
 if(libmod=='S'.or.libmod=='I') then
  Call Readfoil
 else if(libmod=='M') then
- Call Readmesh(libmod,gtype)
+ Call Readmesh(libmod)
  if(Ib1>1.and.Ib2<Ic) then
   Is=2
   Ie=Ic-1
@@ -208,12 +207,12 @@ end if
 
 end Subroutine Readfoil
 
-Subroutine Readmesh(libmod,gtype)
+Subroutine Readmesh(libmod)
 use Aero2DCOM
 implicit none
 integer blocks,i,j,stat
 character(128) ioerrmsg
-character(*) libmod,gtype
+character(*) libmod
 
 open(unit=1,file=filename(1),status='old',IOSTAT=stat,IOMSG=ioerrmsg)
 if(stat>0) stop ioerrmsg

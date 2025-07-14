@@ -132,6 +132,12 @@ if(libmod=='S'.or.libmod=='M') then
   if(stat>0) STOP 'rough: '//ioerrmsg
   read(10,*) ch
   read(10,*) dir
+  read(10,*,IOSTAT=stat) ch
+  if(is_iostat_end(stat)) then
+   gtype=''
+  else
+   read(10,*) gtype
+  end if
  close(10)
 else if(libmod=='I') then
  print *,'Input a name of airfoil coordinates file(1D XYZ/CPT):'
@@ -258,6 +264,8 @@ else if(libmod=='I') then
  if(stat>0) STOP ioerrmsg
  print *,'Input a directory of output files:'
  read *,dir
+ print *,'Input topological type of generating mesh(C/O):'
+ read *,gtype
 end if
 print *,'Read control parameters completed!'
 end Subroutine Readpara

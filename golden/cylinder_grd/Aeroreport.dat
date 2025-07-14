@@ -1,0 +1,26 @@
+ File name of airfoil coordinates: cases/circle_1e-3hy.grd                                         
+ Using control points based parametric spline? N       
+ Property: incom   
+ Solving energy equation? Y       
+ Including viscous heating? N       
+ Turbulence model: sa      
+ Wall treatment method: wf      
+ Coupling algorithm: SIMPLE  
+ Spatial discretization scheme: 2upwind 
+ Initializing from a file? N       
+ Initializing using stagnation values? N       
+ Momentum relaxation factor:  0.69999999999999996     
+ Pressure relaxation factor:  0.29999999999999999     
+ Energy relaxation factor:  0.69999999999999996     
+ Turbulence relaxation factor:  0.29999999999999999     
+ ----------------------------------------------
+ The aerodynamic parameters of this airfoil are:
+ Reynolds number:   80195.892598173028     
+ Mach number:   3.0842578150020530E-002
+ Angle of attack:   0.0000000000000000     
+ Average Y+:   1.9466395300227484     
+ Lift coefficient:   7.0867777037132088E-004
+ Drag coefficient:  0.56400495780803905     
+ Friction coefficient:   1.4010943553954882E-002
+ Pitching moment coefficient (1/4 chord):   1.7719604486271574E-004
+ Pressure center (unit chord):   1.1997878986777510E-004   0.0000000000000000     

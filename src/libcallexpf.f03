@@ -16,6 +16,7 @@ Program libaero2dcaller
   Discret='2upwind'
   Linsol='sor'
   Tmptype='fixed'
+  gtype='C'
   Init='N'
   Stag='N'
   maxs=2000

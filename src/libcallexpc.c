@@ -23,6 +23,7 @@ int main(void)
   strncpy(ctmptype,"fixed",5);
   strncpy(cinit,"N",1);
   strncpy(cstag,"N",1);
+  strncpy(cgtype,"C",1);
   maxs=2000;
   delta=1e-4;
   rau=7e-1;
