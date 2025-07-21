@@ -1,5 +1,38 @@
 SUBROUTINE CSFIT ( N, X, Y, IENDL, DERIVL, IENDR, DERIVR, B, C, D, IER )
 
+!IENDL     = 0: The 3rd derivative of the spline at the
+!               left endpoint is to match the 3rd deriv-
+!               ative of the cubic passing through the
+!               first 4 data points; if N=3 and IENDL=
+!               IENDR=0, both parts of the spline become
+!               the same quadratic defined by the pts.;
+!          = 1: The 1st derivative of the spline at the
+!               left endpoint is to be the given DERIVL;
+!          = 2: The 2nd derivative of the spline at the
+!               left endpoint is to be the given DERIVL;
+!          = 3: The 3rd derivative of the spline at the
+!               left endpoint is to be the given DERIVL;
+!          = 4: The spline and its first 3 derivatives
+!               at X(N) are to match the values at X(1).
+!               This is the cyclic, or periodic, case.
+!DERIVL    Value of derivative used if IENDL=1, 2, or 3;
+!          ignored if IENDL=0 or 4.
+!IENDR,    As for IENDL, DERIVL, but pertaining to the
+!DERIVR    right endpoint; ignored if IENDL=4.
+!B,C,D     Spline coefficients (see PURPOSE and NOTES).
+!IER       =0: No errors were detected.
+!          =1: Too few data points; N < 2.
+!          =2: Degenerate cases of N=2 for all end con-
+!              ditions and of N=3 with second derivative
+!              end condition require that the same order
+!              of derivative is applied at both ends.
+!          =3: Degenerate case where N=2 with third der-
+!              ivative applied must have the same value
+!              for the derivative at each endpoint.
+!          =4: Cyclic mode -- Y(N) not equal to Y(1).
+!          =5: Non-cyclic mode -- IENDL or IENDR is
+!              beyond the range [0,4].
+
 IMPLICIT NONE
 
 INTEGER  N, IENDL, IENDR, IER
