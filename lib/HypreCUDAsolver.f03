@@ -26,7 +26,8 @@ type(c_ptr) :: p_values
 
 integer :: stat
 
-stat = device_malloc_managed(int(40*Ic*Jc, int64), p_values)
+!stat = device_malloc_managed(int(40*Ic*Jc, int64), p_values)
+stat = device_malloc(int(40*Ic*Jc, int64), p_values)
 
 ndims = 2
 nparts = 1
@@ -133,7 +134,7 @@ else if(solid==3) then
  !Call HYPRE_BoomerAMGCreate(solver, ierr)
 else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
- Call HYPRE_EuclidCreate(MPI_COMM_WORLD, precond, ierr)
+ !Call HYPRE_BoomerAMGCreate(precond, ierr)
 end if
 
 Call HYPRE_SStructGridDestroy(grid, ierr)
@@ -168,7 +169,7 @@ else if(solid==2) then
 else if(solid==3) then
  !Call HYPRE_BoomerAMGDestroy(solver, ierr)
 else if(solid==4) then
- Call HYPRE_EuclidDestroy(precond, ierr)
+ !Call HYPRE_BoomerAMGDestroy(precond, ierr)
  Call HYPRE_ParCSRBiCGSTABDestroy(solver, ierr)
 end if
 Call HYPRE_SStructMatrixDestroy(A, ierr)
@@ -325,12 +326,21 @@ else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABSetPrintLev(solver, prlv, ierr)
  Call HYPRE_ParCSRBiCGSTABSetMaxIter(solver, itmax, ierr)
  
- Call HYPRE_EuclidSetLevel(precond, 0, ierr)
- !Call HYPRE_EuclidSetSparseA(precond, 1e-3, ierr)
- Call HYPRE_EuclidSetRowScale(precond, 1, ierr)
- !Call HYPRE_EuclidSetBJ(precond, 1, ierr)
+ Call HYPRE_BoomerAMGCreate(precond, ierr)
+ Call HYPRE_BoomerAMGSetPrintLevel(precond, 0, ierr)
+ Call HYPRE_BoomerAMGSetTol(precond, 0e+0, ierr)
+ Call HYPRE_BoomerAMGSetMaxIter(precond, 1, ierr)
+ if(scalar=='dP') then
+  Call HYPRE_BoomerAMGSetMaxLevels(precond, 20, ierr)
+ else
+  Call HYPRE_BoomerAMGSetMaxLevels(precond, 1, ierr)
+ end if
+ !Call HYPRE_BoomerAMGSetNumSweeps(precond, 1, ierr)
+ !Call HYPRE_BoomerAMGSetCoarsenType(precond, 6, ierr)
+ !Call HYPRE_BoomerAMGSetInterpType(precond, 0, ierr)
+ !Call HYPRE_BoomerAMGSetRelaxType(precond, 6, ierr)
  
- precond_id = 5
+ precond_id = 2
  Call HYPRE_ParCSRBiCGSTABSetPrecond(solver, precond_id, precond, ierr)
  Call HYPRE_ParCSRBiCGSTABSetup(solver, parA, parb, parx, ierr)
  Call HYPRE_ParCSRBiCGSTABSolve(solver, parA, parb, parx, ierr)
@@ -354,6 +364,7 @@ else if(solid==3) then
 else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABGetNumIter(solver, iter, ierr)
  Call HYPRE_ParCSRBiCGSTABGetFinalRel(solver, res, ierr)
+ Call HYPRE_BoomerAMGDestroy(precond, ierr)
 end if
 
 end Subroutine hyprecompute_gpu
@@ -393,8 +404,8 @@ type(c_ptr) :: p_values, p_F, p_aM, p_ba
 
 integer :: stat
 
-stat = device_malloc_managed(int(5*Ic*Jc * 8, int64), p_values)
-!stat = device_malloc(int(5*Ic*Jc * 8, int64), p_values)
+!stat = device_malloc_managed(int(5*Ic*Jc * 8, int64), p_values)
+stat = device_malloc(int(5*Ic*Jc * 8, int64), p_values)
 Call c_f_pointer(p_values, values, [5*Ic*Jc])
 p_F = C_LOC(F)
 p_aM = C_LOC(aM)
@@ -505,7 +516,7 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGCreate(solver, ierr)
 else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
- Call HYPRE_EuclidCreate(MPI_COMM_WORLD, precond, ierr)
+ Call HYPRE_BoomerAMGCreate(precond, ierr)
 end if
 
 if(Ib1>1.and.Ib2<Ic) then
@@ -605,12 +616,20 @@ else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABSetPrintLev(solver, prlv, ierr)
  Call HYPRE_ParCSRBiCGSTABSetMaxIter(solver, itmax, ierr)
  
- Call HYPRE_EuclidSetLevel(precond, 0, ierr)
- !Call HYPRE_EuclidSetSparseA(precond, 1e-3, ierr)
- Call HYPRE_EuclidSetRowScale(precond, 1, ierr)
- !Call HYPRE_EuclidSetBJ(precond, 1, ierr)
+ Call HYPRE_BoomerAMGSetPrintLevel(precond, 0, ierr)
+ Call HYPRE_BoomerAMGSetTol(precond, 0e+0, ierr)
+ Call HYPRE_BoomerAMGSetMaxIter(precond, 1, ierr)
+ if(scalar=='dP') then
+  Call HYPRE_BoomerAMGSetMaxLevels(precond, 20, ierr)
+ else
+  Call HYPRE_BoomerAMGSetMaxLevels(precond, 1, ierr)
+ end if
+ !Call HYPRE_BoomerAMGSetNumSweeps(precond, 1, ierr)
+ !Call HYPRE_BoomerAMGSetCoarsenType(precond, 6, ierr)
+ !Call HYPRE_BoomerAMGSetInterpType(precond, 0, ierr)
+ !Call HYPRE_BoomerAMGSetRelaxType(precond, 6, ierr)
  
- precond_id = 5
+ precond_id = 2
  Call HYPRE_ParCSRBiCGSTABSetPrecond(solver, precond_id, precond, ierr)
  Call HYPRE_ParCSRBiCGSTABSetup(solver, parA, parb, parx, ierr)
  Call HYPRE_ParCSRBiCGSTABSolve(solver, parA, parb, parx, ierr)
@@ -642,7 +661,7 @@ else if(solid==2) then
 else if(solid==3) then
  Call HYPRE_BoomerAMGDestroy(solver, ierr)
 else if(solid==4) then
- Call HYPRE_EuclidDestroy(precond, ierr)
+ Call HYPRE_BoomerAMGDestroy(precond, ierr)
  Call HYPRE_ParCSRBiCGSTABDestroy(solver, ierr)
 end if
 Call HYPRE_SStructGridDestroy(grid, ierr)
