@@ -365,7 +365,7 @@ Call Defercorrect(F,Fwall,cor,Fw,Fe,Fs,Fn)
 !$OMP WORKSHARE
 b=F
 !$OMP END WORKSHARE
-!$OMP DO PRIVATE(i)
+!$OMP DO PRIVATE(Dampk,i)
 DO j=1,Jc-1
   DO i=Is,Ie
    if(scalar=='U') then

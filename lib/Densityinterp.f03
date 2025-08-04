@@ -5,6 +5,9 @@ integer i,j
 real(8) rhoc,rhow,rhoe,rhos,rhon,rhoww,rhoss,dkc,dkw,dke,dkww,dac,das,dan,dass
 real(8) wk,wa,rwp,rwm,rsp,rsm,Psiwp,Psiwm,Psisp,Psism
 real(8),external:: interpl
+
+!$OMP PARALLEL
+  !$OMP DO PRIVATE(wk,rhoc,rhow,rhoe,rhoww,dkc,dkw,dke,dkww,rwp,rwm,Psiwp,Psiwm,i)
   DO j=1,Jc-1
    DO i=Is,Ie+1
     wk=sign(0.5,Unk(i,j))
@@ -82,6 +85,8 @@ real(8),external:: interpl
     end if
    end DO
   end DO
+  !$OMP END DO
+  !$OMP DO PRIVATE(wa,rhoc,rhos,rhon,rhoss,dac,das,dan,dass,rsp,rsm,Psisp,Psism,i)
   DO j=1,Jc
    DO i=Is,Ie
     wa=sign(0.5,Vna(i,j))
@@ -150,4 +155,6 @@ real(8),external:: interpl
     end if
    end DO
   end DO
+  !$OMP END DO
+!$OMP END PARALLEL
 end Subroutine Densityinterp

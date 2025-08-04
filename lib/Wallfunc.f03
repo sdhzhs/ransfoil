@@ -10,9 +10,11 @@ character(6) wallfunutype,wallfunktype
 
 wallfunutype='parvel'
 wallfunktype='loglaw'
-
 Ym=11.225
 Yt=11.8
+
+!$OMP PARALLEL
+!$OMP DO
 DO i=Ib1,Ib2
   if(Turmod=='sst') then
    if(wallfunutype=='parvel') then
@@ -52,13 +54,17 @@ DO i=Ib1,Ib2
    Prough(i)=Pc(i,1)
   end if
 end DO
+!$OMP END DO
 if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
+ !$OMP WORKSHARE
  lamda=-0.01*Yplus**4/(1+5.*Yplus)
  Uplusl=Yplus
  Uplust=log(Ep*Yplus)/kapa-deltaB
  Uplus=exp(lamda)*Uplusl+exp(1./lamda)*Uplust
  lamda=-0.01*(Pr(Ib1:Ib2,1)*Yplus)**4/(1+5.*Pr(Ib1:Ib2,1)**3*Yplus)
  Ymax=maxval(Yplus)
+ !$OMP END WORKSHARE
+ !$OMP DO PRIVATE(Tplusl,Tplust,Tplusc,Dl,Dt)
  DO i=Ib1,Ib2
   if(visheat=='Y'.and.Ymax>Ym) then
    Tplusl=Pr(i,1)*Uplusl(i)
@@ -88,7 +94,9 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
    end if
   end if
  end DO
+ !$OMP END DO
 else if(Turmod=='ke') then
+ !$OMP DO PRIVATE(Tplusc,Dt)
  DO i=Ib1,Ib2
   Uplus(i)=log(Ep*Ystar(i))/kapa-deltaB(i)
   !if(Ystar(i)<Ym) Uplus(i)=Ystar(i)
@@ -114,8 +122,10 @@ else if(Turmod=='ke') then
    end if
   end if
  end DO
+ !$OMP END DO
 end if
 if(Turmod=='sst') then
+ !$OMP DO PRIVATE(Dwplus,phi1,F1)
  DO j=1,Jc
   DO i=1,Ic
    Dwplus=max(2*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
@@ -129,12 +139,16 @@ if(Turmod=='sst') then
    end if
   end DO
  end DO
+ !$OMP END DO
  if(Walltreat=='wf') then
+  !$OMP WORKSHARE
   lamda=-0.01*Yplus**4/(1+5.*Yplus)
   Twplusl=6./(betai*Yplus**2)
   Twplust=1/(sqrt(betastarf)*kapa*Yplus)
   Twplus=exp(lamda)*Twplusl+exp(1./lamda)*Twplust
+  !$OMP END WORKSHARE
  else if(Walltreat=='lr') then
+  !$OMP DO PRIVATE(Dwplus,phi1,F1)
   DO i=Ib1,Ib2
    if(ksplus(i)>0) then
     ksplus(i)=max(1.0,ksplus(i))
@@ -148,13 +162,21 @@ if(Turmod=='sst') then
     Twplus(i)=60./(betai(i)*Yplus(i)**2)
    end if
   end DO
+  !$OMP END DO
  end if
+ !$OMP WORKSHARE
  Tw(Ib1:Ib2,1)=rho(Ib1:Ib2,1)*ustar**2*Twplus/mu(Ib1:Ib2,1)
+ !$OMP END WORKSHARE
 else if(Turmod=='ke') then
  if(wallfunktype=='genlaw') then
+  !$OMP WORKSHARE
   Te(Ib1:Ib2,1)=ustar**3*Uplus/Yp
+  !$OMP END WORKSHARE
  else if(wallfunktype=='loglaw') then
+  !$OMP WORKSHARE
   Te(Ib1:Ib2,1)=ustar**3/(kapa*Yp)
+  !$OMP END WORKSHARE
  end if
 end if
+!$OMP END PARALLEL
 end Subroutine Wallfunc

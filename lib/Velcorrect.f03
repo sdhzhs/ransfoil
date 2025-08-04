@@ -2,21 +2,28 @@ Subroutine Velcorrect
 use Aero2DCOM
 implicit none
 integer i,j
+
+!$OMP PARALLEL
 if(solctrl=='SIMPLE') then
+   !$OMP DO PRIVATE(i)
    DO j=1,Jc-1
      DO i=Is,Ie
        U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/auP(i,j)
        V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/auP(i,j)
      end DO
    end DO
+   !$OMP END DO
 else if(solctrl=='SIMPLEC') then
+   !$OMP DO PRIVATE(i)
    DO j=1,Jc-1
      DO i=Is,Ie
        U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
        V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
      end DO
    end DO
+   !$OMP END DO
 end if
+!$OMP DO PRIVATE(i)
 DO j=1,Jc-1
   DO i=Is,Ie+1
    if(i==1) then
@@ -28,6 +35,8 @@ DO j=1,Jc-1
    end if
   end DO
 end DO
+!$OMP END DO
+!$OMP DO PRIVATE(i)
 DO j=1,Jc
   DO i=Is,Ie
    if(j==1.and.(i>Ib2.or.i<Ib1)) then
@@ -39,6 +48,10 @@ DO j=1,Jc
    end if
   end DO
 end DO
+!$OMP END DO
+!$OMP WORKSHARE
 Un=U*Yga-V*Xga
 Vn=V*Xgk-U*Ygk
+!$OMP END WORKSHARE
+!$OMP END PARALLEL
 end Subroutine Velcorrect
