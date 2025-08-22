@@ -3332,6 +3332,12 @@ case $host in #(
   *) :
     LTIOP="" ;;
 esac
+case $host in #(
+  x86_64-pc-mingw64) :
+    LTIOP=win64-dll ;; #(
+  *) :
+    LTIOP="" ;;
+esac
 case `pwd` in
   *\ * | *\	*)
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Libtool does not cope well with whitespace in \`pwd\`" >&5

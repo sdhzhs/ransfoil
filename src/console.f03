@@ -37,7 +37,7 @@ Program RANSFOIL
     print *,"should input a name of the configuration file."
     print *,"usage: ",trim(argv(1))," [options] [configuration file]"
    else if(trim(argv(2))=="--version") then
-    print *,"ransfoil version 2.2.18"
+    print *,"ransfoil version 2.2.19"
     print *,"Copyright (c) 2012-2025, Hou Shuo"
    else if(trim(argv(2))=="-h".or.trim(argv(2))=="--help") then
     print *,"usage: ",trim(argv(1))," [options] [configuration file]"

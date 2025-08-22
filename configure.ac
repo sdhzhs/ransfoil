@@ -8,6 +8,7 @@ LT_PREREQ([2.4])
 AC_CANONICAL_HOST
 AS_CASE([$host],[i?86-pc-mingw32], [LTIOP=win32-dll],[LTIOP=""])
 AS_CASE([$host],[x86_64-pc-mingw32], [LTIOP=win64-dll],[LTIOP=""])
+AS_CASE([$host],[x86_64-pc-mingw64], [LTIOP=win64-dll],[LTIOP=""])
 LT_INIT([disable-static ${LTIOP}])
 AM_CONDITIONAL([BUILDDLL], [test "x${LTIOP}" = xwin32-dll -o "x${LTIOP}" = xwin64-dll])
 AC_CONFIG_SRCDIR([src/console.f03])
