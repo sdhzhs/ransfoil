@@ -5,9 +5,15 @@ real(8) err,omega,a,rms,FW,FE,FS,FN
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 real(8) Fo(Ic,Jc)
 character(*) scalar
+logical(1) isP,isTe,isTw
+
+isP = scalar=='dP'
+isTe = scalar=='Te'
+isTw = scalar=='Tw'
+
 !$OMP PARALLEL PRIVATE(k,maxl,err,omega,Is,Ie)
 maxl=1000
-if(scalar=='dP') then
+if(isP) then
  err=1e-4
  omega=1.9
 else
@@ -25,7 +31,7 @@ DO k=1,maxl
   !$OMP WORKSHARE
   Fo=F
   !$OMP END WORKSHARE
-  if(scalar=='Te'.or.scalar=='Tw') then
+  if(isTe.or.isTw) then
   !$OMP DO
   DO j=1,Jc-1
     DO i=Is,Ie
@@ -104,23 +110,39 @@ end Subroutine sor
 
 Subroutine CGSTAB(aM,b,F,F0,a,Ic,Jc,Ib1,Ib2,scalar)
 implicit none
-integer maxl,k,Ic,Jc,Ib1,Ib2,iter
+integer maxl,k,Ic,Jc,Ib1,Ib2,iter,preid
 real(8) err,a,normb
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 real(8) alpha,beta,rho,omega,rho0,sumrmsi,sumvrms,sumptz,sumpts,sumrms
 real(8) rmsi(Ic,Jc),rms(Ic,Jc),p(Ic,Jc),v(Ic,Jc),s(Ic,Jc),t(Ic,Jc),pt(Ic,Jc),y(Ic,Jc),z(Ic,Jc),aD(Ic,Jc),vec0(Ic,Jc)
 character(*) scalar
 character(4) pretype
+logical(1) isP,isTe,isTw
 
-!$OMP PARALLEL PRIVATE(alpha,beta,rho,omega,rho0,k,maxl,err,pretype)
+isP = scalar=='dP'
+isTe = scalar=='Te'
+isTw = scalar=='Tw'
+pretype = 'ILU'
+
+if(pretype=='JAC') then
+ preid=0
+else if(pretype=='SSOR') then
+ preid=1
+else if(pretype=='ILU') then
+ preid=2
+else
+ preid=-1
+end if
+
+!$OMP PARALLEL PRIVATE(alpha,beta,rho,omega,rho0,k,maxl,err)
 maxl=1000
-if(scalar=='dP') then
+if(isP) then
  err=1e-8
 else
  err=1e-10
 end if
-pretype='ILU'
-Call Residual(aM,b,F,F0,rms,a,Ic,Jc,Ib1,Ib2,scalar)
+
+Call Residual(aM,b,F,F0,rms,a,Ic,Jc,Ib1,Ib2,isTe,isTw)
 !$OMP WORKSHARE
 rmsi=rms
 p=0
@@ -128,7 +150,7 @@ v=p
 aD=aM(1,:,:)
 normb=sum(abs(b))
 !$OMP END WORKSHARE
-if(pretype=='ILU') then
+if(preid==2) then
  Call DILU(aM,aD,Ic,Jc,Ib2)
 end if
 alpha=1
@@ -144,7 +166,7 @@ DO k=1,maxl
  !$OMP WORKSHARE
  p=rms+beta*(p-omega*v)
  !$OMP END WORKSHARE
- if(pretype=='JAC') then
+ if(preid==0) then
   !$OMP WORKSHARE
   y=a*p/aM(1,:,:)
   !$OMP END WORKSHARE
@@ -153,11 +175,11 @@ DO k=1,maxl
   y=p
   !$OMP END WORKSHARE
  end if
- if(pretype=='ILU'.or.pretype=='SSOR') then
+ if(preid==1.or.preid==2) then
 !  Call Sorprecond(aM,aD,y,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
   Call SSorpcond(y,vec0)
  end if
- Call Multmatrixvector(aM,y,v,a,Ic,Jc,Ib1,Ib2,scalar)
+ Call Multmatrixvector(aM,y,v,a,Ic,Jc,Ib1,Ib2,isTe,isTw)
  !$OMP WORKSHARE
  sumvrms=sum(v*rmsi)
  !$OMP END WORKSHARE
@@ -165,7 +187,7 @@ DO k=1,maxl
  !$OMP WORKSHARE
  s=rms-alpha*v
  !$OMP END WORKSHARE
- if(pretype=='JAC') then
+ if(preid==0) then
   !$OMP WORKSHARE
   z=a*s/aM(1,:,:)
   !$OMP END WORKSHARE
@@ -174,12 +196,12 @@ DO k=1,maxl
   z=s
   !$OMP END WORKSHARE
  end if
- if(pretype=='ILU'.or.pretype=='SSOR') then
+ if(preid==1.or.preid==2) then
 !  Call Sorprecond(aM,aD,z,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
   Call SSorpcond(z,vec0)
  end if
- Call Multmatrixvector(aM,z,t,a,Ic,Jc,Ib1,Ib2,scalar)
- if(pretype=='JAC') then
+ Call Multmatrixvector(aM,z,t,a,Ic,Jc,Ib1,Ib2,isTe,isTw)
+ if(preid==0) then
   !$OMP WORKSHARE
   pt=a*t/aM(1,:,:)
   !$OMP END WORKSHARE
@@ -188,7 +210,7 @@ DO k=1,maxl
   pt=t
   !$OMP END WORKSHARE
  end if
- if(pretype=='ILU'.or.pretype=='SSOR') then
+ if(preid==1.or.preid==2) then
 !  Call Sorprecond(aM,aD,pt,vec0,a,Ic,Jc,Ib1,Ib2,scalar,pretype)
   Call SSorpcond(pt,vec0)
  end if
@@ -226,7 +248,7 @@ real(8) vt(Ic,Jc),vt0(Ic,Jc)
 real(8) omega
 logical(1) cond(4)
 
-if(pretype=='SSOR'.and.scalar=='dP') then
+if(preid==1.and.isP) then
  omega=1.5
 else
  omega=1.0
@@ -259,7 +281,7 @@ vt(:,Jc)=omega*vt(:,Jc)
 
 cond(1)=(npt==0)
 cond(2)=(nt>1.and.tid>0)
-if(scalar=='Te'.or.scalar=='Tw') then
+if(isTe.or.isTw) then
 !$OMP DO
 !!$OMP SINGLE
 DO j=1,Jc-1
@@ -347,7 +369,7 @@ end if
 vt=(2-omega)*vt/omega
 !$OMP END WORKSHARE
 
-if(scalar=='Te'.or.scalar=='Tw') then
+if(isTe.or.isTw) then
 !$OMP DO
 DO j=1,Jc-1
  DO i=Is,Ie
@@ -378,7 +400,7 @@ vt(:,Jc)=omega*vt(:,Jc)
 !$ vt0=vt
 !$OMP END WORKSHARE
 
-if(scalar=='Te'.or.scalar=='Tw') then
+if(isTe.or.isTw) then
 !$OMP DO
 !!$OMP SINGLE
 DO j=Jc-1,1,-1
@@ -457,12 +479,12 @@ end Subroutine SSorpcond
 
 end Subroutine CGSTAB
 
-Subroutine Residual(aM,b,F,F0,rms,a,Ic,Jc,Ib1,Ib2,scalar)
+Subroutine Residual(aM,b,F,F0,rms,a,Ic,Jc,Ib1,Ib2,isTe,isTw)
 implicit none
 integer i,j,Ic,Jc,Ib1,Ib2,Is,Ie
 real(8) a,FW,FE,FS,FN
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc),F0(Ic,Jc),rms(Ic,Jc)
-character(*) scalar
+logical(1) isTe,isTw
 
 if(Ib1>1.and.Ib2<Ic) then
  Is=2
@@ -475,7 +497,7 @@ end if
 !$OMP WORKSHARE
 rms=0
 !$OMP END WORKSHARE
-if(scalar=='Te'.or.scalar=='Tw') then
+if(isTe.or.isTw) then
 !$OMP DO
 DO j=1,Jc-1
  DO i=Is,Ie
@@ -570,12 +592,12 @@ end DO
 !$OMP END DO
 end Subroutine DILU
 
-Subroutine Multmatrixvector(aM,u,v,a,Ic,Jc,Ib1,Ib2,scalar)
+Subroutine Multmatrixvector(aM,u,v,a,Ic,Jc,Ib1,Ib2,isTe,isTw)
 implicit none
 integer i,j,Ic,Jc,Ib1,Ib2,Is,Ie
 real(8) a,uw,ue,us,un
 real(8) aM(5,Ic,Jc),u(Ic,Jc),v(Ic,Jc)
-character(*) scalar
+logical(1) isTe,isTw
 
 if(Ib1>1.and.Ib2<Ic) then
  Is=2
@@ -588,7 +610,7 @@ end if
 !$OMP WORKSHARE
 v=u
 !$OMP END WORKSHARE
-if(scalar=='Te'.or.scalar=='Tw') then
+if(isTe.or.isTw) then
 !$OMP DO
 DO j=1,Jc-1
   DO i=Is,Ie

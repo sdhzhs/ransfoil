@@ -6,9 +6,14 @@ real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,noc
 real(8) aP,aW,aE,aS,aN
 real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),dw(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
+logical(1) isSimp,isSimpC,isCom
 noc=1.d+0
+isSimp=solctrl=='SIMPLE'
+isSimpC=solctrl=='SIMPLEC'
+isCom=Proctrl=='com'
+
 !$OMP PARALLEL
-if(solctrl=='SIMPLE') then
+if(isSimp) then
   !$OMP DO PRIVATE(i,Up,Vp)
   DO j=1,Jc-1
     DO i=Is,Ie
@@ -22,7 +27,7 @@ if(solctrl=='SIMPLE') then
     end DO
   end DO
   !$OMP END DO
-else if(solctrl=='SIMPLEC') then
+else if(isSimpC) then
   !$OMP DO PRIVATE(i,Up,Vp)
   DO j=1,Jc-1
     DO i=Is,Ie
@@ -156,7 +161,7 @@ DO j=1,Jc-1
    aN=rhoa(i,j+1)*dva(i,j+1)*dx
    aS=rhoa(i,j)*dva(i,j)*dx
    aP=aE+aW+aN+aS
-   if(Proctrl=='com') then
+   if(isCom) then
     ww=sign(0.5,Unk(i,j))
     we=sign(0.5,Unk(i+1,j))
     ws=sign(0.5,Vna(i,j))

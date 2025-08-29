@@ -5,6 +5,15 @@ integer i,j
 real(8) rhoc,rhow,rhoe,rhos,rhon,rhoww,rhoss,dkc,dkw,dke,dkww,dac,das,dan,dass
 real(8) wk,wa,rwp,rwm,rsp,rsm,Psiwp,Psiwm,Psisp,Psism
 real(8),external:: interpl
+logical(1) isCom,isIncom,isCenter,isUp,is2ndUp,isQuick,isTvd
+
+isCom = Proctrl=='com'
+isIncom = Proctrl=='incom'
+isCenter = denface=='center'
+isUp = denface=='1upwind'
+is2ndUp = denface=='2upwind'
+isQuick = denface=='Quick'
+isTvd = denface=='tvd'
 
 !$OMP PARALLEL
   !$OMP DO PRIVATE(wk,rhoc,rhow,rhoe,rhoww,dkc,dkw,dke,dkww,rwp,rwm,Psiwp,Psiwm,i)
@@ -55,19 +64,19 @@ real(8),external:: interpl
      rhoww=rho(i-2,j)
      dkww=dk(i-2,j)
     end if
-    if(Proctrl=='incom') then
+    if(isIncom) then
      rhok(i,j)=rhoc
-    else if(Proctrl=='com') then
-     if(denface=='center') then
+    else if(isCom) then
+     if(isCenter) then
       rhok(i,j)=interpl(rhow,rhoc,dkw,dkc)
-     else if(denface=='1upwind') then
+     else if(isUp) then
       rhok(i,j)=(0.5-wk)*rhoc+(0.5+wk)*rhow
-     else if(denface=='2upwind') then
+     else if(is2ndUp) then
       rhok(i,j)=(0.5-wk)*((2*dkc+dke)*rhoc-dkc*rhoe)/(dkc+dke)+(0.5+wk)*((2*dkw+dkww)*rhow-dkw*rhoww)/(dkw+dkww)
-     else if(denface=='Quick') then
+     else if(isQuick) then
       rhok(i,j)=(0.5-wk)*(3*(dkw*rhoc+dkc*rhow)/(dkc+dkw)+((2*dkc+dke)*rhoc-dkc*rhoe)/(dkc+dke))/4+&
       (0.5+wk)*(3*(dkw*rhoc+dkc*rhow)/(dkc+dkw)+((2*dkw+dkww)*rhow-dkw*rhoww)/(dkw+dkww))/4
-     else if(denface=='tvd') then
+     else if(isTvd) then
       if(abs(rhoc-rhow)>0) then
        rwp=(rhow-rhoww)/(rhoc-rhow)
       else
@@ -125,19 +134,19 @@ real(8),external:: interpl
      rhoss=rho(i,j-2)
      dass=da(i,j-2)
     end if
-    if(Proctrl=='incom') then
+    if(isIncom) then
      rhoa(i,j)=rhoc
-    else if(Proctrl=='com') then
-     if(denface=='center') then
+    else if(isCom) then
+     if(isCenter) then
       rhoa(i,j)=interpl(rhos,rhoc,das,dac)
-     else if(denface=='1upwind') then
+     else if(isUp) then
       rhoa(i,j)=(0.5-wa)*rhoc+(0.5+wa)*rhos
-     else if(denface=='2upwind') then
+     else if(is2ndUp) then
       rhoa(i,j)=(0.5-wa)*((2*dac+dan)*rhoc-dac*rhon)/(dac+dan)+(0.5+wa)*((2*das+dass)*rhos-das*rhoss)/(das+dass)
-     else if(denface=='Quick') then
+     else if(isQuick) then
       rhoa(i,j)=(0.5-wa)*(3*(das*rhoc+dac*rhos)/(dac+das)+((2*dac+dan)*rhoc-dac*rhon)/(dac+dan))/4+&
       (0.5+wa)*(3*(das*rhoc+dac*rhos)/(dac+das)+((2*das+dass)*rhos-das*rhoss)/(das+dass))/4
-     else if(denface=='tvd') then
+     else if(isTvd) then
       if(abs(rhoc-rhos)>0) then
        rsp=(rhos-rhoss)/(rhoc-rhos)
       else

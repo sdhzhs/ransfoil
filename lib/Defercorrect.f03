@@ -5,6 +5,14 @@ integer i,j
 real(8) Fcc,Fcw,Fce,Fcs,Fcn,Fcww,Fcee,Fcss,Fcnn,dkc,dkw,dkww,dke,dkee,dac,das,dass,dan,dann
 real(8) rp,rm,Psip,Psim
 real(8) F(Ic,Jc),Fwall(Ib1:Ib2),cor(Ic,Jc),Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc)
+logical(1) isLr,isUp,is2ndUp,isQuick,isTvd
+
+isLr = Walltreat=='lr'
+isUp = Discret=='1upwind'
+is2ndUp = Discret=='2upwind'
+isQuick = Discret=='Quick'
+isTvd = Discret=='tvd'
+
 !$OMP DO
 DO j=1,Jc-1
  DO i=Is,Ie
@@ -58,8 +66,8 @@ DO j=1,Jc-1
   dkee=dk(i+2,j)
  end if
  if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-  if(Walltreat=='lr') then
-   if(Discret=='Quick') then
+  if(isLr) then
+   if(isQuick) then
     Fcs=(F(i,j+1)+10*F(i,j)-8*Fwall(i))/3
     Fcss=6*Fcs+3*F(i,j)-8*Fwall(i)
    else
@@ -79,8 +87,8 @@ DO j=1,Jc-1
   dass=da(Ic+1-i,j+1)
  else if(j==2.and.(i>=Ib1.and.i<=Ib2)) then
   Fcs=F(i,j-1)
-  if(Walltreat=='lr') then
-   if(Discret=='Quick') then
+  if(isLr) then
+   if(isQuick) then
     Fcss=(F(i,j)+10*F(i,j-1)-8*Fwall(i))/3
    else
     Fcss=2*Fwall(i)-F(i,j-1)
@@ -108,9 +116,9 @@ DO j=1,Jc-1
   Fcnn=F(i,j+2)
   dann=da(i,j+2)
  end if
- if(Discret=='1upwind') then
+ if(isUp) then
   cor(i,j)=0
- else if(Discret=='2upwind') then
+ else if(is2ndUp) then
   Psip=dkw*(Fcw-Fcww)/(dkw+dkww)
   Psim=dkc*(Fce-Fcc)/(dkc+dke)
   cor(i,j)=max(Fw(i,j),0.0)*Psip+max(-Fw(i,j),0.0)*Psim
@@ -123,7 +131,7 @@ DO j=1,Jc-1
   Psip=dac*(Fcs-Fcc)/(dac+das)
   Psim=dan*(Fcn-Fcnn)/(dan+dann)
   cor(i,j)=cor(i,j)+max(Fn(i,j),0.0)*Psip+max(-Fn(i,j),0.0)*Psim
- else if(Discret=='Quick') then
+ else if(isQuick) then
   if(i==2) then
    Psip=0
   else
@@ -156,7 +164,7 @@ DO j=1,Jc-1
   Psim=dac*(3*(Fcs-Fcc)/(dac+das)+(Fcc-Fcn)/(dac+dan))/4
   !Psim=(3*Fcs-2*Fcc-Fcn)/8
   cor(i,j)=cor(i,j)+max(Fs(i,j),0.0)*Psip+max(-Fs(i,j),0.0)*Psim
- else if(Discret=='tvd') then
+ else if(isTvd) then
   if(abs(Fcc-Fcw)>0) then
    rp=(Fcw-Fcww)/(Fcc-Fcw)
    rm=(Fce-Fcc)/(Fcc-Fcw)

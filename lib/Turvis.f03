@@ -4,17 +4,27 @@ implicit none
 integer i,j
 real(8) Xi,fnu1,Dwplus,phi1,F1,betai,St,phi2,F2,Ret,alphastar,Ymax,Ym
 logical(1) sstlowre
+logical(1) isKe,isSst,isSa,isLam,isInv,isWf,isLr
+
  sstlowre=.false.
+ isKe = Turmod=='ke'
+ isSst = Turmod=='sst'
+ isSa = Turmod=='sa'
+ isLam = Turmod=='lam'
+ isInv = Turmod=='inv'
+ isWf = Walltreat=='wf'
+ isLr = Walltreat=='lr'
+
  Ym=11.225
- if(Turmod=='ke') then
+ if(isKe) then
   Ymax=maxval(Ystar)
  else
   Ymax=maxval(Yplus)
  end if
  DO j=1,Jc
   DO i=1,Ic
-   if(Turmod=='sa') then
-    if(Walltreat=='lr') then
+   if(isSa) then
+    if(isLr) then
      Xi=rho(i,j)*Tn(i,j)/mu(i,j)+Cks*ksi/d(i,j)
     else
      Xi=rho(i,j)*Tn(i,j)/mu(i,j)
@@ -22,9 +32,9 @@ logical(1) sstlowre
     fnu1=Xi**3/(Xi**3+Cnu1**3)
     !if(Ymax>Ym) fnu1=1.0
     mut(i,j)=rho(i,j)*Tn(i,j)*fnu1
-   else if(Turmod=='ke') then
+   else if(isKe) then
     mut(i,j)=(rho(i,j)*Cu*Tk(i,j)**2)/Te(i,j)
-   else if(Turmod=='sst') then
+   else if(isSst) then
     Dwplus=max(2*rho(i,j)*(Tkx(i,j)*Twx(i,j)+Tky(i,j)*Twy(i,j))/(sigmaw2*Tw(i,j)),1e-10)
     phi1=min(max(sqrt(Tk(i,j))/(betastarf*Tw(i,j)*d(i,j)),500*mu(i,j)/(rho(i,j)*d(i,j)**2*Tw(i,j))),&
     4*rho(i,j)*Tk(i,j)/(sigmaw2*Dwplus*d(i,j)**2))
@@ -40,7 +50,7 @@ logical(1) sstlowre
       alphastar=alphastarf
     end if
     mut(i,j)=(rho(i,j)*Tk(i,j))/(Tw(i,j)*max(1./alphastar,St*F2/(alpha1*Tw(i,j))))
-   else if(Turmod=='lam'.or.Turmod=='inv') then
+   else if(isLam.or.isInv) then
     mut(i,j)=0
    end if
   end DO

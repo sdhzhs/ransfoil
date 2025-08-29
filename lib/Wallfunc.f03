@@ -7,37 +7,50 @@ real(8) Dwplus,phi1,F1,Tplusl,Tplust,Tplusc,Dl,Dt
 real(8) ksplus(Ib1:Ib2),deltaB(Ib1:Ib2),Prough(Ib1:Ib2),lamda(Ib1:Ib2),Uplusl(Ib1:Ib2),Uplust(Ib1:Ib2),&
 Twplusl(Ib1:Ib2),Twplust(Ib1:Ib2),Twplus(Ib1:Ib2),betai(Ib1:Ib2)
 character(6) wallfunutype,wallfunktype
+logical(1) isKe,isSst,isSa,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,isLoglaw,isVisheatY
 
 wallfunutype='parvel'
 wallfunktype='loglaw'
 Ym=11.225
 Yt=11.8
 
+isKe = Turmod=='ke'
+isSst = Turmod=='sst'
+isSa = Turmod=='sa'
+isFixed = Tmptype=='fixed'
+isFlux = Tmptype=='flux'
+isWf = Walltreat=='wf'
+isLr = Walltreat=='lr'
+isParvel = wallfunutype=='parvel'
+isGenlaw = wallfunktype=='genlaw'
+isLoglaw = wallfunktype=='loglaw'
+isVisheatY = visheat=='Y'
+
 !$OMP PARALLEL
 !$OMP DO
 DO i=Ib1,Ib2
-  if(Turmod=='sst') then
-   if(wallfunutype=='parvel') then
+  if(isSst) then
+   if(isParvel) then
     ustar(i)=((mu(i,1)*abs(Un(i,1))/da(i,1)/(rho(i,1)*Yp(i)))**2+(alpha1*Tk(i,1))**2)**0.25
    else
     ustar(i)=((mu(i,1)*sqrt(U(i,1)**2+V(i,1)**2)/(rho(i,1)*Yp(i)))**2+(alpha1*Tk(i,1))**2)**0.25
    end if
-  else if(Turmod=='sa') then
-   if(wallfunutype=='parvel') then
+  else if(isSa) then
+   if(isParvel) then
     ustar(i)=((mu(i,1)*abs(Un(i,1))/da(i,1)/(rho(i,1)*Yp(i)))**2+(mut(i,1)/(rho(i,1)*kapa*Yp(i)))**4)**0.25
    else
     ustar(i)=((mu(i,1)*sqrt(U(i,1)**2+V(i,1)**2)/(rho(i,1)*Yp(i)))**2+(mut(i,1)/(rho(i,1)*kapa*Yp(i)))**4)**0.25
    end if
-  else if(Turmod=='ke') then
+  else if(isKe) then
    ustar(i)=Cu**0.25*Tk(i,1)**0.5
   end if
   ksplus(i)=rho(i,1)*ks(i)*ustar(i)/mu(i,1)
-  if(Turmod=='sa'.or.Turmod=='sst') then
+  if(isSa.or.isSst) then
    Yplus(i)=rho(i,1)*Yp(i)*ustar(i)/mu(i,1)
-   if(Walltreat=='wf'.and.ks(i)>0) then
+   if(isWf.and.ks(i)>0) then
     Yplus(i)=max(Yplus(i),ksplus(i)/2,2.5)
    end if
-  else if(Turmod=='ke') then
+  else if(isKe) then
    Ystar(i)=rho(i,1)*Yp(i)*ustar(i)/mu(i,1)
    Ystar(i)=max(Ystar(i),ksplus(i)/2,Ym)
   end if
@@ -55,7 +68,7 @@ DO i=Ib1,Ib2
   end if
 end DO
 !$OMP END DO
-if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
+if((isSa.or.isSst).and.isWf) then
  !$OMP WORKSHARE
  lamda=-0.01*Yplus**4/(1+5.*Yplus)
  Uplusl=Yplus
@@ -66,12 +79,12 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
  !$OMP END WORKSHARE
  !$OMP DO PRIVATE(Tplusl,Tplust,Tplusc,Dl,Dt)
  DO i=Ib1,Ib2
-  if(visheat=='Y'.and.Ymax>Ym) then
+  if(isVisheatY.and.Ymax>Ym) then
    Tplusl=Pr(i,1)*Uplusl(i)
    Tplust=Prt*(Uplust(i)+Prough(i))
    !Tplust=Prt*Uplust(i)
    Tplusc=exp(lamda(i))*Tplusl+exp(1./lamda(i))*Tplust
-   if(Tmptype=='fixed') then
+   if(isFixed) then
     Dl=0.5*rho(i,1)*ustar(i)*Pr(i,1)*(U(i,1)**2+V(i,1)**2)
     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
     !Dt=0.5*rho(i,1)*ustar(i)*Prt*(U(i,1)**2+V(i,1)**2)
@@ -79,7 +92,7 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
     Tplusl=Tplusl+Dl/Q(i)
     Tplust=Tplust+Dt/Q(i)
     Tplus(i)=exp(lamda(i))*Tplusl+exp(1./lamda(i))*Tplust
-   else if(Tmptype=='flux') then
+   else if(isFlux) then
     Q(i)=Qf
     Tplus(i)=Tplusc
    end if
@@ -87,44 +100,44 @@ if((Turmod=='sa'.or.Turmod=='sst').and.Walltreat=='wf') then
    Tplusl=Pr(i,1)*Uplusl(i)
    Tplust=Prt*(Uplust(i)+Prough(i))
    Tplus(i)=exp(lamda(i))*Tplusl+exp(1./lamda(i))*Tplust
-   if(Tmptype=='fixed') then
+   if(isFixed) then
     Q(i)=ca*rho(i,1)*ustar(i)*(Tf-T(i,1))/Tplus(i)
-   else if(Tmptype=='flux') then
+   else if(isFlux) then
     Q(i)=Qf
    end if
   end if
  end DO
  !$OMP END DO
-else if(Turmod=='ke') then
+else if(isKe) then
  !$OMP DO PRIVATE(Tplusc,Dt)
  DO i=Ib1,Ib2
   Uplus(i)=log(Ep*Ystar(i))/kapa-deltaB(i)
   !if(Ystar(i)<Ym) Uplus(i)=Ystar(i)
-  if(visheat=='Y') then
+  if(isVisheatY) then
    Tplusc=Prt*(Uplus(i)+Prough(i))
    !Tplusc=Prt*Uplus(i)
-   if(Tmptype=='fixed') then
+   if(isFixed) then
     Dt=0.5*rho(i,1)*ustar(i)*(Prt*(U(i,1)**2+V(i,1)**2)+(Pr(i,1)-Prt)*(Yt*ustar(i))**2)
     !Dt=0.5*rho(i,1)*ustar(i)*Prt*(U(i,1)**2+V(i,1)**2)
     Q(i)=(ca*rho(i,1)*ustar(i)*(Tf-T(i,1))-Dt)/Tplusc
     Tplus(i)=Tplusc+Dt/Q(i)
-   else if(Tmptype=='flux') then
+   else if(isFlux) then
     Q(i)=Qf
     Tplus(i)=Tplusc
    end if
   else
    Tplus(i)=Prt*(Uplus(i)+Prough(i))
    !if(Ystar(i)<Yt) Tplus(i)=Pr(i,1)*Uplus(i)
-   if(Tmptype=='fixed') then
+   if(isFixed) then
     Q(i)=ca*rho(i,1)*ustar(i)*(Tf-T(i,1))/Tplus(i)
-   else if(Tmptype=='flux') then
+   else if(isFlux) then
     Q(i)=Qf
    end if
   end if
  end DO
  !$OMP END DO
 end if
-if(Turmod=='sst') then
+if(isSst) then
  !$OMP DO PRIVATE(Dwplus,phi1,F1)
  DO j=1,Jc
   DO i=1,Ic
@@ -140,14 +153,14 @@ if(Turmod=='sst') then
   end DO
  end DO
  !$OMP END DO
- if(Walltreat=='wf') then
+ if(isWf) then
   !$OMP WORKSHARE
   lamda=-0.01*Yplus**4/(1+5.*Yplus)
   Twplusl=6./(betai*Yplus**2)
   Twplust=1/(sqrt(betastarf)*kapa*Yplus)
   Twplus=exp(lamda)*Twplusl+exp(1./lamda)*Twplust
   !$OMP END WORKSHARE
- else if(Walltreat=='lr') then
+ else if(isLr) then
   !$OMP DO PRIVATE(Dwplus,phi1,F1)
   DO i=Ib1,Ib2
    if(ksplus(i)>0) then
@@ -167,12 +180,12 @@ if(Turmod=='sst') then
  !$OMP WORKSHARE
  Tw(Ib1:Ib2,1)=rho(Ib1:Ib2,1)*ustar**2*Twplus/mu(Ib1:Ib2,1)
  !$OMP END WORKSHARE
-else if(Turmod=='ke') then
- if(wallfunktype=='genlaw') then
+else if(isKe) then
+ if(isGenlaw) then
   !$OMP WORKSHARE
   Te(Ib1:Ib2,1)=ustar**3*Uplus/Yp
   !$OMP END WORKSHARE
- else if(wallfunktype=='loglaw') then
+ else if(isLoglaw) then
   !$OMP WORKSHARE
   Te(Ib1:Ib2,1)=ustar**3/(kapa*Yp)
   !$OMP END WORKSHARE
