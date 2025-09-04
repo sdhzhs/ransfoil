@@ -16,7 +16,7 @@ Select coupling method(SIMPLE/SIMPLEC):
 SIMPLE
 Select discretization scheme(1upwind/2upwind/Quick/tvd):
 tvd
-Select discretization scheme(1upwind/2upwind/Quick/tvd):
+Select density interpolation scheme(center/1upwind/2upwind/Quick/tvd):
 tvd
 Select type of linear solver for convective-diffusion equations(sor/pbicg):
 sor
@@ -56,7 +56,7 @@ Input temperature of wall(K):
 273.15
 Input ambient pressure(Pa):
 100000
-Input turbulent viscosity ratio of free stream:
+Input turbulence intensity of free stream:
 1e-2
 Input turbulent viscosity ratio of free stream:
 10

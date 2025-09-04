@@ -60,7 +60,7 @@ Input temperature of wall(K):
 273.15
 Input ambient pressure(Pa):
 100000
-Input turbulent viscosity ratio of free stream:
+Input turbulence intensity of free stream:
 1e-2
 Input turbulent viscosity ratio of free stream:
 10

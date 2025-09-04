@@ -167,6 +167,7 @@ integer      ilower(2),iupper(2),stencil_indices(5)
 real(8)      Ra,tol,res
 real(8)      aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 character(*) scalar
+logical(1) isP,isT,isTe,isTw
 
 integer(8)  A
 integer(8)  b
@@ -175,6 +176,11 @@ integer(8)  parA
 integer(8)  parb
 integer(8)  parx
 integer(8)  solver,precond
+
+isP = scalar=='dP'
+isT = scalar=='T'
+isTe = scalar=='Te'
+isTw = scalar=='Tw'
 
 if(Ib1>1.and.Ib2<Ic) then
  Is=2
@@ -187,7 +193,7 @@ end if
 DO j=1,Jc
  DO i=1,Ic
   if(i>=Is.and.i<=Ie.and.j<Jc) then
-   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
+   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
     ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
     aM(1,i,j)=aM(1,i,j)/Ra
     aM(2,i,j)=-aM(2,i,j)
@@ -224,9 +230,9 @@ Call HYPRE_SStructVectorGetObject(x, parx, ierr)
 
 itmax = 1000
 prlv = 0
-if(scalar=='dP') then
+if(isP) then
  tol = 1.0e-4
-else if(scalar=='T') then
+else if(isT) then
  tol = 1.0e-8
 else
  tol = 1.0e-6
@@ -249,7 +255,7 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetTol(solver, tol, ierr)
  Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
- if(scalar=='dP') then
+ if(isP) then
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 20, ierr)
  else
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 1, ierr)
@@ -264,7 +270,7 @@ else if(solid==3) then
  !Call HYPRE_BoomerAMGSetRAP2(solver, .false.)
  !Call HYPRE_BoomerAMGSetNumSweeps(solver, 1, ierr)
  !Call HYPRE_BoomerAMGSetSmoothType(solver, 9, ierr)
- !if(scalar=='dP') then
+ !if(isP) then
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 20, ierr)
  !else
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 1, ierr)

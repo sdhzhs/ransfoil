@@ -197,6 +197,7 @@ integer      ilower(2),iupper(2),stencil_indices(5)
 real(8)      Ra,tol,res
 real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 character(*) scalar
+logical(1) isP,isT,isTe,isTw
 
 integer(8)  A
 integer(8)  b
@@ -210,6 +211,11 @@ real(8), pointer :: values(:)
 type(c_ptr) :: p_values, p_F, p_aM, p_ba
 
 integer :: stat
+
+isP = scalar=='dP'
+isT = scalar=='T'
+isTe = scalar=='Te'
+isTw = scalar=='Tw'
 
 Call c_f_pointer(p_values, values, [5*Ic*Jc])
 p_F = C_LOC(F)
@@ -227,7 +233,7 @@ end if
 DO j=1,Jc
  DO i=1,Ic
   if(i>=Is.and.i<=Ie.and.j<Jc) then
-   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
+   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
     ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
     aM(1,i,j)=aM(1,i,j)/Ra
     aM(2,i,j)=-aM(2,i,j)
@@ -273,9 +279,9 @@ Call HYPRE_SStructVectorGetObject(x, parx, ierr)
 
 itmax = 1000
 prlv = 0
-if(scalar=='dP') then
+if(isP) then
  tol = 1.0e-4
-else if(scalar=='T') then
+else if(isT) then
  tol = 1.0e-8
 else
  tol = 1.0e-6
@@ -298,7 +304,7 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetTol(solver, tol, ierr)
  Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
- if(scalar=='dP') then
+ if(isP) then
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 20, ierr)
  else
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 1, ierr)
@@ -313,7 +319,7 @@ else if(solid==3) then
  !Call HYPRE_BoomerAMGSetRAP2(solver, 0, ierr)
  !Call HYPRE_BoomerAMGSetNumSweeps(solver, 1, ierr)
  !Call HYPRE_BoomerAMGSetSmoothType(solver, 9, ierr)
- !if(scalar=='dP') then
+ !if(isP) then
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 20, ierr)
  !else
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 1, ierr)
@@ -330,7 +336,7 @@ else if(solid==4) then
  Call HYPRE_BoomerAMGSetPrintLevel(precond, 0, ierr)
  Call HYPRE_BoomerAMGSetTol(precond, 0e+0, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(precond, 1, ierr)
- if(scalar=='dP') then
+ if(isP) then
   Call HYPRE_BoomerAMGSetMaxLevels(precond, 20, ierr)
  else
   Call HYPRE_BoomerAMGSetMaxLevels(precond, 1, ierr)
@@ -384,6 +390,7 @@ integer      ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bcl
 real(8)      Ra,tol,res
 real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
 character(*) scalar
+logical(1) isP,isT,isTe,isTw
 
 integer(8)  grid
 integer(8)  stencil
@@ -403,6 +410,11 @@ real(8), pointer :: values(:)
 type(c_ptr) :: p_values, p_F, p_aM, p_ba
 
 integer :: stat
+
+isP = scalar=='dP'
+isT = scalar=='T'
+isTe = scalar=='Te'
+isTw = scalar=='Tw'
 
 !stat = device_malloc_managed(int(5*Ic*Jc * 8, int64), p_values)
 stat = device_malloc(int(5*Ic*Jc * 8, int64), p_values)
@@ -530,7 +542,7 @@ end if
 DO j=1,Jc
  DO i=1,Ic
   if(i>=Is.and.i<=Ie.and.j<Jc) then
-   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(scalar=='Te'.or.scalar=='Tw'))) then
+   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
     ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
     aM(1,i,j)=aM(1,i,j)/Ra
     aM(2,i,j)=-aM(2,i,j)
@@ -564,9 +576,9 @@ Call HYPRE_SStructVectorGetObject(x, parx, ierr)
 
 itmax = 1000
 prlv = 0
-if(scalar=='dP') then
+if(isP) then
  tol = 1.0e-4
-else if(scalar=='T') then
+else if(isT) then
  tol = 1.0e-8
 else
  tol = 1.0e-6
@@ -588,7 +600,7 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetTol(solver, tol, ierr)
  Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
- if(scalar=='dP') then
+ if(isP) then
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 20, ierr)
  else
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 1, ierr)
@@ -603,7 +615,7 @@ else if(solid==3) then
  !Call HYPRE_BoomerAMGSetRAP2(solver, 0, ierr)
  !Call HYPRE_BoomerAMGSetNumSweeps(solver, 1, ierr)
  !Call HYPRE_BoomerAMGSetSmoothType(solver, 9, ierr)
- !if(scalar=='dP') then
+ !if(isP) then
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 20, ierr)
  !else
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 1, ierr)
@@ -619,7 +631,7 @@ else if(solid==4) then
  Call HYPRE_BoomerAMGSetPrintLevel(precond, 0, ierr)
  Call HYPRE_BoomerAMGSetTol(precond, 0e+0, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(precond, 1, ierr)
- if(scalar=='dP') then
+ if(isP) then
   Call HYPRE_BoomerAMGSetMaxLevels(precond, 20, ierr)
  else
   Call HYPRE_BoomerAMGSetMaxLevels(precond, 1, ierr)
