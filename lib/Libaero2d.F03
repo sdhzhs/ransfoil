@@ -128,7 +128,7 @@ DO s=1,maxs
     rho=(Po+P)*Ma/(R*T)
     Call Densityinterp
    end if
-   if(Turmod/='inv') then
+   if(Turmod/='inv'.and.Matair=='Y') then
     mu=mu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
    end if
    Pr=mu*ca/ka
@@ -393,6 +393,11 @@ DO i=1,8
   gtype(i:i)=cgtype(i)(1:1)
  else
   gtype(i:i)=' '
+ end if
+ if(cMatair(i)(1:1)/=C_NULL_CHAR) then
+  Matair(i:i)=cMatair(i)(1:1)
+ else
+  Matair(i:i)=' '
  end if
 end DO
 DO i=1,64

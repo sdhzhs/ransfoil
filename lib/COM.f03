@@ -9,10 +9,10 @@ alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,
 
 save
 integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Is,Ie,Iwd,Iwu,Iw,Iw0,Ifd,maxs
-character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag,Pntctrl,Linsol,Tmptype,gtype
-character(64) filename(9),dir
+character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag,Pntctrl,Linsol,Tmptype,gtype,Matair
+character(64) filename(9),dir,matfile
 real(C_DOUBLE),bind(C)::dx,dy,fd,fb,eb,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Qf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
-ca,ka,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
+ca,ka,Vs,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
 real(8),allocatable,target,dimension(:,:)::rho,mu,P,dP,U,V,T,Tn,Tk,Te,Tw,mut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,&
 a1,y1,b1,d,Un,Vn,duk,dva,Unk,Vna,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,rhox,rhoy,Tnx,Tny,Tkx,Tky,Twx,Twy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,sigmatk,sigmatw
 real(8),allocatable,target,dimension(:,:,:)::aM
@@ -20,7 +20,7 @@ real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xwp,Ywp,Xwp0,Ywp0,Xw,Yw
 real(8),allocatable,target,dimension(:)::Clrec,Cdrec,Cfrec,Cmrec,Xpcrec,Ypcrec
 real(8),allocatable,target,dimension(:,:)::Pnw,Unw,Vnw,Tnw,mutnw,hcvnw,Axnw,Aynw,Ypnw
 character(C_CHAR),bind(C)::cProctrl(8),cEnergy(8),cvisheat(8),cTurmod(8),cWalltreat(8),csolctrl(8),cDiscret(8),cdenface(8),&
-cInit(8),cStag(8),cPntctrl(8),cLinsol(8),cTmptype(8),cgtype(8)
+cInit(8),cStag(8),cPntctrl(8),cLinsol(8),cTmptype(8),cgtype(8),cMatair(8)
 character(C_CHAR),bind(C)::cfilename(64),cdir(64)
 real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:),fXwp0(:),fYwp0(:)
 type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXwp0,cYwp0,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy

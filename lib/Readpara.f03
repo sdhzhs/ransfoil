@@ -134,9 +134,19 @@ if(libmod=='S'.or.libmod=='M') then
   read(10,*) dir
   read(10,*,IOSTAT=stat) ch
   if(is_iostat_end(stat)) then
-   gtype=''
+   gtype='C'
   else
    read(10,*) gtype
+  end if
+  read(10,*,IOSTAT=stat) ch
+  if(is_iostat_end(stat).or.stat>0) then
+   Matair='Y'
+  else
+   read(10,*) Matair
+  end if
+  if(Matair=='N') then
+   read(10,*) ch
+   read(10,*) matfile
   end if
  close(10)
 else if(libmod=='I') then
@@ -266,6 +276,57 @@ else if(libmod=='I') then
  read *,dir
  print *,'Input topological type of generating mesh(C/O):'
  read *,gtype
+ print *,'Is the materials of fluid air(Y/N)?'
+ read *,Matair
+ if(Matair=='N') then
+  print *,'Input a name of material properties file:'
+  read *,matfile
+ end if
 end if
 print *,'Read control parameters completed!'
 end Subroutine Readpara
+
+Subroutine ReadMat
+use Aero2DCOM
+implicit none
+integer stat
+character(64) linestr
+
+open(unit=11,file=matfile,status='old',IOSTAT=stat)
+if(stat>0) STOP 'Error opening material file: '//matfile
+DO
+ read(11,'(A)',IOSTAT=stat) linestr
+ if(stat==0) then
+  call ParseLine(linestr)
+ else
+  exit
+ end if
+end DO
+close(11)
+print *,'Read material properties completed!'
+
+end Subroutine ReadMat
+
+Subroutine ParseLine(linestr)
+use Aero2DCOM
+implicit none
+character(*) linestr
+character(32) valuestr
+integer i
+
+i=index(linestr,':')
+valuestr=trim(adjustl(linestr(i+1:)))
+Select Case(trim(adjustl(linestr(1:i-1))))
+ Case('Density')
+  read(valuestr,*) rhoi
+ Case('Viscosity')
+  read(valuestr,*) mui
+ Case('SpecificHeat')
+  read(valuestr,*) ca
+ Case('ThermalConductivity')
+  read(valuestr,*) ka
+ Case('SpeedOfSound')
+  read(valuestr,*) Vs
+end Select
+
+end Subroutine ParseLine

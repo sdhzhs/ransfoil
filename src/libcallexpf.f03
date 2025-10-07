@@ -6,6 +6,7 @@ Program libaero2dcaller
   character(64) filenamei
   mode='A'
   filenamei='../cases/NACA0012.xyz'
+  Matair='Y'
   Pntctrl='N'
   Proctrl='incom'
   Energy='Y'

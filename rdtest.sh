@@ -9,3 +9,4 @@ rm -rf goe495_cpt
 rm -rf cylinder_grd
 rm -rf cylinder_xyz
 rm -rf nasasup5_otype_cpt
+rm -rf naca0012_mat_xyz

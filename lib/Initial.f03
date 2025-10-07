@@ -5,18 +5,19 @@ integer i,j,ioerr
 character(128) ioerrmsg
 real(8),external:: interpl
 real(8) Tni0
-ca=1006.43
-if(Tmptype=='fixed') then
-  ka=0.00008*(Ta-Tf)+0.0244
-else if(Tmptype=='flux') then
-  ka=0.0244
-end if
 Ui=Vfar*cos(AoA*Pi/180)
 Vi=Vfar*sin(AoA*Pi/180)
-rhoi=Po*Ma/(R*Ta)
-mui=mu0*(Ta/Ti)**1.5*(Ti+Si)/(Ta+Si)
+if(Matair=='Y') then
+ ca=1006.43
+ ka=0.00008*(Ta-273.15)+0.0244
+ rhoi=Po*Ma/(R*Ta)
+ mui=mu0*(Ta/Ti)**1.5*(Ti+Si)/(Ta+Si)
+ Vs=sqrt(gama*R*Ta/Ma)
+else
+ Call ReadMat
+end if
 Re=rhoi*Vfar*c/mui
-Mach=Vfar/sqrt(gama*R*Ta/Ma)
+Mach=Vfar/Vs
 if(Turmod=='sa') then
  Tni=1
  DO i=1,100
@@ -116,13 +117,19 @@ else if(Turmod=='sst') then
  end if
 end if
 if(Init=='N') then
- rho=(Po+P)*Ma/(R*T)
+ if(Matair=='Y') then
+  rho=(Po+P)*Ma/(R*T)
+ else
+  rho=rhoi
+ end if
 end if
 ks=ksi
 if(Turmod=='inv') then
  mu=0
-else
+else if(Matair=='Y') then
  mu=mu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
+else
+ mu=mui
 end if
 Pr=mu*ca/ka
 Pc=9.24*((Pr/Prt)**0.75-1)*(1+0.28*exp(-0.007*Pr/Prt))

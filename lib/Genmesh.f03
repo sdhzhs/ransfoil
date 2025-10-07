@@ -9,7 +9,6 @@ real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
 character(6)::trailconfig=''
 
-if(gtype=='') gtype='C'
 opentrail=.false.
 
 if(libmod=='S'.or.libmod=='I') then
