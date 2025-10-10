@@ -297,7 +297,7 @@ if(stat>0) STOP 'Error opening material file: '//matfile
 DO
  read(11,'(A)',IOSTAT=stat) linestr
  if(stat==0) then
-  call ParseLine(linestr)
+  call ParseLine(linestr,':')
  else
   exit
  end if
@@ -307,14 +307,14 @@ print *,'Read material properties completed!'
 
 end Subroutine ReadMat
 
-Subroutine ParseLine(linestr)
+Subroutine ParseLine(linestr,delim)
 use Aero2DCOM
 implicit none
-character(*) linestr
+character(*) linestr,delim
 character(32) valuestr
 integer i
 
-i=index(linestr,':')
+i=index(linestr,delim)
 valuestr=trim(adjustl(linestr(i+1:)))
 Select Case(trim(adjustl(linestr(1:i-1))))
  Case('Density')

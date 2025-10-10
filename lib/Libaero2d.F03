@@ -411,6 +411,11 @@ DO i=1,64
  else
   dir(i:i)=' '
  end if
+ if(cmatfile(i)(1:1)/=C_NULL_CHAR) then
+  matfile(i:i)=cmatfile(i)(1:1)
+ else
+  matfile(i:i)=' '
+ end if
 end DO
 
 end Subroutine ConfigparaC2F

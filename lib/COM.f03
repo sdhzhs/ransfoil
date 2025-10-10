@@ -21,7 +21,7 @@ real(8),allocatable,target,dimension(:)::Clrec,Cdrec,Cfrec,Cmrec,Xpcrec,Ypcrec
 real(8),allocatable,target,dimension(:,:)::Pnw,Unw,Vnw,Tnw,mutnw,hcvnw,Axnw,Aynw,Ypnw
 character(C_CHAR),bind(C)::cProctrl(8),cEnergy(8),cvisheat(8),cTurmod(8),cWalltreat(8),csolctrl(8),cDiscret(8),cdenface(8),&
 cInit(8),cStag(8),cPntctrl(8),cLinsol(8),cTmptype(8),cgtype(8),cMatair(8)
-character(C_CHAR),bind(C)::cfilename(64),cdir(64)
+character(C_CHAR),bind(C)::cfilename(64),cdir(64),cmatfile(64)
 real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:),fXwp0(:),fYwp0(:)
 type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXwp0,cYwp0,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy
 type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
