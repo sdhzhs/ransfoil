@@ -31,13 +31,13 @@ isVisheatY = visheat=='Y'
 DO i=Ib1,Ib2
   if(isSst) then
    if(isParvel) then
-    ustar(i)=((mu(i,1)*abs(Un(i,1))/da(i,1)/(rho(i,1)*Yp(i)))**2+(alpha1*Tk(i,1))**2)**0.25
+    ustar(i)=((mu(i,1)*abs(U(i,1)*Yfa(i,1)-V(i,1)*Xfa(i,1))/DR(i)/(rho(i,1)*Yp(i)))**2+(alpha1*Tk(i,1))**2)**0.25
    else
     ustar(i)=((mu(i,1)*sqrt(U(i,1)**2+V(i,1)**2)/(rho(i,1)*Yp(i)))**2+(alpha1*Tk(i,1))**2)**0.25
    end if
   else if(isSa) then
    if(isParvel) then
-    ustar(i)=((mu(i,1)*abs(Un(i,1))/da(i,1)/(rho(i,1)*Yp(i)))**2+(mut(i,1)/(rho(i,1)*kapa*Yp(i)))**4)**0.25
+    ustar(i)=((mu(i,1)*abs(U(i,1)*Yfa(i,1)-V(i,1)*Xfa(i,1))/DR(i)/(rho(i,1)*Yp(i)))**2+(mut(i,1)/(rho(i,1)*kapa*Yp(i)))**4)**0.25
    else
     ustar(i)=((mu(i,1)*sqrt(U(i,1)**2+V(i,1)**2)/(rho(i,1)*Yp(i)))**2+(mut(i,1)/(rho(i,1)*kapa*Yp(i)))**4)**0.25
    end if

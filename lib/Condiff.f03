@@ -2,8 +2,7 @@ Subroutine Condiff(scalar)
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle
-real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin,Dampk,Ymax,Ym
+real(8) Sf,Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin,Dampk,Ymax,Ym
 real(8) aP,aW,aE,aS,aN,DF
 real(8),external:: interpl
 real(8) Fwall(Ib1:Ib2)
@@ -199,86 +198,32 @@ else if(isTe) then
  C3e=tanh(abs(V/U))
  !$OMP END WORKSHARE
 end if
-!$OMP DO PRIVATE(Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,i)
+!$OMP DO PRIVATE(Sf,i)
 DO j=1,Jc-1
  DO i=Is,Ie
+  Sf=sqrt(Xfk(i,j)**2+Yfk(i,j)**2)
   if(i==1) then
-   Dw(i,j)=interpl(a1(i,j)*Ga(i,j),a1(Ic,j)*Ga(Ic,j),dk(i,j),dk(Ic,j))*dy/dx
-   Dnow=interpl(b1(i,j)*Ga(i,j),b1(Ic,j)*Ga(Ic,j),dk(i,j),dk(Ic,j))*dy
+   Dw(i,j)=Sf*interpl(Ga(Ic,j),Ga(i,j),dkw(i,j))/dkd(i,j)
   else
-   Dw(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy/dx
-   Dnow=interpl(b1(i,j)*Ga(i,j),b1(i-1,j)*Ga(i-1,j),dk(i,j),dk(i-1,j))*dy
+   Dw(i,j)=Sf*interpl(Ga(i-1,j),Ga(i,j),dkw(i,j))/dkd(i,j)
   end if
+  Sf=sqrt(Xfk(i+1,j)**2+Yfk(i+1,j)**2)
   if(i==Ic) then
-   De(i,j)=interpl(a1(i,j)*Ga(i,j),a1(1,j)*Ga(1,j),dk(i,j),dk(1,j))*dy/dx
-   Dnoe=interpl(b1(i,j)*Ga(i,j),b1(1,j)*Ga(1,j),dk(i,j),dk(1,j))*dy
+   De(i,j)=Sf*interpl(Ga(i,j),Ga(1,j),dkw(i+1,j))/dkd(i+1,j)
   else
-   De(i,j)=interpl(a1(i,j)*Ga(i,j),a1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy/dx
-   Dnoe=interpl(b1(i,j)*Ga(i,j),b1(i+1,j)*Ga(i+1,j),dk(i,j),dk(i+1,j))*dy
+   De(i,j)=Sf*interpl(Ga(i,j),Ga(i+1,j),dkw(i+1,j))/dkd(i+1,j)
   end if
-  Dn(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j+1)*Ga(i,j+1),da(i,j),da(i,j+1))*dx/dy
-  Dnon=interpl(b1(i,j)*Ga(i,j),b1(i,j+1)*Ga(i,j+1),da(i,j),da(i,j+1))*dx
+  Sf=sqrt(Xfa(i,j+1)**2+Yfa(i,j+1)**2)
+  Dn(i,j)=Sf*interpl(Ga(i,j),Ga(i,j+1),daw(i,j+1))/dad(i,j+1)
+  Sf=sqrt(Xfa(i,j)**2+Yfa(i,j)**2)
   if(j==1.and.(i<Ib1.or.i>Ib2)) then
-   Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(Ic+1-i,j)*Ga(Ic+1-i,j),da(i,j),da(Ic+1-i,j))*dx/dy
-   Dnos=interpl(b1(i,j)*Ga(i,j),b1(Ic+1-i,j)*Ga(Ic+1-i,j),da(i,j),da(Ic+1-i,j))*dx
-   Faw=(F(i-1,j+1)+F(i,j+1)-F(Ic+2-i,j)-F(Ic+1-i,j))/(4*dy)
-   Fae=(F(i+1,j+1)+F(i,j+1)-F(Ic-i,j)-F(Ic+1-i,j))/(4*dy)
-   Fks=(F(Ic-i,j)+F(i+1,j)-F(Ic+2-i,j)-F(i-1,j))/(4*dx)
-   Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
+   Ds(i,j)=Sf*interpl(Ga(Ic+1-i,j),Ga(i,j),daw(i,j))/dad(i,j)
   else if(j==1) then
-   Ds(i,j)=y1(i,j)*Ga(i,j)*dx/dy
-   Dnos=b1(i,j)*Ga(i,j)*dx
-   if(i==Ib1) then
-    Fwallw=Fwall(i)
-   else
-    Fwallw=0.5*(Fwall(i)+Fwall(i-1))
-   end if
-   if(i==Ib2) then
-    Fwalle=Fwall(i)
-   else
-    Fwalle=0.5*(Fwall(i)+Fwall(i+1))
-   end if
-   if(i==1) then
-    Faw=(0.25*(F(Ic,j+1)+F(i,j+1)+F(Ic,j)+F(i,j))-Fwallw)/dy
-   else
-    Faw=(0.25*(F(i-1,j+1)+F(i,j+1)+F(i-1,j)+F(i,j))-Fwallw)/dy
-   end if
-   if(i==Ic) then
-    Fae=(0.25*(F(1,j+1)+F(i,j+1)+F(1,j)+F(i,j))-Fwalle)/dy
-   else
-    Fae=(0.25*(F(i+1,j+1)+F(i,j+1)+F(i+1,j)+F(i,j))-Fwalle)/dy
-   end if
-   if(i==1) then
-    Fkn=(F(i+1,j+1)+F(i+1,j)-F(Ic,j+1)-F(Ic,j))/(4*dx)
-   else if(i==Ic) then
-    Fkn=(F(1,j+1)+F(1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
-   else
-    Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
-   end if
-   Fks=(Fwalle-Fwallw)/dx
-  else if(i==1) then
-   Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx/dy
-   Dnos=interpl(b1(i,j)*Ga(i,j),b1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx
-   Faw=(F(Ic,j+1)+F(i,j+1)-F(Ic,j-1)-F(i,j-1))/(4*dy)
-   Fae=(F(i+1,j+1)+F(i,j+1)-F(i+1,j-1)-F(i,j-1))/(4*dy)
-   Fks=(F(i+1,j-1)+F(i+1,j)-F(Ic,j-1)-F(Ic,j))/(4*dx)
-   Fkn=(F(i+1,j+1)+F(i+1,j)-F(Ic,j+1)-F(Ic,j))/(4*dx)
-  else if(i==Ic) then
-   Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx/dy
-   Dnos=interpl(b1(i,j)*Ga(i,j),b1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx
-   Faw=(F(i-1,j+1)+F(i,j+1)-F(i-1,j-1)-F(i,j-1))/(4*dy)
-   Fae=(F(1,j+1)+F(i,j+1)-F(1,j-1)-F(i,j-1))/(4*dy)
-   Fks=(F(1,j-1)+F(1,j)-F(i-1,j-1)-F(i-1,j))/(4*dx)
-   Fkn=(F(1,j+1)+F(1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
+   Ds(i,j)=Sf*Ga(i,j)/dad(i,j)
   else
-   Ds(i,j)=interpl(y1(i,j)*Ga(i,j),y1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx/dy
-   Dnos=interpl(b1(i,j)*Ga(i,j),b1(i,j-1)*Ga(i,j-1),da(i,j),da(i,j-1))*dx
-   Faw=(F(i-1,j+1)+F(i,j+1)-F(i-1,j-1)-F(i,j-1))/(4*dy)
-   Fae=(F(i+1,j+1)+F(i,j+1)-F(i+1,j-1)-F(i,j-1))/(4*dy)
-   Fks=(F(i+1,j-1)+F(i+1,j)-F(i-1,j-1)-F(i-1,j))/(4*dx)
-   Fkn=(F(i+1,j+1)+F(i+1,j)-F(i-1,j+1)-F(i-1,j))/(4*dx)
+   Ds(i,j)=Sf*interpl(Ga(i,j-1),Ga(i,j),daw(i,j))/dad(i,j)
   end if
-  bno(i,j)=Dnow*Faw-Dnoe*Fae+Dnos*Fks-Dnon*Fkn
+  bno(i,j)=0.0
  end DO
 end DO
 !$OMP END DO
@@ -295,10 +240,10 @@ aM(5,:,:)=0
 !$OMP DO PRIVATE(aP,aW,aE,aS,aN,DF,i)
 DO j=1,Jc-1
   DO i=Is,Ie
-   Fw(i,j)=dy*rhok(i,j)*Unk(i,j)
-   Fe(i,j)=dy*rhok(i+1,j)*Unk(i+1,j)
-   Fs(i,j)=dx*rhoa(i,j)*Vna(i,j)
-   Fn(i,j)=dx*rhoa(i,j+1)*Vna(i,j+1)
+   Fw(i,j)=rhok(i,j)*Unk(i,j)
+   Fe(i,j)=rhok(i+1,j)*Unk(i+1,j)
+   Fs(i,j)=rhoa(i,j)*Vna(i,j)
+   Fn(i,j)=rhoa(i,j+1)*Vna(i,j+1)
    DF=Fe(i,j)-Fw(i,j)+Fn(i,j)-Fs(i,j)
    aW=Dw(i,j)+max(Fw(i,j),0.0)
    aE=De(i,j)+max(-Fe(i,j),0.0)
@@ -319,19 +264,19 @@ DO j=1,Jc-1
      else
       aP=aP+2*Ds(i,j)
      end if
-     if(isTn.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
-     if(isTk) aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
+     if(isTn.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
+     if(isTk) aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Vol(i,j)
      if(isT.and.isFlux) aP=aP-2*Ds(i,j)
     else if(isSa.and.isWf.or.(isSst.and.isWf).or.isKe) then
      if(isU) then
       if(isParvel) then
-       aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*(Yga(i,j)/da(i,j))**2
+       aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*(Yfa(i,j)/DR(i))**2
       else
        aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)
       end if
      else if(isV) then
       if(isParvel) then
-       aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*(Xga(i,j)/da(i,j))**2
+       aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*(Xfa(i,j)/DR(i))**2
       else
        aP=aP+rho(i,j)*ustar(i)*DR(i)/Uplus(i)
       end if
@@ -339,20 +284,20 @@ DO j=1,Jc-1
       if(isFixed.and.Tmin>=0) aP=aP+rho(i,j)*ustar(i)*DR(i)/Tplus(i)
      else if(isTn) then
       aP=aP+2*Ds(i,j)
-      if(Ymax>Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
-      if(Ymax<=Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
-      !if(fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+      if(Ymax>Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Vol(i,j)
+      if(Ymax<=Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
+      !if(fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
      else if(isSst.and.isTk) then
       if(isGenlaw) then
-       aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
+       aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Vol(i,j)/(Tk(i,j)*Yp(i))
       else
-       aP=aP+rho(i,j)*ustar(i)**3*Jg(i,j)*dx*dy/(Tk(i,j)*kapa*Yp(i))
+       aP=aP+rho(i,j)*ustar(i)**3*Vol(i,j)/(Tk(i,j)*kapa*Yp(i))
       end if
      else if(isKe.and.isTk) then
       if(isGenlaw) then
-       aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
+       aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Vol(i,j)/(Tk(i,j)*Yp(i))
       else
-       aP=aP+rho(i,j)*ustar(i)**3*Jg(i,j)*dx*dy/(Tk(i,j)*kapa*Yp(i))
+       aP=aP+rho(i,j)*ustar(i)**3*Vol(i,j)/(Tk(i,j)*kapa*Yp(i))
       end if
      else if(isTe.or.isTw) then
       aW=0
@@ -366,16 +311,16 @@ DO j=1,Jc-1
     aP=aW+aE+aS+aN
     if(DF>0) aP=aP+DF
     !aP=aP+DF
-    if(isTk.and.isKe) aP=aP+rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
-    if(isTe.and.isKe) aP=aP+C2e*rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
-    if(isTn.and.isLr.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+    if(isTk.and.isKe) aP=aP+rho(i,j)*Te(i,j)*Vol(i,j)/Tk(i,j)
+    if(isTe.and.isKe) aP=aP+C2e*rho(i,j)*Te(i,j)*Vol(i,j)/Tk(i,j)
+    if(isTn.and.isLr.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
     if(isTn.and.isWf.and.fw1(i,j)>=0) then
-     if(Ymax>Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
-     if(Ymax<=Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
-     !aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
+     if(Ymax>Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Vol(i,j)
+     if(Ymax<=Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
+     !aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
     end if
-    if(isTk.and.isSst) aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
-    if(isTw.and.isSst) aP=aP+rho(i,j)*beta(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
+    if(isTk.and.isSst) aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Vol(i,j)
+    if(isTw.and.isSst) aP=aP+rho(i,j)*beta(i,j)*Tw(i,j)*Vol(i,j)
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW
@@ -394,23 +339,23 @@ DO j=1,Jc-1
   DO i=Is,Ie
    if(isU) then
     if(isCom) then
-     b(i,j)=Jg(i,j)*(-Px(i,j)-2*(muxx(i,j)+mvyx(i,j))/3+muxx(i,j)+mvxy(i,j))*dx*dy
+     b(i,j)=Vol(i,j)*(-Px(i,j)-2*(muxx(i,j)+mvyx(i,j))/3+muxx(i,j)+mvxy(i,j))
     else if(isIncom) then
-     b(i,j)=Jg(i,j)*(-Px(i,j)+muxx(i,j)+mvxy(i,j))*dx*dy
-     !if(isKe.or.isSst) b(i,j)=b(i,j)-Jg(i,j)*2*rho(i,j)*Tkx(i,j)/3*dx*dy
+     b(i,j)=Vol(i,j)*(-Px(i,j)+muxx(i,j)+mvxy(i,j))
+     !if(isKe.or.isSst) b(i,j)=b(i,j)-Vol(i,j)*2*rho(i,j)*Tkx(i,j)/3
     end if
     if(isParvel.and.j==1.and.(i>=Ib1.and.i<=Ib2).and.(isSa.and.isWf.or.(isSst.and.isWf).or.isKe)) then
-     b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xga(i,j)*Yga(i,j)*V(i,j)/da(i,j)**2
+     b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xfa(i,j)*Yfa(i,j)*V(i,j)/DR(i)**2
     end if
    else if(isV) then
     if(isCom) then
-     b(i,j)=Jg(i,j)*(-Py(i,j)-2*(muxy(i,j)+mvyy(i,j))/3+muyx(i,j)+mvyy(i,j))*dx*dy
+     b(i,j)=Vol(i,j)*(-Py(i,j)-2*(muxy(i,j)+mvyy(i,j))/3+muyx(i,j)+mvyy(i,j))
     else if(isIncom) then
-     b(i,j)=Jg(i,j)*(-Py(i,j)+muyx(i,j)+mvyy(i,j))*dx*dy
-     !if(isKe.or.isSst) b(i,j)=b(i,j)-Jg(i,j)*2*rho(i,j)*Tky(i,j)/3*dx*dy
+     b(i,j)=Vol(i,j)*(-Py(i,j)+muyx(i,j)+mvyy(i,j))
+     !if(isKe.or.isSst) b(i,j)=b(i,j)-Vol(i,j)*2*rho(i,j)*Tky(i,j)/3
     end if
     if(isParvel.and.j==1.and.(i>=Ib1.and.i<=Ib2).and.(isSa.and.isWf.or.(isSst.and.isWf).or.isKe)) then
-     b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xga(i,j)*Yga(i,j)*U(i,j)/da(i,j)**2
+     b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xfa(i,j)*Yfa(i,j)*U(i,j)/DR(i)**2
     end if
    else if(isT) then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
@@ -418,26 +363,26 @@ DO j=1,Jc-1
        if((isSa.and.isLr).or.(isSst.and.isLr).or.isLam.or.isInv) then
         if(isCom) then
          if(isVisheatY) then
-          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
-          (mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca+2*Ds(i,j)*Tf
+          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
+          (mu(i,j)+mut(i,j))*St(i,j)**2)/ca+2*Ds(i,j)*Tf
          else
-          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+2*Ds(i,j)*Tf
+          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+2*Ds(i,j)*Tf
          end if
         else if(isIncom) then
          if(isVisheatY) then
-          b(i,j)=Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca+2*Ds(i,j)*Tf
+          b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca+2*Ds(i,j)*Tf
          else
           b(i,j)=2*Ds(i,j)*Tf
          end if
         end if
        else if(isSst.and.isWf.or.(isSa.and.isWf).or.isKe) then
         if(isCom) then
-         b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
+         b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
          !b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
-         if(isVisheatY.and.(isSst.or.Ymax<=Ym)) b(i,j)=b(i,j)+Jg(i,j)*(-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+(mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca
+         if(isVisheatY.and.(isSst.or.Ymax<=Ym)) b(i,j)=b(i,j)+Vol(i,j)*(-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+(mu(i,j)+mut(i,j))*St(i,j)**2)/ca
         else if(isIncom) then
          b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
-         if(isVisheatY.and.(isSst.or.Ymax<=Ym)) b(i,j)=b(i,j)+Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca
+         if(isVisheatY.and.(isSst.or.Ymax<=Ym)) b(i,j)=b(i,j)+Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca
         end if
         if(Tmin<0) b(i,j)=b(i,j)-rho(i,j)*ustar(i)*T(i,j)*DR(i)/Tplus(i)
        end if
@@ -445,21 +390,21 @@ DO j=1,Jc-1
        if((isSa.and.isLr).or.(isSst.and.isLr).or.isLam.or.isInv) then
         if(isCom) then
          if(isVisheatY) then
-          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
-          (mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca+Qf*DR(i)/ca
+          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
+          (mu(i,j)+mut(i,j))*St(i,j)**2)/ca+Qf*DR(i)/ca
          else
-          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+Qf*DR(i)/ca
+          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+Qf*DR(i)/ca
          end if
         else if(isIncom) then
          if(isVisheatY) then
-          b(i,j)=Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca+Qf*DR(i)/ca
+          b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca+Qf*DR(i)/ca
          else
           b(i,j)=Qf*DR(i)/ca
          end if
         end if
        else if(isSst.and.isWf.or.(isSa.and.isWf).or.isKe) then
          if(isCom) then
-          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+Qf*DR(i)/ca
+          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+Qf*DR(i)/ca
          else if(isIncom) then
           b(i,j)=Qf*DR(i)/ca
          end if
@@ -468,69 +413,69 @@ DO j=1,Jc-1
     else
      if(isCom) then
       if(isVisheatY) then
-       b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
-       (mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca
+       b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
+       (mu(i,j)+mut(i,j))*St(i,j)**2)/ca
       else
-       b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca
+       b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca
       end if
      else if(isIncom) then
       if(isVisheatY) then
-       b(i,j)=Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca
+       b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca
       else
        b(i,j)=0
       end if
      end if
     end if
    else if(isTn) then
-    b(i,j)=Cb2*rho(i,j)*(Tnx(i,j)**2+Tny(i,j)**2)*Jg(i,j)*dx*dy/sigman+rho(i,j)*Cb1*Sm(i,j)*Tn(i,j)*Jg(i,j)*dx*dy
+    b(i,j)=Cb2*rho(i,j)*(Tnx(i,j)**2+Tny(i,j)**2)*Vol(i,j)/sigman+rho(i,j)*Cb1*Sm(i,j)*Tn(i,j)*Vol(i,j)
     if(fw1(i,j)<0) then
      if(isWf.and.Ymax>Ym) then
-      b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/(kapa*d(i,j)))**2*Jg(i,j)*dx*dy
+      b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/(kapa*d(i,j)))**2*Vol(i,j)
      else
-      b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/d(i,j))**2*Jg(i,j)*dx*dy
+      b(i,j)=b(i,j)-rho(i,j)*Cw1*fw1(i,j)*(Tn(i,j)/d(i,j))**2*Vol(i,j)
      end if
     end if
    else if(isTk.and.isKe) then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      if(isGenlaw) then
       if(isParvel) then
-       b(i,j)=rho(i,j)*ustar(i)*(Un(i,j)/da(i,j))**2*Jg(i,j)*dx*dy/(Uplus(i)*Yp(i))
+       b(i,j)=rho(i,j)*ustar(i)*((U(i,j)*Yfa(i,j)-V(i,j)*Xfa(i,j))/DR(i))**2*Vol(i,j)/(Uplus(i)*Yp(i))
       else
-       b(i,j)=rho(i,j)*ustar(i)*(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*Yp(i))
+       b(i,j)=rho(i,j)*ustar(i)*(U(i,j)**2+V(i,j)**2)*Vol(i,j)/(Uplus(i)*Yp(i))
       end if       
      else
       if(isParvel) then
-       b(i,j)=rho(i,j)*ustar(i)*(Un(i,j)/da(i,j))**2*Jg(i,j)*dx*dy/(Uplus(i)**2*kapa*Yp(i))
+       b(i,j)=rho(i,j)*ustar(i)*((U(i,j)*Yfa(i,j)-V(i,j)*Xfa(i,j))/DR(i))**2*Vol(i,j)/(Uplus(i)**2*kapa*Yp(i))
       else
-       b(i,j)=rho(i,j)*ustar(i)*(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)**2*kapa*Yp(i))
+       b(i,j)=rho(i,j)*ustar(i)*(U(i,j)**2+V(i,j)**2)*Vol(i,j)/(Uplus(i)**2*kapa*Yp(i))
       end if
      end if
     else
-     b(i,j)=(mu(i,j)+mut(i,j))*St(i,j)**2*Jg(i,j)*dx*dy
-     !b(i,j)=b(i,j)-rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy
+     b(i,j)=(mu(i,j)+mut(i,j))*St(i,j)**2*Vol(i,j)
+     !b(i,j)=b(i,j)-rho(i,j)*Te(i,j)*Vol(i,j)
     end if
-    if(isCom) b(i,j)=b(i,j)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Jg(i,j)*dx*dy/(gama*R*T(i,j)/Ma)
+    if(isCom) b(i,j)=b(i,j)-2*rho(i,j)*Te(i,j)*Tk(i,j)*Vol(i,j)/(gama*R*T(i,j)/Ma)
    else if(isTk.and.isSst) then
-    Dampk=rho(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
+    Dampk=rho(i,j)*betastar(i,j)*Tk(i,j)*Tw(i,j)*Vol(i,j)
     if(j==1.and.(i>=Ib1.and.i<=Ib2).and.isWf) then
      if(isGenlaw) then
       if(isParvel) then
-       b(i,j)=rho(i,j)*ustar(i)*(Un(i,j)/da(i,j))**2*Jg(i,j)*dx*dy/(Uplus(i)*Yp(i))
+       b(i,j)=rho(i,j)*ustar(i)*((U(i,j)*Yfa(i,j)-V(i,j)*Xfa(i,j))/DR(i))**2*Vol(i,j)/(Uplus(i)*Yp(i))
       else
-       b(i,j)=rho(i,j)*ustar(i)*(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)*Yp(i))
+       b(i,j)=rho(i,j)*ustar(i)*(U(i,j)**2+V(i,j)**2)*Vol(i,j)/(Uplus(i)*Yp(i))
       end if
      else
       if(isParvel) then
-       b(i,j)=rho(i,j)*ustar(i)*(Un(i,j)/da(i,j))**2*Jg(i,j)*dx*dy/(Uplus(i)**2*kapa*Yp(i))
+       b(i,j)=rho(i,j)*ustar(i)*((U(i,j)*Yfa(i,j)-V(i,j)*Xfa(i,j))/DR(i))**2*Vol(i,j)/(Uplus(i)**2*kapa*Yp(i))
       else
-       b(i,j)=rho(i,j)*ustar(i)*(U(i,j)**2+V(i,j)**2)*Jg(i,j)*dx*dy/(Uplus(i)**2*kapa*Yp(i))
+       b(i,j)=rho(i,j)*ustar(i)*(U(i,j)**2+V(i,j)**2)*Vol(i,j)/(Uplus(i)**2*kapa*Yp(i))
       end if
      end if
     else
      if(productlimit) then
-      b(i,j)=min(mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy,10*Dampk)
+      b(i,j)=min(mut(i,j)*St(i,j)**2*Vol(i,j),10*Dampk)
      else
-      b(i,j)=mut(i,j)*St(i,j)**2*Jg(i,j)*dx*dy
+      b(i,j)=mut(i,j)*St(i,j)**2*Vol(i,j)
      end if
      !b(i,j)=b(i,j)-Dampk
     end if
@@ -538,15 +483,15 @@ DO j=1,Jc-1
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      cycle
     else
-     b(i,j)=Te(i,j)*C1e*(mu(i,j)+mut(i,j))*St(i,j)**2*Jg(i,j)*dx*dy/Tk(i,j)
-     !b(i,j)=b(i,j)-C2e*rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
+     b(i,j)=Te(i,j)*C1e*(mu(i,j)+mut(i,j))*St(i,j)**2*Vol(i,j)/Tk(i,j)
+     !b(i,j)=b(i,j)-C2e*rho(i,j)*Te(i,j)*Vol(i,j)/Tk(i,j)
     end if
    else if(isTw) then
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      cycle
     else
-     b(i,j)=rho(i,j)*alpha(i,j)*alphastar(i,j)*St(i,j)**2*Jg(i,j)*dx*dy+Dwt(i,j)*Jg(i,j)*dx*dy
-     !b(i,j)=b(i,j)-rho(i,j)*beta(i,j)*Tw(i,j)**2*Jg(i,j)*dx*dy
+     b(i,j)=rho(i,j)*alpha(i,j)*alphastar(i,j)*St(i,j)**2*Vol(i,j)+Dwt(i,j)*Vol(i,j)
+     !b(i,j)=b(i,j)-rho(i,j)*beta(i,j)*Tw(i,j)**2*Vol(i,j)
     end if
    end if
    if(isTk.or.isTe.or.isTw) then
@@ -566,4 +511,5 @@ if(isU) then
  !$OMP END WORKSHARE
 end if
 !$OMP END PARALLEL
+!print *,'Completed assembling the coefficient matrix:',scalar,minval(aM(1,Is:Ie,1:Jc-1)),maxval(aM(1,Is:Ie,1:Jc-1))
 end Subroutine Condiff

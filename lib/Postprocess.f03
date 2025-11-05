@@ -46,8 +46,8 @@ DO i=Ib1,Ib2
    hcv(i)=Q(i)
   end if
   if(isParvel) then
-   Ax(i)=rho(i,1)*ustar(i)*Un(i,1)*Yga(i,1)/Uplus(i)/da(i,1)**2
-   Ay(i)=-rho(i,1)*ustar(i)*Un(i,1)*Xga(i,1)/Uplus(i)/da(i,1)**2
+   Ax(i)=rho(i,1)*ustar(i)*(U(i,1)*Yfa(i,1)-V(i,1)*Xfa(i,1))*Yfa(i,1)/Uplus(i)/DR(i)**2
+   Ay(i)=-rho(i,1)*ustar(i)*(U(i,1)*Yfa(i,1)-V(i,1)*Xfa(i,1))*Xfa(i,1)/Uplus(i)/DR(i)**2
   else
    Ax(i)=rho(i,1)*ustar(i)*U(i,1)/Uplus(i)
    Ay(i)=rho(i,1)*ustar(i)*V(i,1)/Uplus(i)

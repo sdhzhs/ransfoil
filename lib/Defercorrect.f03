@@ -2,7 +2,7 @@ Subroutine Defercorrect(F,Fwall,cor,Fw,Fe,Fs,Fn)
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Fcc,Fcw,Fce,Fcs,Fcn,Fcww,Fcee,Fcss,Fcnn,dkc,dkw,dkww,dke,dkee,dac,das,dass,dan,dann
+real(8) Fcc,Fcw,Fce,Fcs,Fcn,Fcww,Fcee,Fcss,Fcnn,dkcc,dkcw,dkce,dkcee,dacc,dacs,dacn,dacnn
 real(8) rp,rm,Psip,Psim
 real(8) F(Ic,Jc),Fwall(Ib1:Ib2),cor(Ic,Jc),Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc)
 logical(1) isLr,isUp,is2ndUp,isQuick,isTvd
@@ -17,54 +17,48 @@ isTvd = Discret=='tvd'
 DO j=1,Jc-1
  DO i=Is,Ie
  Fcc=F(i,j)
+ dkcc=dkd(i,j)
+ dkce=dkd(i+1,j)
  if(i==1) then
   Fcw=F(Ic,j)
-  dkw=dk(Ic,j)
+  dkcw=dkd(Ic,j)
  else
   Fcw=F(i-1,j)
-  dkw=dk(i-1,j)
+  dkcw=dkd(i-1,j)
  end if
  if(i==Ic) then
   Fce=F(1,j)
-  dke=dk(1,j)
+  dkcee=dkd(2,j)
  else
   Fce=F(i+1,j)
-  dke=dk(i+1,j)
+  dkcee=dkd(i+2,j)
  end if
- Fcn=F(i,j+1)
- dkc=dk(i,j)
- dac=da(i,j)
- dan=da(i,j+1)
  if(i==1) then
   Fcww=F(Ic-1,j)
-  dkww=dk(Ic-1,j)
  else if(i==2) then
   if(Is>1) then
    Fcww=F(i-1,j)
-   dkww=dk(i-1,j)
   else
    Fcww=F(Ic,j)
-   dkww=dk(Ic,j)
   end if
  else
   Fcww=F(i-2,j)
-  dkww=dk(i-2,j)
  end if
  if(i==Ic) then
   Fcee=F(2,j)
-  dkee=dk(2,j)
  else if(i==Ic-1) then
   if(Is>1) then
    Fcee=F(i+1,j)
-   dkee=dk(i+1,j)
   else
    Fcee=F(1,j)
-   dkee=dk(1,j)
   end if
  else
   Fcee=F(i+2,j)
-  dkee=dk(i+2,j)
  end if
+ Fcn=F(i,j+1)
+ dacc=dad(i,j)
+ dacn=dad(i,j+1)
+ dacnn=dad(i,j+2)
  if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
   if(isLr) then
    if(isQuick) then
@@ -78,13 +72,11 @@ DO j=1,Jc-1
    Fcs=F(i,j)
    Fcss=F(i,j)
   end if
-  das=da(i,j)
-  dass=da(i,j)
+  dacs=dad(i,j)
  else if(j==1) then
   Fcs=F(Ic+1-i,j)
   Fcss=F(Ic+1-i,j+1)
-  das=da(Ic+1-i,j)
-  dass=da(Ic+1-i,j+1)
+  dacs=dad(Ic+1-i,j+1)
  else if(j==2.and.(i>=Ib1.and.i<=Ib2)) then
   Fcs=F(i,j-1)
   if(isLr) then
@@ -96,72 +88,67 @@ DO j=1,Jc-1
   else
    Fcss=F(i,j-1)
   end if
-  das=da(i,j-1)
-  dass=da(i,j-1)
+  dacs=dad(i,j-1)
  else if(j==2) then
   Fcs=F(i,j-1)
   Fcss=F(Ic+1-i,j-1)
-  das=da(i,j-1)
-  dass=da(Ic+1-i,j-1)
+  dacs=dad(i,j-1)
  else
   Fcs=F(i,j-1)
   Fcss=F(i,j-2)
-  das=da(i,j-1)
-  dass=da(i,j-2)
+  dacs=dad(i,j-1)
  end if
  if(j==Jc-1) then
   Fcnn=F(i,j+1)
-  dann=da(i,j+1)
  else
   Fcnn=F(i,j+2)
-  dann=da(i,j+2)
  end if
  if(isUp) then
   cor(i,j)=0
  else if(is2ndUp) then
-  Psip=dkw*(Fcw-Fcww)/(dkw+dkww)
-  Psim=dkc*(Fce-Fcc)/(dkc+dke)
+  Psip=dkcc*(Fcw-Fcww)/(dkcc+dkcw)
+  Psim=dkcc*(Fce-Fcc)/(dkcc+dkce)
   cor(i,j)=max(Fw(i,j),0.0)*Psip+max(-Fw(i,j),0.0)*Psim
-  Psip=dkc*(Fcw-Fcc)/(dkc+dkw)
-  Psim=dke*(Fce-Fcee)/(dke+dkee)
+  Psip=(Fcw-Fcc)/2
+  Psim=dkce*(Fce-Fcee)/(dkce+dkcee)
   cor(i,j)=cor(i,j)+max(Fe(i,j),0.0)*Psip+max(-Fe(i,j),0.0)*Psim
-  Psip=das*(Fcs-Fcss)/(das+dass)
-  Psim=dac*(Fcn-Fcc)/(dac+dan)
+  Psip=dacc*(Fcs-Fcss)/(dacc+dacs)
+  Psim=dacc*(Fcn-Fcc)/(dacc+dacn)
   cor(i,j)=cor(i,j)+max(Fs(i,j),0.0)*Psip+max(-Fs(i,j),0.0)*Psim
-  Psip=dac*(Fcs-Fcc)/(dac+das)
-  Psim=dan*(Fcn-Fcnn)/(dan+dann)
+  Psip=(Fcs-Fcc)/2
+  Psim=dacn*(Fcn-Fcnn)/(dacn+dacnn)
   cor(i,j)=cor(i,j)+max(Fn(i,j),0.0)*Psip+max(-Fn(i,j),0.0)*Psim
  else if(isQuick) then
   if(i==2) then
    Psip=0
   else
-   Psip=dkw*(3*(Fcc-Fcw)/(dkc+dkw)+(Fcw-Fcww)/(dkw+dkww))/4
+   Psip=dkcc*(3*(Fcc-Fcw)/(2*dkcc)+(Fcw-Fcww)/(dkcc+dkcw))/4
    !Psip=(3*Fcc-2*Fcw-Fcww)/8
   end if
-  Psim=dkc*(3*(Fcw-Fcc)/(dkc+dkw)+(Fcc-Fce)/(dkc+dke))/4
+  Psim=dkcc*(3*(Fcw-Fcc)/(2*dkcc)+(Fcc-Fce)/(dkcc+dkce))/4
   !Psim=(3*Fcw-2*Fcc-Fce)/8
   cor(i,j)=max(Fw(i,j),0.0)*Psip+max(-Fw(i,j),0.0)*Psim
   if(i==Ic-1) then
    Psim=0
   else
-   Psim=dke*(3*(Fce-Fcc)/(dkc+dke)+(Fcee-Fce)/(dke+dkee))/4
+   Psim=dkce*(3*(Fce-Fcc)/(dkcc+dkce)+(Fcee-Fce)/(dkce+dkcee))/4
    !Psim=(2*Fce+Fcee-3*Fcc)/8
   end if
-  Psip=dkc*(3*(Fcc-Fce)/(dkc+dke)+(Fcw-Fcc)/(dkc+dkw))/4
+  Psip=dkcc*(3*(Fcc-Fce)/(dkcc+dkce)+(Fcw-Fcc)/(2*dkcc))/4
   !Psip=(2*Fcc+Fcw-3*Fce)/8
   cor(i,j)=cor(i,j)+max(Fe(i,j),0.0)*Psip+max(-Fe(i,j),0.0)*Psim
   if(j==Jc-1) then
    Psim=0
   else
-   Psim=dan*(3*(Fcn-Fcc)/(dac+dan)+(Fcnn-Fcn)/(dan+dann))/4
+   Psim=dacn*(3*(Fcn-Fcc)/(dacc+dacn)+(Fcnn-Fcn)/(dacn+dacnn))/4
    !Psim=(2*Fcn+Fcnn-3*Fcc)/8
   end if
-  Psip=dac*(3*(Fcc-Fcn)/(dac+dan)+(Fcs-Fcc)/(dac+das))/4
+  Psip=dacc*(3*(Fcc-Fcn)/(dacc+dacn)+(Fcs-Fcc)/(2*dacc))/4
   !Psip=(2*Fcc+Fcs-3*Fcn)/8
   cor(i,j)=cor(i,j)+max(Fn(i,j),0.0)*Psip+max(-Fn(i,j),0.0)*Psim
-  Psip=das*(3*(Fcc-Fcs)/(dac+das)+(Fcs-Fcss)/(das+dass))/4
+  Psip=dacc*(3*(Fcc-Fcs)/(2*dacc)+(Fcs-Fcss)/(dacc+dacs))/4
   !Psip=(3*Fcc-2*Fcs-Fcss)/8
-  Psim=dac*(3*(Fcs-Fcc)/(dac+das)+(Fcc-Fcn)/(dac+dan))/4
+  Psim=dacc*(3*(Fcs-Fcc)/(2*dacc)+(Fcc-Fcn)/(dacc+dacn))/4
   !Psim=(3*Fcs-2*Fcc-Fcn)/8
   cor(i,j)=cor(i,j)+max(Fs(i,j),0.0)*Psip+max(-Fs(i,j),0.0)*Psim
  else if(isTvd) then

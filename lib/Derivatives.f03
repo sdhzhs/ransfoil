@@ -83,35 +83,35 @@ Fy=0
 !$OMP DO PRIVATE(Fw,Fe,Fs,Fn,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Jgc,i)
 DO j=1,Jc-1
  DO i=Is,Ie
-  Xgaw=(Xg(i,j+1)-Xg(i,j))/dy
-  Ygaw=(Yg(i,j+1)-Yg(i,j))/dy
-  Xgae=(Xg(i+1,j+1)-Xg(i+1,j))/dy
-  Ygae=(Yg(i+1,j+1)-Yg(i+1,j))/dy
-  Xgks=(Xg(i+1,j)-Xg(i,j))/dx
-  Ygks=(Yg(i+1,j)-Yg(i,j))/dx
-  Xgkn=(Xg(i+1,j+1)-Xg(i,j+1))/dx
-  Ygkn=(Yg(i+1,j+1)-Yg(i,j+1))/dx
-  Jgc=Jg(i,j)
+  Xgaw=-Yfk(i,j)
+  Ygaw=Xfk(i,j)
+  Xgae=-Yfk(i+1,j)
+  Ygae=Xfk(i+1,j)
+  Xgks=Yfa(i,j)
+  Ygks=-Xfa(i,j)
+  Xgkn=Yfa(i,j+1)
+  Ygkn=-Xfa(i,j+1)
+  Jgc=Vol(i,j)
   if(i==1) then
-   Fw=interpl(F(i,j),F(Ic,j),dk(i,j),dk(Ic,j))
+   Fw=interpl(F(Ic,j),F(i,j),dkw(i,j))
   else
-   Fw=interpl(F(i,j),F(i-1,j),dk(i,j),dk(i-1,j))
+   Fw=interpl(F(i-1,j),F(i,j),dkw(i,j))
   end if
   if(i==Ic) then
-   Fe=interpl(F(i,j),F(1,j),dk(i,j),dk(1,j))
+   Fe=interpl(F(i,j),F(1,j),dkw(i+1,j))
   else
-   Fe=interpl(F(i,j),F(i+1,j),dk(i,j),dk(i+1,j))
+   Fe=interpl(F(i,j),F(i+1,j),dkw(i+1,j))
   end if
-  Fn=interpl(F(i,j),F(i,j+1),da(i,j),da(i,j+1))
+  Fn=interpl(F(i,j),F(i,j+1),daw(i,j+1))
   if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
    Fs=Fwall(i)
   else if(j==1) then
-   Fs=interpl(F(i,j),F(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
+   Fs=interpl(F(Ic+1-i,j),F(i,j),daw(i,j))
   else
-   Fs=interpl(F(i,j),F(i,j-1),da(i,j),da(i,j-1))
+   Fs=interpl(F(i,j-1),F(i,j),daw(i,j))
   end if
-  Fx(i,j)=((Fe*Ygae-Fw*Ygaw)/dx-(Fn*Ygkn-Fs*Ygks)/dy)/Jgc
-  Fy(i,j)=(-(Fe*Xgae-Fw*Xgaw)/dx+(Fn*Xgkn-Fs*Xgks)/dy)/Jgc
+  Fx(i,j)=((Fe*Ygae-Fw*Ygaw)-(Fn*Ygkn-Fs*Ygks))/Jgc
+  Fy(i,j)=(-(Fe*Xgae-Fw*Xgaw)+(Fn*Xgkn-Fs*Xgks))/Jgc
  end DO
 end DO
 !$OMP END DO

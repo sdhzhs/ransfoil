@@ -2,164 +2,144 @@ Subroutine PCEcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,noc
+real(8) Sf,Uf,Vf,Unpk,Vnpa,ww,we,ws,wn,cor
 real(8) aP,aW,aE,aS,aN
 real(8),external::interpl
-real(8) du(Ic,Jc),dv(Ic,Jc),dw(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
+real(8) du(Ic,Jc),dv(Ic,Jc),Up(Ic,Jc),Vp(Ic,Jc)
 logical(1) isSimp,isSimpC,isCom
-noc=1.d+0
+
 isSimp=solctrl=='SIMPLE'
 isSimpC=solctrl=='SIMPLEC'
 isCom=Proctrl=='com'
 
 !$OMP PARALLEL
 if(isSimp) then
-  !$OMP DO PRIVATE(i,Up,Vp)
+  !$OMP DO PRIVATE(i)
   DO j=1,Jc-1
     DO i=Is,Ie
-     du(i,j)=Rau*a1(i,j)*Jg(i,j)*dy/auP(i,j)
-     dv(i,j)=Rau*y1(i,j)*Jg(i,j)*dx/auP(i,j)
-     dw(i,j)=Rau*b1(i,j)*Jg(i,j)/auP(i,j)
-     Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/auP(i,j)
-     Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/auP(i,j)
-     Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
-     Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
+     du(i,j)=Rau*Vol(i,j)/auP(i,j)
+     dv(i,j)=Rau*Vol(i,j)/auP(i,j)
+     Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/auP(i,j)
+     Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/auP(i,j)
     end DO
   end DO
   !$OMP END DO
 else if(isSimpC) then
-  !$OMP DO PRIVATE(i,Up,Vp)
+  !$OMP DO PRIVATE(i)
   DO j=1,Jc-1
     DO i=Is,Ie
-     du(i,j)=Rau*a1(i,j)*Jg(i,j)*dy/(auP(i,j)-Rau*auNB(i,j))
-     dv(i,j)=Rau*y1(i,j)*Jg(i,j)*dx/(auP(i,j)-Rau*auNB(i,j))
-     dw(i,j)=Rau*b1(i,j)*Jg(i,j)/(auP(i,j)-Rau*auNB(i,j))
-     Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
-     Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
-     Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
-     Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
+     du(i,j)=Rau*Vol(i,j)/(auP(i,j)-Rau*auNB(i,j))
+     dv(i,j)=Rau*Vol(i,j)/(auP(i,j)-Rau*auNB(i,j))
+     Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/(auP(i,j)-Rau*auNB(i,j))
+     Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/(auP(i,j)-Rau*auNB(i,j))
     end DO
   end DO
   !$OMP END DO
 end if
-!$OMP DO PRIVATE(i,Unpk,dwk,Pak,cor)
+!$OMP DO PRIVATE(i,Sf,Uf,Vf,Unpk,cor)
 DO j=1,Jc-1
  DO i=Is,Ie+1
   if(i==1) then
-   duk(i,j)=interpl(du(i,j),du(Ic,j),dk(i,j),dk(Ic,j))
-   dwk=interpl(dw(i,j)*dy,dw(Ic,j)*dy,dk(i,j),dk(Ic,j))
-   Unpk=interpl(Unp(i,j),Unp(Ic,j),dk(i,j),dk(Ic,j))
+   duk(i,j)=interpl(du(Ic,j),du(i,j),dkw(i,j))
+   Uf=interpl(Up(Ic,j),Up(i,j),dkw(i,j))
+   Vf=interpl(Vp(Ic,j),Vp(i,j),dkw(i,j))
   else if(i==2) then
    if(Is>1) then
-    duk(i,j)=interpl(du(i,j),0.0,dk(i,j),dk(i-1,j))
-    dwk=interpl(dw(i,j)*dy,0.0,dk(i,j),dk(i-1,j))
-    Unpk=interpl(Unp(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
+    duk(i,j)=interpl(0.0,du(i,j),dkw(i,j))
+    Uf=interpl(U(i-1,j),Up(i,j),dkw(i,j))
+    Vf=interpl(V(i-1,j),Vp(i,j),dkw(i,j))
    else
-    duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i-1,j))
-    dwk=interpl(dw(i,j)*dy,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
-    Unpk=interpl(Unp(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
+    duk(i,j)=interpl(du(i-1,j),du(i,j),dkw(i,j))
+    Uf=interpl(Up(i-1,j),Up(i,j),dkw(i,j))
+    Vf=interpl(Vp(i-1,j),Vp(i,j),dkw(i,j))
    end if
   else if(i==Ic) then
    if(Is>1) then
-    duk(i,j)=interpl(0.0,du(i-1,j),dk(i,j),dk(i-1,j))
-    dwk=interpl(0.0,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
-    Unpk=interpl(Unp(i-1,j),Un(i,j),dk(i-1,j),dk(i,j))
+    duk(i,j)=interpl(du(i-1,j),0.0,dkw(i,j))
+    Uf=interpl(Up(i-1,j),U(i,j),dkw(i,j))
+    Vf=interpl(Vp(i-1,j),V(i,j),dkw(i,j))
    else
-    duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i-1,j))
-    dwk=interpl(dw(i,j)*dy,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
-    Unpk=interpl(Unp(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
+    duk(i,j)=interpl(du(i-1,j),du(i,j),dkw(i,j))
+    Uf=interpl(Up(i-1,j),Up(i,j),dkw(i,j))
+    Vf=interpl(Vp(i-1,j),Vp(i,j),dkw(i,j))
    end if
   else if(i==Ip) then
-   duk(i,j)=interpl(du(1,j),du(i-1,j),dk(1,j),dk(i-1,j))
-   dwk=interpl(dw(1,j)*dy,dw(i-1,j)*dy,dk(1,j),dk(i-1,j))
-   Unpk=interpl(Unp(1,j),Unp(i-1,j),dk(1,j),dk(i-1,j))
+   duk(i,j)=interpl(du(i-1,j),du(1,j),dkw(i,j))
+   Uf=interpl(Up(i-1,j),Up(1,j),dkw(i,j))
+   Vf=interpl(Vp(i-1,j),Vp(1,j),dkw(i,j))
   else
-   duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i-1,j))
-   dwk=interpl(dw(i,j)*dy,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
-   Unpk=interpl(Unp(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
+   duk(i,j)=interpl(du(i-1,j),du(i,j),dkw(i,j))
+   Uf=interpl(Up(i-1,j),Up(i,j),dkw(i,j))
+   Vf=interpl(Vp(i-1,j),Vp(i,j),dkw(i,j))
   end if
-  if(j==1.and.(i<Ib1.or.i>Ib2+1)) then
-   Pak=(P(i-1,j+1)+P(i,j+1)-P(Ic+2-i,j)-P(Ic+1-i,j))/(4*dy)
-  else if(j==1) then
-   if(i==1) then
-    Pak=(P(Ic,j+1)+P(i,j+1)-P(Ic,j)-P(i,j))/(4*dy)
-   else if(i==Ip) then
-    Pak=(P(i-1,j+1)+P(1,j+1)-P(i-1,j)-P(1,j))/(4*dy)
-   else
-    Pak=(P(i-1,j+1)+P(i,j+1)-P(i-1,j)-P(i,j))/(4*dy)
-   end if
-  else
-   if(i==1) then
-    Pak=(P(Ic,j+1)+P(i,j+1)-P(Ic,j-1)-P(i,j-1))/(4*dy)
-   else if(i==Ip) then
-    Pak=(P(i-1,j+1)+P(1,j+1)-P(i-1,j-1)-P(1,j-1))/(4*dy)
-   else
-    Pak=(P(i-1,j+1)+P(i,j+1)-P(i-1,j-1)-P(i,j-1))/(4*dy)
-   end if
-  end if
+  Sf=sqrt(Xfk(i,j)**2+Yfk(i,j)**2)
+  Unpk=Uf*Xfk(i,j)+Vf*Yfk(i,j)
   if(i==1) then
-   cor=(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(Ic,j),dk(i,j),dk(Ic,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))+cor+noc*dwk*Pak
+   Uf=interpl(U(Ic,j),U(i,j),dkw(i,j))
+   Vf=interpl(V(Ic,j),V(i,j),dkw(i,j))
+   cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
+   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))*Sf/dkd(i,j)+cor
   else if(i==Ip) then
-   cor=(1-Rau)*(Unk(i,j)-interpl(Un(1,j),Un(i-1,j),dk(1,j),dk(i-1,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))+cor+noc*dwk*Pak
+   Uf=interpl(U(i-1,j),U(1,j),dkw(i,j))
+   Vf=interpl(V(i-1,j),V(1,j),dkw(i,j))
+   cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))*Sf/dkd(i,j)+cor
   else
-   cor=(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+cor+noc*dwk*Pak
+   Uf=interpl(U(i-1,j),U(i,j),dkw(i,j))
+   Vf=interpl(V(i-1,j),V(i,j),dkw(i,j))
+   cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)+cor
   end if
  end DO
 end DO
 !$OMP END DO
-!$OMP DO PRIVATE(i,Vnpa,dwa,Pka,cor)
+!$OMP DO PRIVATE(i,Sf,Uf,Vf,Vnpa,cor)
 DO j=1,Jc
  DO i=Is,Ie
   if(j==1.and.(i>Ib2.or.i<Ib1)) then
-   dva(i,j)=interpl(dv(i,j),dv(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
-   dwa=interpl(dw(i,j)*dx,dw(Ic+1-i,j)*dx,da(i,j),da(Ic+1-i,j))
-   Pka=(P(Ic-i,j)+P(i+1,j)-P(Ic+2-i,j)-P(i-1,j))/(4*dx)
-   Vnpa=interpl(Vnp(i,j),-Vnp(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
-   cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+cor+noc*dwa*Pka
+   dva(i,j)=interpl(dv(Ic+1-i,j),dv(i,j),daw(i,j))
+   Uf=interpl(Up(Ic+1-i,j),Up(i,j),daw(i,j))
+   Vf=interpl(Vp(Ic+1-i,j),Vp(i,j),daw(i,j))
   else if(j==1) then
    dva(i,j)=0
-   Vna(i,j)=0
   else if(j==Jc) then
-   dva(i,j)=interpl(0.0,dv(i,j-1),da(i,j),da(i,j-1))
-   dwa=interpl(0.0,dw(i,j-1)*dx,da(i,j),da(i,j-1))
-   if(i==1) then
-    Pka=(P(i+1,j-1)+P(i+1,j)-P(Ic,j-1)-P(Ic,j))/(4*dx)
-   else if(i==Ic) then
-    Pka=(P(1,j-1)+P(1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
-   else
-    Pka=(P(i+1,j-1)+P(i+1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
-   end if
-   Vnpa=interpl(Vnp(i,j-1),Vn(i,j),da(i,j-1),da(i,j))
-   cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+noc*dwa*Pka
+   dva(i,j)=interpl(dv(i,j-1),0.0,daw(i,j))
+   Uf=interpl(Up(i,j-1),U(i,j),daw(i,j))
+   Vf=interpl(Vp(i,j-1),V(i,j),daw(i,j))
   else
-   dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j-1))
-   dwa=interpl(dw(i,j)*dx,dw(i,j-1)*dx,da(i,j),da(i,j-1))
-   if(i==1) then
-    Pka=(P(i+1,j-1)+P(i+1,j)-P(Ic,j-1)-P(Ic,j))/(4*dx)
-   else if(i==Ic) then
-    Pka=(P(1,j-1)+P(1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
-   else
-    Pka=(P(i+1,j-1)+P(i+1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
-   end if
-   Vnpa=interpl(Vnp(i,j),Vnp(i,j-1),da(i,j),da(i,j-1))
-   cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+noc*dwa*Pka
+   dva(i,j)=interpl(dv(i,j-1),dv(i,j),daw(i,j))
+   Uf=interpl(Up(i,j-1),Up(i,j),daw(i,j))
+   Vf=interpl(Vp(i,j-1),Vp(i,j),daw(i,j))
+  end if
+  Sf=sqrt(Xfa(i,j)**2+Yfa(i,j)**2)
+  Vnpa=Uf*Xfa(i,j)+Vf*Yfa(i,j)
+  if(j==1.and.(i>Ib2.or.i<Ib1)) then
+   Uf=interpl(U(Ic+1-i,j),U(i,j),daw(i,j))
+   Vf=interpl(V(Ic+1-i,j),V(i,j),daw(i,j))
+   cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
+   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)+cor
+  else if(j==1) then
+   Vna(i,j)=0
+  else
+   Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
+   Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
+   cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cor
   end if
  end DO
 end DO
 !$OMP END DO
-!$OMP DO PRIVATE(i,ww,we,ws,wn,aP,aW,aE,aS,aN)
+!$OMP DO PRIVATE(i,Sf,ww,we,ws,wn,aP,aW,aE,aS,aN)
 DO j=1,Jc-1
   DO i=Is,Ie
-   aE=rhok(i+1,j)*duk(i+1,j)*dy
-   aW=rhok(i,j)*duk(i,j)*dy
-   aN=rhoa(i,j+1)*dva(i,j+1)*dx
-   aS=rhoa(i,j)*dva(i,j)*dx
+   Sf=sqrt(Xfk(i+1,j)**2+Yfk(i+1,j)**2)
+   aE=rhok(i+1,j)*duk(i+1,j)*Sf/dkd(i+1,j)
+   Sf=sqrt(Xfk(i,j)**2+Yfk(i,j)**2)
+   aW=rhok(i,j)*duk(i,j)*Sf/dkd(i,j)
+   Sf=sqrt(Xfa(i,j+1)**2+Yfa(i,j+1)**2)
+   aN=rhoa(i,j+1)*dva(i,j+1)*Sf/dad(i,j+1)
+   Sf=sqrt(Xfa(i,j)**2+Yfa(i,j)**2)
+   aS=rhoa(i,j)*dva(i,j)*Sf/dad(i,j)
    aP=aE+aW+aN+aS
    if(isCom) then
     ww=sign(0.5,Unk(i,j))
@@ -167,22 +147,22 @@ DO j=1,Jc-1
     ws=sign(0.5,Vna(i,j))
     wn=sign(0.5,Vna(i,j+1))
     if(i==Ic) then
-     aE=aE-Rap*(0.5-we)*Unk(i+1,j)*dy/(R*T(1,j)/Ma)
+     aE=aE-Rap*(0.5-we)*Unk(i+1,j)/(R*T(1,j)/Ma)
     else
-     aE=aE-Rap*(0.5-we)*Unk(i+1,j)*dy/(R*T(i+1,j)/Ma)
+     aE=aE-Rap*(0.5-we)*Unk(i+1,j)/(R*T(i+1,j)/Ma)
     end if
     if(i==1) then
-     aW=aW+Rap*(0.5+ww)*Unk(i,j)*dy/(R*T(Ic,j)/Ma)
+     aW=aW+Rap*(0.5+ww)*Unk(i,j)/(R*T(Ic,j)/Ma)
     else
-     aW=aW+Rap*(0.5+ww)*Unk(i,j)*dy/(R*T(i-1,j)/Ma)
+     aW=aW+Rap*(0.5+ww)*Unk(i,j)/(R*T(i-1,j)/Ma)
     end if
-    aN=aN-Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
+    aN=aN-Rap*(0.5-wn)*Vna(i,j+1)/(R*T(i,j+1)/Ma)
     if(j==1.and.(i>Ib2.or.i<Ib1)) then
-     aS=aS+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(Ic+1-i,j)/Ma)
+     aS=aS+Rap*(0.5+ws)*Vna(i,j)/(R*T(Ic+1-i,j)/Ma)
     else if(j>1) then
-     aS=aS+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(i,j-1)/Ma)
+     aS=aS+Rap*(0.5+ws)*Vna(i,j)/(R*T(i,j-1)/Ma)
     end if
-    aP=aP+Rap*((0.5+we)*Unk(i+1,j)*dy-(0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx-(0.5-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)
+    aP=aP+Rap*((0.5+we)*Unk(i+1,j)-(0.5-ww)*Unk(i,j)+(0.5+wn)*Vna(i,j+1)-(0.5-ws)*Vna(i,j))/(R*T(i,j)/Ma)
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW
@@ -198,9 +178,10 @@ b=0
 !$OMP DO PRIVATE(i)
 DO j=1,Jc-1
   DO i=Is,Ie
-   b(i,j)=rhok(i,j)*Unk(i,j)*dy-rhok(i+1,j)*Unk(i+1,j)*dy+rhoa(i,j)*Vna(i,j)*dx-rhoa(i,j+1)*Vna(i,j+1)*dx
+   b(i,j)=rhok(i,j)*Unk(i,j)-rhok(i+1,j)*Unk(i+1,j)+rhoa(i,j)*Vna(i,j)-rhoa(i,j+1)*Vna(i,j+1)
   end DO
 end DO
 !$OMP END DO
 !$OMP END PARALLEL
+!print *,'Completed assembling the coefficient matrix:','P',minval(aM(1,Is:Ie,1:Jc-1)),maxval(aM(1,Is:Ie,1:Jc-1))
 end Subroutine PCEcoe

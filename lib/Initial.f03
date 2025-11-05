@@ -4,7 +4,7 @@ implicit none
 integer i,j,ioerr
 character(128) ioerrmsg
 real(8),external:: interpl
-real(8) Tni0
+real(8) Tni0,Uf,Vf
 Ui=Vfar*cos(AoA*Pi/180)
 Vi=Vfar*sin(AoA*Pi/180)
 if(Matair=='Y') then
@@ -141,28 +141,35 @@ if(Turmod=='sa'.and.Walltreat=='lr') then
  d=d+0.03*ksi
 end if
 Call Turvis
-Un=U*Yga-V*Xga
-Vn=V*Xgk-U*Ygk
+
 DO j=1,Jc-1
   DO i=Is,Ie+1
   if(i==1) then
-   Unk(i,j)=interpl(Un(i,j),Un(Ic,j),dk(i,j),dk(Ic,j))
+   Uf=interpl(U(Ic,j),U(i,j),dkw(i,j))
+   Vf=interpl(V(Ic,j),V(i,j),dkw(i,j))
   else if(i==Ip) then
-   Unk(i,j)=interpl(Un(1,j),Un(i-1,j),dk(1,j),dk(i-1,j))
+   Uf=interpl(U(i-1,j),U(1,j),dkw(i,j))
+   Vf=interpl(V(i-1,j),V(1,j),dkw(i,j))
   else
-   Unk(i,j)=interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
+   Uf=interpl(U(i-1,j),U(i,j),dkw(i,j))
+   Vf=interpl(V(i-1,j),V(i,j),dkw(i,j))
   end if
+  Unk(i,j)=Uf*Xfk(i,j)+Vf*Yfk(i,j)
   end DO
 end DO
 DO j=1,Jc
   DO i=Is,Ie
   if(j==1.and.i>=Ib1.and.i<=Ib2) then
-   Vna(i,j)=0
+   Uf=0
+   Vf=0
   else if(j==1) then
-   Vna(i,j)=interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
+   Uf=interpl(U(Ic+1-i,j),U(i,j),daw(i,j))
+   Vf=interpl(V(Ic+1-i,j),V(i,j),daw(i,j))
   else
-   Vna(i,j)=interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1))
+   Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
+   Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
   end if
+  Vna(i,j)=Uf*Xfa(i,j)+Vf*Yfa(i,j)
   end DO
 end DO
 U0=U
