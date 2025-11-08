@@ -103,6 +103,7 @@ DO s=1,maxs
   Call Velcorrect
   if(Proctrl=='com') then
    rho=rho+Rap*dP*Ma/(R*T)
+   Call Derivatives('rho')
    Call Densityinterp
   end if
   Call Derivatives('U')
@@ -126,8 +127,10 @@ DO s=1,maxs
    if(Proctrl=='com') then
     Call StabSol('T')
     rho=(Po+P)*Ma/(R*T)
+    Call Derivatives('rho')
     Call Densityinterp
    end if
+   Call Derivatives('T')
    if(Turmod/='inv'.and.Matair=='Y') then
     mu=mu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
    end if
@@ -135,7 +138,6 @@ DO s=1,maxs
    Pc=9.24*((Pr/Prt)**0.75-1)*(1+0.28*exp(-0.007*Pr/Prt))
   end if
   if(Turmod=='sa') then
-   Call Derivatives('Tn')
    Call Wallfunc
    Call Condiff('Tn')
 #if defined(HYPRE)
@@ -151,6 +153,7 @@ DO s=1,maxs
    end if
 #endif
    Call StabSol('Tn')
+   Call Derivatives('Tn')
   else if(Turmod=='ke') then
    Call Wallfunc
    Call Condiff('Tk')
@@ -179,9 +182,9 @@ DO s=1,maxs
    end if
 #endif
    Call StabSol('Te')
-  else if(Turmod=='sst') then
    Call Derivatives('Tk')
-   Call Derivatives('Tw')
+   Call Derivatives('Te')
+  else if(Turmod=='sst') then
    Call Wallfunc
    Call Condiff('Tk')
 #if defined(HYPRE)
@@ -209,6 +212,8 @@ DO s=1,maxs
    end if
 #endif
    Call StabSol('Tw')
+   Call Derivatives('Tk')
+   Call Derivatives('Tw')
   end if
   Call Turvis
   Call Postprocess(s)
@@ -590,13 +595,13 @@ if(libmod=='C') then
 end if
 allocate(U0(Ic,Jc),V0(Ic,Jc),T0(Ic,Jc),U(Ic,Jc),V(Ic,Jc),T(Ic,Jc),rho(Ic,Jc),mu(Ic,Jc),P(Ic,Jc),dP(Ic,Jc),mut(Ic,Jc),&
 Pr(Ic,Jc),Pc(Ic,Jc),auP(Ic,Jc),auNB(Ic,Jc),aM(5,Ic,Jc),b(Ic,Jc),Xg(Ip,Jp),Yg(Ip,Jp),Xc(Ic,Jc),Yc(Ic,Jc),Xfa(Ic,Jp),Yfa(Ic,Jp),&
-Xfk(Ip,Jc),Yfk(Ip,Jc),dkw(Ip,Jc),daw(Ic,Jp),dkd(Ip,Jc),dad(Ic,Jp),Vol(Ic,Jc),Unk(Ip,Jc),Vna(Ic,Jp),duk(Ip,Jc),dva(Ic,Jp),&
-Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),muxy(Ic,Jc),muyx(Ic,Jc),mvxy(Ic,Jc),&
-mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc))
+Xfk(Ip,Jc),Yfk(Ip,Jc),dkw(Ip,Jc),daw(Ic,Jp),dkd(Ip,Jc),dad(Ic,Jp),dk(Ic,Jc),da(Ic,Jc),Vol(Ic,Jc),Unk(Ip,Jc),Vna(Ic,Jp),duk(Ip,Jc),dva(Ic,Jp),&
+Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),Tx(Ic,Jc),Ty(Ic,Jc),rhox(Ic,Jc),rhoy(Ic,Jc),muxx(Ic,Jc),&
+muxy(Ic,Jc),muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc))
 if(Turmod=='sa') then
  allocate(Tn0(Ic,Jc),Tn(Ic,Jc),Tnx(Ic,Jc),Tny(Ic,Jc))
 else if(Turmod=='ke') then
- allocate(Tk0(Ic,Jc),Te0(Ic,Jc),Tk(Ic,Jc),Te(Ic,Jc),rhox(Ic,Jc),rhoy(Ic,Jc))
+ allocate(Tk0(Ic,Jc),Te0(Ic,Jc),Tk(Ic,Jc),Te(Ic,Jc),Tkx(Ic,Jc),Tky(Ic,Jc),Tex(Ic,Jc),Tey(Ic,Jc))
 else if(Turmod=='sst') then
  allocate(Tk0(Ic,Jc),Tw0(Ic,Jc),Tk(Ic,Jc),Tw(Ic,Jc),Tkx(Ic,Jc),Tky(Ic,Jc),Twx(Ic,Jc),Twy(Ic,Jc),sigmatk(Ic,Jc),sigmatw(Ic,Jc))
 end if
@@ -622,12 +627,12 @@ if(libmod=='C') then
  end if
  end DO
 end if
-deallocate(U0,V0,T0,U,V,T,rho,mu,mut,P,dP,Pr,Pc,auP,auNB,aM,b,Xg,Yg,Xc,Yc,Xfa,Yfa,Xfk,Yfk,dkw,daw,Vol,dkd,dad,&
-Unk,Vna,duk,dva,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,d)
+deallocate(U0,V0,T0,U,V,T,rho,mu,mut,P,dP,Pr,Pc,auP,auNB,aM,b,Xg,Yg,Xc,Yc,Xfa,Yfa,Xfk,Yfk,dkw,daw,Vol,dkd,dad,dk,da,&
+Unk,Vna,duk,dva,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,Tx,Ty,rhox,rhoy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,d)
 if(Turmod=='sa') then
  deallocate(Tn0,Tn,Tnx,Tny)
 else if(Turmod=='ke') then
- deallocate(Tk0,Te0,Tk,Te,rhox,rhoy)
+ deallocate(Tk0,Te0,Tk,Te,Tkx,Tky,Tex,Tey)
 else if(Turmod=='sst') then
  deallocate(Tk0,Tw0,Tk,Tw,Tkx,Tky,Twx,Twy,sigmatk,sigmatw)
 end if

@@ -6,7 +6,7 @@ real(8) Sf,Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,T
 real(8) aP,aW,aE,aS,aN,DF
 real(8),external:: interpl
 real(8) Fwall(Ib1:Ib2)
-real(8) F(Ic,Jc),Ga(Ic,Jc)
+real(8) F(Ic,Jc),Ga(Ic,Jc),Fx(Ic,Jc),Fy(Ic,Jc)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 character(*) scalar
@@ -54,15 +54,21 @@ if(isU.or.isV) then
  if(isU) then
   !$OMP WORKSHARE
   F=U
+  Fx=Ux
+  Fy=Uy
   !$OMP END WORKSHARE
  else if(isV) then
   !$OMP WORKSHARE
   F=V
+  Fx=Vx
+  Fy=Vy
   !$OMP END WORKSHARE
  end if
 else if(isT) then
  !$OMP WORKSHARE
  F=T
+ Fx=Tx
+ Fy=Ty
  Ga=ka/ca+mut/Prt
  !$OMP END WORKSHARE
  if(isFixed) then
@@ -86,6 +92,8 @@ else if(isT) then
 else if(isTn) then
  !$OMP WORKSHARE
  F=Tn
+ Fx=Tnx
+ Fy=Tny
  Fwall=1.5*Tn(Ib1:Ib2,1)-0.5*Tn(Ib1:Ib2,2)
  !Fwall=0
  Ga=(mu+rho*Tn)/sigman
@@ -93,12 +101,16 @@ else if(isTn) then
 else if(isTk.and.isKe) then
  !$OMP WORKSHARE
  F=Tk
+ Fx=Tkx
+ Fy=Tky
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
  Ga=mu+mut/sigmak
  !$OMP END WORKSHARE
 else if(isTk.and.isSst) then
  !$OMP WORKSHARE
  F=Tk
+ Fx=Tkx
+ Fy=Tky
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
  !Fwall=Tk(Ib1:Ib2,1)
  !Fwall=0
@@ -107,12 +119,16 @@ else if(isTk.and.isSst) then
 else if(isTe) then
  !$OMP WORKSHARE
  F=Te
+ Fx=Tex
+ Fy=Tey
  Fwall=1.5*Te(Ib1:Ib2,1)-0.5*Te(Ib1:Ib2,2)
  Ga=mu+mut/sigmae
  !$OMP END WORKSHARE
 else if(isTw) then
  !$OMP WORKSHARE
  F=Tw
+ Fx=Twx 
+ Fy=Twy
  Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
  !Fwall=Tw(Ib1:Ib2,1)
  Ga=mu+mut/sigmatw
@@ -255,18 +271,18 @@ DO j=1,Jc-1
     !aP=aP+DF
     if((isSa.and.isLr).or.(isSst.and.isLr).or.isLam.or.isInv) then
      if(isTn.and.ks(i)>0) then
-      aP=aP+2*Ds(i,j)*Yp(i)/d(i,j)
+      aP=aP+Ds(i,j)*Yp(i)/d(i,j)
      else if(isTw) then
       aW=0
       aE=0
       aN=0
       aP=1
      else
-      aP=aP+2*Ds(i,j)
+      aP=aP+Ds(i,j)
      end if
      if(isTn.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
      if(isTk) aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Vol(i,j)
-     if(isT.and.isFlux) aP=aP-2*Ds(i,j)
+     if(isT.and.isFlux) aP=aP-Ds(i,j)
     else if(isSa.and.isWf.or.(isSst.and.isWf).or.isKe) then
      if(isU) then
       if(isParvel) then
@@ -283,10 +299,9 @@ DO j=1,Jc-1
      else if(isT) then
       if(isFixed.and.Tmin>=0) aP=aP+rho(i,j)*ustar(i)*DR(i)/Tplus(i)
      else if(isTn) then
-      aP=aP+2*Ds(i,j)
+      aP=aP+Ds(i,j)
       if(Ymax>Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Vol(i,j)
       if(Ymax<=Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
-      !if(fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
      else if(isSst.and.isTk) then
       if(isGenlaw) then
        aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Vol(i,j)/(Tk(i,j)*Yp(i))
@@ -317,7 +332,6 @@ DO j=1,Jc-1
     if(isTn.and.isWf.and.fw1(i,j)>=0) then
      if(Ymax>Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Vol(i,j)
      if(Ymax<=Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
-     !aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
     end if
     if(isTk.and.isSst) aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Vol(i,j)
     if(isTw.and.isSst) aP=aP+rho(i,j)*beta(i,j)*Tw(i,j)*Vol(i,j)
@@ -330,7 +344,7 @@ DO j=1,Jc-1
   end DO
 end DO
 !$OMP END DO
-Call Defercorrect(F,Fwall,cor,Fw,Fe,Fs,Fn)
+Call Defercorrect(F,Fx,Fy,Fwall,cor,Fw,Fe,Fs,Fn)
 !$OMP WORKSHARE
 b=F
 !$OMP END WORKSHARE
@@ -364,15 +378,15 @@ DO j=1,Jc-1
         if(isCom) then
          if(isVisheatY) then
           b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
-          (mu(i,j)+mut(i,j))*St(i,j)**2)/ca+2*Ds(i,j)*Tf
+          (mu(i,j)+mut(i,j))*St(i,j)**2)/ca+Ds(i,j)*Tf
          else
-          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+2*Ds(i,j)*Tf
+          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+Ds(i,j)*Tf
          end if
         else if(isIncom) then
          if(isVisheatY) then
-          b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca+2*Ds(i,j)*Tf
+          b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca+Ds(i,j)*Tf
          else
-          b(i,j)=2*Ds(i,j)*Tf
+          b(i,j)=Ds(i,j)*Tf
          end if
         end if
        else if(isSst.and.isWf.or.(isSa.and.isWf).or.isKe) then

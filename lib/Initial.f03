@@ -137,6 +137,8 @@ dP=0
 Call Derivatives('U')
 Call Derivatives('V')
 Call Derivatives('P')
+Call Derivatives('T')
+if(Proctrl=='com') Call Derivatives('rho')
 if(Turmod=='sa'.and.Walltreat=='lr') then
  d=d+0.03*ksi
 end if
@@ -177,11 +179,16 @@ V0=V
 T0=T
 if(Turmod=='sa') then
  Tn0=Tn
+ Call Derivatives('Tn')
 else if(Turmod=='ke') then
  Tk0=Tk
  Te0=Te
+ Call Derivatives('Tk')
+ Call Derivatives('Te')
 else if(Turmod=='sst') then
  Tk0=Tk
  Tw0=Tw
+ Call Derivatives('Tk')
+ Call Derivatives('Tw')
 end if
 end Subroutine Initial

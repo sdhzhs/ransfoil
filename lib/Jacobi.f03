@@ -18,6 +18,12 @@ DO j=1,Jc
    Xc(i,j)=(Tricx1*Triarea1+Tricx2*Triarea2)/(Triarea1+Triarea2)
    Yc(i,j)=(Tricy1*Triarea1+Tricy2*Triarea2)/(Triarea1+Triarea2)
    Vol(i,j)=0.5*(Triarea1+Triarea2)
+   d01x=((Xg(i+1,j)+Xg(i+1,j+1))-(Xg(i,j)+Xg(i,j+1)))/2
+   d01y=((Yg(i+1,j)+Yg(i+1,j+1))-(Yg(i,j)+Yg(i,j+1)))/2
+   dk(i,j)=sqrt(d01x**2+d01y**2)
+   d01x=((Xg(i,j+1)+Xg(i+1,j+1))-(Xg(i,j)+Xg(i+1,j)))/2
+   d01y=((Yg(i,j+1)+Yg(i+1,j+1))-(Yg(i,j)+Yg(i+1,j)))/2
+   da(i,j)=sqrt(d01x**2+d01y**2)
    sintheta=Triarea1/sqrt(((Xg(i+1,j)-Xg(i,j))**2+(Yg(i+1,j)-Yg(i,j))**2)*((Xg(i,j+1)-Xg(i,j))**2+(Yg(i,j+1)-Yg(i,j))**2))
    if(sintheta>1.0) sintheta=1.0
    theta(i,j)=180*asin(sintheta)/Pi
@@ -31,7 +37,7 @@ DO j=1,Jc
    if(i==1) then
     if(Is>1) then
      dkw(i,j)=0.0
-     dkd(i,j)=2*sqrt((Xc(i,j)-0.5*(Xg(i,j)+Xg(i,j+1)))**2+(Yc(i,j)-0.5*(Yg(i,j)+Yg(i,j+1)))**2)
+     dkd(i,j)=sqrt((Xc(i,j)-0.5*(Xg(i,j)+Xg(i,j+1)))**2+(Yc(i,j)-0.5*(Yg(i,j)+Yg(i,j+1)))**2)
     else
      d0=sqrt((Xc(Ic,j)-0.5*(Xg(i,j)+Xg(i,j+1)))**2+(Yc(Ic,j)-0.5*(Yg(i,j)+Yg(i,j+1)))**2)
      d1=sqrt((Xc(i,j)-0.5*(Xg(i,j)+Xg(i,j+1)))**2+(Yc(i,j)-0.5*(Yg(i,j)+Yg(i,j+1)))**2)
@@ -44,7 +50,7 @@ DO j=1,Jc
    else if(i==Ip) then
     if(Ie<Ic) then
      dkw(i,j)=1.0
-     dkd(i,j)=2*sqrt((Xc(i-1,j)-0.5*(Xg(i,j)+Xg(i,j+1)))**2+(Yc(i-1,j)-0.5*(Yg(i,j)+Yg(i,j+1)))**2)
+     dkd(i,j)=sqrt((Xc(i-1,j)-0.5*(Xg(i,j)+Xg(i,j+1)))**2+(Yc(i-1,j)-0.5*(Yg(i,j)+Yg(i,j+1)))**2)
     else
      d0=sqrt((Xc(i-1,j)-0.5*(Xg(i,j)+Xg(i,j+1)))**2+(Yc(i-1,j)-0.5*(Yg(i,j)+Yg(i,j+1)))**2)
      d1=sqrt((Xc(1,j)-0.5*(Xg(i,j)+Xg(i,j+1)))**2+(Yc(1,j)-0.5*(Yg(i,j)+Yg(i,j+1)))**2)
@@ -73,7 +79,7 @@ DO j=1,Jp
    if(j==1) then
     if(i>=Ib1.and.i<=Ib2) then
      daw(i,j)=0.0
-     dad(i,j)=2*sqrt((Xc(i,j)-0.5*(Xg(i+1,j)+Xg(i,j)))**2+(Yc(i,j)-0.5*(Yg(i+1,j)+Yg(i,j)))**2)
+     dad(i,j)=sqrt((Xc(i,j)-0.5*(Xg(i+1,j)+Xg(i,j)))**2+(Yc(i,j)-0.5*(Yg(i+1,j)+Yg(i,j)))**2)
     else
      d0=sqrt((Xc(Ic+1-i,j)-0.5*(Xg(i+1,j)+Xg(i,j)))**2+(Yc(Ic+1-i,j)-0.5*(Yg(i+1,j)+Yg(i,j)))**2)
      d1=sqrt((Xc(i,j)-0.5*(Xg(i+1,j)+Xg(i,j)))**2+(Yc(i,j)-0.5*(Yg(i+1,j)+Yg(i,j)))**2)
@@ -85,7 +91,7 @@ DO j=1,Jp
     end if
    else if(j==Jp) then
     daw(i,j)=1.0
-    dad(i,j)=2*sqrt((Xc(i,j-1)-0.5*(Xg(i+1,j)+Xg(i,j)))**2+(Yc(i,j-1)-0.5*(Yg(i+1,j)+Yg(i,j)))**2)
+    dad(i,j)=sqrt((Xc(i,j-1)-0.5*(Xg(i+1,j)+Xg(i,j)))**2+(Yc(i,j-1)-0.5*(Yg(i+1,j)+Yg(i,j)))**2)
    else
     d0=sqrt((Xc(i,j-1)-0.5*(Xg(i+1,j)+Xg(i,j)))**2+(Yc(i,j-1)-0.5*(Yg(i+1,j)+Yg(i,j)))**2)
     d1=sqrt((Xc(i,j)-0.5*(Xg(i+1,j)+Xg(i,j)))**2+(Yc(i,j)-0.5*(Yg(i+1,j)+Yg(i,j)))**2)
@@ -127,11 +133,4 @@ DO j=1,Jc
 end DO
 print *,'The minimum and maximum angle of grid cells are:'
 print *,minval(theta),maxval(theta)
-!print *,minval(Xc),maxval(Xc)
-!print *,minval(Yc),maxval(Yc)
-!print *,minval(Vol),maxval(Vol)
-!print *,minval(dkw(2:Ic,:)),maxval(dkw(2:Ic,:))
-!print *,minval(dkd(2:Ic,:)),maxval(dkd(2:Ic,:))
-!print *,minval(daw(:,2:Jc)),maxval(daw(:,2:Jc))
-!print *,minval(dad(:,2:Jc)),maxval(dad(:,2:Jc))
 end Subroutine Jacobi

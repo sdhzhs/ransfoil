@@ -28,6 +28,11 @@ else if(scalar=='dP') then
  F=dP
  Fwall=dP(Ib1:Ib2,1)
 !$OMP END WORKSHARE
+else if(scalar=='T') then
+!$OMP WORKSHARE
+ F=T
+ Fwall=Tf
+!$OMP END WORKSHARE
 else if(scalar=='rho') then
 !$OMP WORKSHARE
  F=rho
@@ -50,6 +55,12 @@ else if(scalar=='Tw') then
  F=Tw
  Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
  !Fwall=Tw(Ib1:Ib2,1)
+!$OMP END WORKSHARE
+else if(scalar=='Te') then
+!$OMP WORKSHARE
+ F=Te
+ Fwall=1.5*Te(Ib1:Ib2,1)-0.5*Te(Ib1:Ib2,2)
+ !Fwall=Te(Ib1:Ib2,1)
 !$OMP END WORKSHARE
 else if(scalar=='mux') then
 !$OMP WORKSHARE
@@ -135,6 +146,11 @@ else if(scalar=='dP') then
  dPx=Fx
  dPy=Fy
 !$OMP END WORKSHARE
+else if(scalar=='T') then
+!$OMP WORKSHARE
+ Tx=Fx
+ Ty=Fy
+!$OMP END WORKSHARE
 else if(scalar=='rho') then
 !$OMP WORKSHARE
  rhox=Fx
@@ -154,6 +170,11 @@ else if(scalar=='Tw') then
 !$OMP WORKSHARE
  Twx=Fx
  Twy=Fy
+!$OMP END WORKSHARE
+else if(scalar=='Te') then
+!$OMP WORKSHARE
+ Tex=Fx
+ Tey=Fy
 !$OMP END WORKSHARE
 else if(scalar=='mux') then
 !$OMP WORKSHARE

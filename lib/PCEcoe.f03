@@ -102,6 +102,8 @@ DO j=1,Jc
    Vf=interpl(Vp(Ic+1-i,j),Vp(i,j),daw(i,j))
   else if(j==1) then
    dva(i,j)=0
+   Uf=0
+   Vf=0
   else if(j==Jc) then
    dva(i,j)=interpl(dv(i,j-1),0.0,daw(i,j))
    Uf=interpl(Up(i,j-1),U(i,j),daw(i,j))
