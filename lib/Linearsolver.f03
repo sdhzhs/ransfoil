@@ -238,6 +238,12 @@ end DO
 !$OMP END PARALLEL
 !print *,scalar,sumrms/(Ic*Jc),iter
 
+!if(isP) then
+! F(1,1:Jc-1)=F(2,1:Jc-1)
+! F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
+! F(:,Jc)=F(:,Jc-1)
+!end if
+
 contains
 
 Subroutine SSorpcond(vt,vt0)

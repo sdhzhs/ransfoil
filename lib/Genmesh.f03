@@ -89,6 +89,7 @@ else
   trailconfig='blunt'
  end if
 end if
+lfar=10
 if(gtype=='C') then
  Iw1=max(Iwd,Iwu)
  Iw2=Iw1+Iwd-1
@@ -107,7 +108,7 @@ if(gtype=='C') then
  Xg(Iw2:Iw3,1)=Xwu
  Yg(Iw2:Iw3,1)=Ywu
  ft=sqrt((Xwd(Iwd)-Xwd(Iwd-1))**2+(Ywd(Iwd)-Ywd(Iwd-1))**2)
- ltrail=11
+ ltrail=lfar+1
  Call tanhgridline(ltrail,ft,Xt,Iw1)
  DO i=Iw3+1,Ip
   j=i-Iw3+1
@@ -138,7 +139,6 @@ else
  Is=1
  Ie=Ic
 end if
-lfar=10
 ratio=2.0
 maxl=100
 err=1e-10

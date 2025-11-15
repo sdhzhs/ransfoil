@@ -15,7 +15,7 @@ wf
 Select coupling method(SIMPLE/SIMPLEC):
 SIMPLE
 Select discretization scheme(1upwind/2upwind/Quick/tvd):
-2upwind
+Fromm
 Select type of linear solver for convective-diffusion equations(sor/pbicg):
 sor
 Set boundary condition type of tempreture(fixed/flux):

@@ -6,22 +6,22 @@
  Turbulence model: sst     
  Wall treatment method: lr      
  Coupling algorithm: SIMPLE  
- Spatial discretization scheme: 2upwind 
- Density interpolation scheme: 2upwind 
+ Spatial discretization scheme: Fromm   
+ Density interpolation scheme: Fromm   
  Initializing from a file? Y       
  File name for initialization: whitcomb_cpt/Autosave.dat                                       
- Momentum relaxation factor:  0.69999999999999996     
+ Momentum relaxation factor:  0.50000000000000000     
  Pressure relaxation factor:  0.29999999999999999     
  Energy relaxation factor:  0.50000000000000000     
- Turbulence relaxation factor:  0.69999999999999996     
+ Turbulence relaxation factor:  0.50000000000000000     
  ----------------------------------------------
  The aerodynamic parameters of this airfoil are:
  Reynolds number:   21424850.880931877     
  Mach number:  0.80000001017181221     
  Angle of attack:   4.0000000000000000     
- Average Y+:   2.8176737282541189     
- Lift coefficient:  0.98947831670957265     
- Drag coefficient:   8.9780938623354664E-002
- Friction coefficient:   3.4774009580538726E-003
- Pitching moment coefficient (1/4 chord): -0.21453601286323432     
- Pressure center (unit chord):  0.46598024649094538        0.0000000000000000     
+ Average Y+:   709.03448906435369     
+ Lift coefficient:  0.39177265927105426     
+ Drag coefficient:   6.0272470797759353E-002
+ Friction coefficient:   2.9342673861645664E-002
+ Pitching moment coefficient (1/4 chord):  -4.5648113340247987E-002
+ Pressure center (unit chord):  0.36316111433683074        0.0000000000000000     

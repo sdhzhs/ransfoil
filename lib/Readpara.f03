@@ -170,10 +170,10 @@ else if(libmod=='I') then
  end if
  print *,'Select coupling algorithm(SIMPLE/SIMPLEC):'
  read *,solctrl
- print *,'Select discretization scheme(1upwind/2upwind/Quick/tvd):'
+ print *,'Select discretization scheme(1upwind/2upwind/Fromm/Quick/tvd):'
  read *,Discret
  if(Proctrl=='com') then
-  print *,'Select density interpolation scheme(center/1upwind/2upwind/Quick/tvd):'
+  print *,'Select density interpolation scheme(center/1upwind/2upwind/Fromm/Quick/tvd):'
   read *,denface
  end if
  print *,'Select type of linear solver for convective-diffusion equations(sor/pbicg):'

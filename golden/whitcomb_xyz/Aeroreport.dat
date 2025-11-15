@@ -6,11 +6,11 @@
  Turbulence model: sa      
  Wall treatment method: wf      
  Coupling algorithm: SIMPLE  
- Spatial discretization scheme: 2upwind 
- Density interpolation scheme: 2upwind 
+ Spatial discretization scheme: Fromm   
+ Density interpolation scheme: Fromm   
  Initializing from a file? Y       
  File name for initialization: whitcomb_xyz/Autosave.dat                                       
- Momentum relaxation factor:  0.69999999999999996     
+ Momentum relaxation factor:  0.50000000000000000     
  Pressure relaxation factor:  0.29999999999999999     
  Energy relaxation factor:  0.50000000000000000     
  Turbulence relaxation factor:  0.50000000000000000     
@@ -19,9 +19,9 @@
  Reynolds number:   21424850.880931877     
  Mach number:  0.80000001017181221     
  Angle of attack:   4.0000000000000000     
- Average Y+:   3.1739477363947470     
- Lift coefficient:  0.93160678736992930     
- Drag coefficient:   8.4862216940434887E-002
- Friction coefficient:   4.7804834372808195E-003
- Pitching moment coefficient (1/4 chord): -0.19267957651040574     
- Pressure center (unit chord):  0.45599798863429603        0.0000000000000000     
+ Average Y+:   276.54751855577524     
+ Lift coefficient:  0.80044503625778096     
+ Drag coefficient:   7.6369746650147008E-002
+ Friction coefficient:   3.6143007502183779E-003
+ Pitching moment coefficient (1/4 chord): -0.15839884222769157     
+ Pressure center (unit chord):  0.44700244873643991        0.0000000000000000     

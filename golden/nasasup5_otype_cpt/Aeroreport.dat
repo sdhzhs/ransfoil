@@ -6,7 +6,7 @@
  Turbulence model: sa      
  Wall treatment method: wf      
  Coupling algorithm: SIMPLE  
- Spatial discretization scheme: 2upwind 
+ Spatial discretization scheme: Fromm   
  Initializing from a file? N       
  Initializing using stagnation values? N       
  Momentum relaxation factor:  0.69999999999999996     
@@ -18,9 +18,9 @@
  Reynolds number:   6014691.9448629767     
  Mach number:  0.23131933612515396     
  Angle of attack:   4.0000000000000000     
- Average Y+:   101.35669325005995     
- Lift coefficient:  0.93887022687294719     
- Drag coefficient:   1.7282431426876275E-002
- Friction coefficient:   5.7425707395740988E-003
- Pitching moment coefficient (1/4 chord): -0.14340347251518876     
- Pressure center (unit chord):  0.40313939512273034        0.0000000000000000     
+ Average Y+:   100.87981890965752     
+ Lift coefficient:  0.91623567597005473     
+ Drag coefficient:   1.6844372830077330E-002
+ Friction coefficient:   5.4383914107120450E-003
+ Pitching moment coefficient (1/4 chord): -0.13973606510539113     
+ Pressure center (unit chord):  0.40287924094783834        0.0000000000000000     

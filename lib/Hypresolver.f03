@@ -196,12 +196,12 @@ DO j=1,Jc
    if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
     ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
     aM(1,i,j)=aM(1,i,j)/Ra
-    aM(2,i,j)=-aM(2,i,j)
-    aM(3,i,j)=-aM(3,i,j)
-    aM(4,i,j)=-aM(4,i,j)
-    aM(5,i,j)=-aM(5,i,j)
    end if
   end if
+  aM(2,i,j)=-aM(2,i,j)
+  aM(3,i,j)=-aM(3,i,j)
+  aM(4,i,j)=-aM(4,i,j)
+  aM(5,i,j)=-aM(5,i,j)
  end DO
 end DO
 
@@ -312,4 +312,5 @@ else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABGetFinalRel(solver, res, ierr)
 end if
 
+!print *, 'Hypre solver finished:', scalar, 'iters=', iter, 'res=', res
 end Subroutine hypresolve

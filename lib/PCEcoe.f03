@@ -131,6 +131,8 @@ DO j=1,Jc
  end DO
 end DO
 !$OMP END DO
+aM=0
+aM(1,:,:)=1
 !$OMP DO PRIVATE(i,Sf,ww,we,ws,wn,aP,aW,aE,aS,aN)
 DO j=1,Jc-1
   DO i=Is,Ie
@@ -174,6 +176,12 @@ DO j=1,Jc-1
   end DO
 end DO
 !$OMP END DO
+!aM(1,:,Jc)=aM(1,:,Jc-1)
+!aM(4,:,Jc)=aM(1,:,Jc-1)
+!aM(1,Ic,1:Jc-1)=aM(1,Ic-1,1:Jc-1)
+!aM(2,Ic,1:Jc-1)=aM(1,Ic-1,1:Jc-1)
+!aM(1,1,1:Jc-1)=aM(1,2,1:Jc-1)
+!aM(3,1,1:Jc-1)=aM(1,2,1:Jc-1)
 !$OMP WORKSHARE
 b=0
 !$OMP END WORKSHARE
