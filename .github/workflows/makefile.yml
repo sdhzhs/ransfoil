@@ -2,9 +2,9 @@ name: Makefile CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "physicalspace" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "physicalspace" ]
   workflow_dispatch:
 
 jobs:
