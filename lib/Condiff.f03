@@ -341,7 +341,6 @@ DO j=1,Jc-1
       aP=aP+2*Ds(i,j)
       if(Ymax>Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
       if(Ymax<=Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
-      !if(fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
      else if(isSst.and.isTk) then
       if(isGenlaw) then
        aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Jg(i,j)*dx*dy/(Tk(i,j)*Yp(i))
@@ -372,7 +371,6 @@ DO j=1,Jc-1
     if(isTn.and.isWf.and.fw1(i,j)>=0) then
      if(Ymax>Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Jg(i,j)*dx*dy
      if(Ymax<=Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
-     !aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
     end if
     if(isTk.and.isSst) aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Jg(i,j)*dx*dy
     if(isTw.and.isSst) aP=aP+rho(i,j)*beta(i,j)*Tw(i,j)*Jg(i,j)*dx*dy

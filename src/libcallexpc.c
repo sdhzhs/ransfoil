@@ -34,6 +34,7 @@ int main(void)
   fd=1e-3;
   ifd=5;
   jp=75;
+  lfar=10.0;
   c=0.5334;
   vfar=75.;
   aoa=4.;

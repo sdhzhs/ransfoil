@@ -47,15 +47,17 @@ tol = 1e-2
 flag = True
 for i in range(len(aeropara)):
   if(aeroparagolden[i] != 0.0):
-    res = abs((aeropara[i]-aeroparagolden[i])/aeroparagolden[i])
+    absrelerr = abs((aeropara[i]-aeroparagolden[i])/aeroparagolden[i])
+    relerr = (aeropara[i]-aeroparagolden[i])*100/aeroparagolden[i]
   else:
-    res = abs(aeropara[i]-aeroparagolden[i])
-  if(res > tol):
+    absrelerr = abs(aeropara[i]-aeroparagolden[i])
+    relerr = (aeropara[i]-aeroparagolden[i])*100
+  if(absrelerr > tol):
     flag = False
     if(i<9):
-      print("The relative error of",tokenlist[i],"with golden is",res)
+      print("The relative error of",tokenlist[i],"with golden is",relerr,"%")
     else:
-      print("The relative error of",tokenlist[i-1],"with golden is",res)
+      print("The relative error of",tokenlist[i-1],"with golden is",relerr,"%")
 if(flag):
   print("The relative errors of all the aeropara with golden are smaller than",tol)
   sys.exit(0)

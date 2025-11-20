@@ -105,7 +105,7 @@ DO k=1,maxl
   if(rms/(Ic*Jc)<err) exit
 end DO
 !$OMP END PARALLEL
-!print *,rms/(Ic*Jc),k
+!print *,scalar,rms/(Ic*Jc),k
 end Subroutine sor
 
 Subroutine CGSTAB(aM,b,F,F0,a,Ic,Jc,Ib1,Ib2,scalar)
@@ -236,7 +236,7 @@ DO k=1,maxl
  !end if
 end DO
 !$OMP END PARALLEL
-!print *,sumrms/(Ic*Jc),iter
+!print *,scalar,sumrms/(Ic*Jc),iter
 
 contains
 

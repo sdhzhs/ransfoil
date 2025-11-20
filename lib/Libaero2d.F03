@@ -596,7 +596,7 @@ muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc)
 if(Turmod=='sa') then
  allocate(Tn0(Ic,Jc),Tn(Ic,Jc),Tnx(Ic,Jc),Tny(Ic,Jc))
 else if(Turmod=='ke') then
- allocate(Tk0(Ic,Jc),Te0(Ic,Jc),Tk(Ic,Jc),Te(Ic,Jc),rhox(Ic,Jc),rhoy(Ic,Jc))
+ allocate(Tk0(Ic,Jc),Te0(Ic,Jc),Tk(Ic,Jc),Te(Ic,Jc))
 else if(Turmod=='sst') then
  allocate(Tk0(Ic,Jc),Tw0(Ic,Jc),Tk(Ic,Jc),Tw(Ic,Jc),Tkx(Ic,Jc),Tky(Ic,Jc),Twx(Ic,Jc),Twy(Ic,Jc),sigmatk(Ic,Jc),sigmatw(Ic,Jc))
 end if
@@ -627,7 +627,7 @@ Un,Vn,Unk,Vna,duk,dva,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rh
 if(Turmod=='sa') then
  deallocate(Tn0,Tn,Tnx,Tny)
 else if(Turmod=='ke') then
- deallocate(Tk0,Te0,Tk,Te,rhox,rhoy)
+ deallocate(Tk0,Te0,Tk,Te)
 else if(Turmod=='sst') then
  deallocate(Tk0,Tw0,Tk,Tw,Tkx,Tky,Twx,Twy,sigmatk,sigmatw)
 end if

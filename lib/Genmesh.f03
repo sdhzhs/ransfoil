@@ -3,7 +3,7 @@ use Aero2DCOM
 implicit none
 integer i,j,l,Iw1,Iw2,Iw3,maxl,It
 logical(1) opentrail
-real(8) err,ft,ltrail,lfar,ratio,ratio0,Xi,Yi
+real(8) err,ft,ltrail,ratio,ratio0,Xi,Yi
 real(8)::tol=1e-8
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
@@ -107,7 +107,7 @@ if(gtype=='C') then
  Xg(Iw2:Iw3,1)=Xwu
  Yg(Iw2:Iw3,1)=Ywu
  ft=sqrt((Xwd(Iwd)-Xwd(Iwd-1))**2+(Ywd(Iwd)-Ywd(Iwd-1))**2)
- ltrail=11
+ ltrail=lfar+1
  Call tanhgridline(ltrail,ft,Xt,Iw1)
  DO i=Iw3+1,Ip
   j=i-Iw3+1
@@ -138,7 +138,6 @@ else
  Is=1
  Ie=Ic
 end if
-lfar=10
 ratio=2.0
 maxl=100
 err=1e-10

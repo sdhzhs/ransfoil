@@ -28,11 +28,6 @@ else if(scalar=='dP') then
  F=dP
  Fwall=dP(Ib1:Ib2,1)
 !$OMP END WORKSHARE
-else if(scalar=='rho') then
-!$OMP WORKSHARE
- F=rho
- Fwall=1.5*rho(Ib1:Ib2,1)-0.5*rho(Ib1:Ib2,2)
-!$OMP END WORKSHARE
 else if(scalar=='Tn') then
 !$OMP WORKSHARE
  F=Tn
@@ -134,11 +129,6 @@ else if(scalar=='dP') then
 !$OMP WORKSHARE
  dPx=Fx
  dPy=Fy
-!$OMP END WORKSHARE
-else if(scalar=='rho') then
-!$OMP WORKSHARE
- rhox=Fx
- rhoy=Fy
 !$OMP END WORKSHARE
 else if(scalar=='Tn') then
 !$OMP WORKSHARE
