@@ -60,5 +60,7 @@ Input wall roughness(m):
 0
 Input a directory of export files:
 cylinder_xyz
+Input ratio of far field distance to chord length:
+10
 Input topological type of generating mesh(C/O):
 O

@@ -3,7 +3,7 @@ use Aero2DCOM
 implicit none
 integer i,j,l,Iw1,Iw2,Iw3,maxl,It
 logical(1) opentrail
-real(8) err,ft,ltrail,lfar,ratio,ratio0,Xi,Yi
+real(8) err,ft,ltrail,ratio,ratio0,Xi,Yi
 real(8)::tol=1e-8
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod

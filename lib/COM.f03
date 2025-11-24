@@ -11,7 +11,7 @@ save
 integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Is,Ie,Iwd,Iwu,Iw,Iw0,Ifd,maxs
 character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag,Pntctrl,Linsol,Tmptype,gtype,Matair
 character(64) filename(9),dir,matfile
-real(C_DOUBLE),bind(C)::fd,fb,eb,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Qf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
+real(C_DOUBLE),bind(C)::fd,fb,eb,lfar,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Qf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
 ca,ka,Vs,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
 real(8),allocatable,target,dimension(:,:)::rho,mu,P,dP,U,V,T,Tn,Tk,Te,Tw,mut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,b,Xg,Yg,Xc,Yc,Xfa,Yfa,Xfk,Yfk,dkw,daw,Vol,&
 dk,da,dkd,dad,d,duk,dva,Unk,Vna,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,Tx,Ty,rhox,rhoy,Tnx,Tny,Tkx,Tky,Twx,Twy,Tex,Tey,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,sigmatk,sigmatw
@@ -30,19 +30,23 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 ! =========================================================
 ! characters variables
 ! identifier name        meaning
-! Proctrl                control parameter, configure compressible property of air
+! Proctrl                control parameter, configure whether using compressible algorithm
 ! Energy                 control parameter, configure whether including energy equation
 ! visheat                control parameter, configure whether including the viscous heating terms
 ! Turmod                 control parameter, configure the turbulence model
 ! Walltreat              control parameter, configure the wall treatment method
 ! solctrl                control parameter, configure the algorithm of velocity-pressure coupling
 ! Discret                control parameter, configure the spatial schemes of convective terms
-! denface                control parameter, configure the interpolation scheme of air density
+! denface                control parameter, configure the interpolation scheme of density
 ! Init                   control parameter, configure whether using a data file for initialization
 ! Stag                   control parameter, configure whether using the stagnation values for initialization
 ! Pntctrl                control parameter, configure whether using control points based parametric spline curve to decribe airfoil
 ! Linsol                 control parameter, configure the type of linear solver for discretized convective-diffusion equations
+! Tmptype                control parameter, configure the type of boundary condition for wall temperature
+! gtype                  control parameter, configure the topological type of generating mesh
+! Matair                 control parameter, configure whether the materials of fluid is air
 ! dir                    directory name of output files
+! matfile                material property filename of incomporessible fluid
 ! -----------------------------------------------------
 ! characters arrays
 ! identifier name        meaning
@@ -55,6 +59,7 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 ! Ip,Jp                  number of gird points in corresponding directions
 ! Ic,Jc                  number of gird cells in corresponding directions
 ! Ib1,Ib2                lower and upper index of gird cells on airfoil
+! Is,Ie                  starting and ending index of internal gird cells
 ! Iwd,Iwu                number of gird points on lower and upper airfoil
 ! Iw0                    number of control points on airfoil
 ! Iw                     number of grid points on whole airfoil
@@ -66,6 +71,7 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 ! fd                     dimensionless near wall mesh spacing
 ! fb                     dimensionless mesh spacing near leading edge
 ! eb                     dimensionless mesh spacing near trailing edge
+! lfar                   ratio of far field distance to chord length
 ! delta                  minimum residual
 ! Rau                    relaxation factor of velocity
 ! Rap                    relaxation factor of pressure
@@ -75,11 +81,17 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 ! AoA                    angle of attack
 ! Ta                     static temperature of free stream
 ! Tf                     wall temperature
+! Qf                     wall heat flux
 ! Po                     static pressure of free stream
 ! ksi                    equivalent sand grain roughness
 ! Itur                   turbulence intensity of free stream
 ! tvr                    turbulent viscosity ratio of free stream
 ! c                      chord length
+! ca                     specifiac heat capacity of fluid
+! ka                     thermal conductivity of fluid
+! Vs                     speed of sound of free stream
+! Re                     Reynolds number of free stream
+! Mach                   Mach number of free stream
 ! Cl                     lift coefficient
 ! Cd                     drag coefficient
 ! Cf                     friction coefficient
@@ -112,7 +124,13 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 ! Te                     turbulence dissipation rate field
 ! Tw                     turbulence specific dissipation rate field
 ! mut                    turbulent viscosity field
+! b                      source term field or right-hand side term field
+! ----------------------------------------------------------
+! three-dimensional floating-point arrays
+! identifier name        meaning
+! aM                     coefficient matrix for linear equations
 
 ! The identifiers with prefix `c' is the C partners of the corresponding Fortran variables
+! ========================================================================================
 
 end Module Aero2DCOM

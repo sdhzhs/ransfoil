@@ -29,6 +29,7 @@ Program libaero2dcaller
   fd=1e-3
   Ifd=5
   Jp=75
+  lfar=10
   c=0.5334
   Vfar=75
   AoA=4

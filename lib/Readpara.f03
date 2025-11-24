@@ -134,6 +134,13 @@ if(libmod=='S'.or.libmod=='M') then
   read(10,*) dir
   read(10,*,IOSTAT=stat) ch
   if(is_iostat_end(stat)) then
+   lfar=10
+  else
+   read (10,*,IOSTAT=stat,IOMSG=ioerrmsg) lfar
+   if(stat>0) STOP 'far to chord ratio: '//ioerrmsg
+  end if
+  read(10,*,IOSTAT=stat) ch
+  if(is_iostat_end(stat).or.stat>0) then
    gtype='C'
   else
    read(10,*) gtype
@@ -274,6 +281,9 @@ else if(libmod=='I') then
  if(stat>0) STOP ioerrmsg
  print *,'Input a directory of output files:'
  read *,dir
+ print *,'Input ratio of far field distance to chord length:'
+ read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) lfar
+ if(stat>0) STOP ioerrmsg
  print *,'Input topological type of generating mesh(C/O):'
  read *,gtype
  print *,'Is the materials of fluid air(Y/N)?'

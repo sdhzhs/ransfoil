@@ -89,6 +89,14 @@ if [ $? -eq 0 ]; then
 else
   echo "naca0012_mat_xyz case: Fail"
 fi
+mkdir naca0012_far_cpt
+ransfoil --script test/ransfoil.config.0012.farboundist.cpt > naca0012_far_cpt/output.txt
+python comgolden.py naca0012_far_cpt golden/naca0012_far_cpt >> naca0012_far_cpt/output.txt
+if [ $? -eq 0 ]; then
+  echo "naca0012_far_cpt case: Pass"
+else
+  echo "naca0012_far_cpt case: Fail"
+fi
 cd scripts
 ./runwhitcomb.bat
 python ../comgolden.py whitcomb1 ../golden/whitcomb_xyz_super > 3.txt
