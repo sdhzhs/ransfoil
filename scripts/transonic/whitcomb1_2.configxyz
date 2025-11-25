@@ -14,9 +14,9 @@ Select wall treatment method(wf/lr):
 wf
 Select coupling method(SIMPLE/SIMPLEC):
 SIMPLE
-Select discretization scheme(1upwind/2upwind/Quick/tvd):
+Select discretization scheme(1upwind/2upwind/Fromm/Quick/tvd):
 2upwind
-Select density interpolation scheme(center/1upwind/2upwind/Quick/tvd):
+Select density interpolation scheme(center/1upwind/2upwind/Fromm/Quick/tvd):
 2upwind
 Select type of linear solver for convective-diffusion equations(sor/pbicg):
 sor
