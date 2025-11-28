@@ -562,7 +562,7 @@ if(scalar=='dP') then
 else if(scalar=='T') then
  T=max(min(5e+3,T),1.0)
 else if(scalar=='Tn') then
- Tn=min(max(Tn,0e+0),1e+5*mu/rho)
+ Tn=min(max(Tn,1e-15),1e+5*mu/rho)
 else if(scalar=='Tk') then
  Tk=max(Tk,1e-15)
 else if(scalar=='Te') then

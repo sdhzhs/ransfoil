@@ -2,12 +2,13 @@ Subroutine PCEcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,noc
+real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,cc,noc
 real(8) aP,aW,aE,aS,aN
 real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),dw(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
 logical(1) isSimp,isSimpC,isCom
 noc=1.d+0
+cc=1.d+0
 isSimp=solctrl=='SIMPLE'
 isSimpC=solctrl=='SIMPLEC'
 isCom=Proctrl=='com'
@@ -99,13 +100,13 @@ DO j=1,Jc-1
   end if
   if(i==1) then
    cor=(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(Ic,j),dk(i,j),dk(Ic,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))+cor+noc*dwk*Pak
+   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))+cc*cor+noc*dwk*Pak
   else if(i==Ip) then
    cor=(1-Rau)*(Unk(i,j)-interpl(Un(1,j),Un(i-1,j),dk(1,j),dk(i-1,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))+cor+noc*dwk*Pak
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))+cc*cor+noc*dwk*Pak
   else
    cor=(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+cor+noc*dwk*Pak
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+cc*cor+noc*dwk*Pak
   end if
  end DO
 end DO
@@ -119,7 +120,7 @@ DO j=1,Jc
    Pka=(P(Ic-i,j)+P(i+1,j)-P(Ic+2-i,j)-P(i-1,j))/(4*dx)
    Vnpa=interpl(Vnp(i,j),-Vnp(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+cor+noc*dwa*Pka
+   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+cc*cor+noc*dwa*Pka
   else if(j==1) then
    dva(i,j)=0
    Vna(i,j)=0
@@ -135,7 +136,7 @@ DO j=1,Jc
    end if
    Vnpa=interpl(Vnp(i,j-1),Vn(i,j),da(i,j-1),da(i,j))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+noc*dwa*Pka
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cc*cor+noc*dwa*Pka
   else
    dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j-1))
    dwa=interpl(dw(i,j)*dx,dw(i,j-1)*dx,da(i,j),da(i,j-1))
@@ -148,7 +149,7 @@ DO j=1,Jc
    end if
    Vnpa=interpl(Vnp(i,j),Vnp(i,j-1),da(i,j),da(i,j-1))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cor+noc*dwa*Pka
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cc*cor+noc*dwa*Pka
   end if
  end DO
 end DO
