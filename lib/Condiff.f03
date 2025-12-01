@@ -143,7 +143,7 @@ else
   Ymax=maxval(Yplus)
 !$OMP END WORKSHARE
 end if
-if(isT.or.isTk.or.isTw.or.isTe) then
+if(isT.or.isTn.or.isTk.or.isTw.or.isTe) then
  !$OMP WORKSHARE
  St=sqrt(2*(Ux**2+Vy**2)+(Uy+Vx)**2)
  !$OMP END WORKSHARE
@@ -165,7 +165,7 @@ if(isSst.and.(isTk.or.isTw)) then
       alphastar(i,j)=alphastarf
       betaistar=betastarf
     end if
-    if(sstcom) then
+    if(isCom.and.sstcom) then
       if(sqrt(2*Tk(i,j)/(gama*R*T(i,j)/Ma))<=Mt0) then
        Fmt=0
       else
@@ -201,8 +201,10 @@ else if(isTn) then
     fnu2=1-Tn(i,j)/(mu(i,j)/rho(i,j)+Tn(i,j)*fnu1)
     !if(Ymax>Ym) fnu2=0.0
     Sv=abs(Uy(i,j)-Vx(i,j))
+    !Sm(i,j)=Sv
     if(saprodlimit) Sv=Sv+2.0*min(0.0,St(i,j)-Sv)
     Sm(i,j)=Sv+Tn(i,j)*fnu2/(kapa*d(i,j))**2
+    !Sm(i,j)=max(Sv+Tn(i,j)*fnu2/(kapa*d(i,j))**2,0.3*Sm(i,j))
     rm=Tn(i,j)/(Sm(i,j)*(kapa*d(i,j))**2)
     gm=rm+Cw2*(rm**6-rm)
     fw1(i,j)=gm*((1+Cw3**6)/(gm**6+Cw3**6))**(1./6)
@@ -280,7 +282,7 @@ DO j=1,Jc-1
      else
       aP=aP+Ds(i,j)
      end if
-     if(isTn.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
+     if(isTn.and.fw1(i,j)>0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
      if(isTk) aP=aP+rho(i,j)*betastar(i,j)*Tw(i,j)*Vol(i,j)
      if(isT.and.isFlux) aP=aP-Ds(i,j)
     else if(isSa.and.isWf.or.(isSst.and.isWf).or.isKe) then
@@ -300,8 +302,8 @@ DO j=1,Jc-1
       if(isFixed.and.Tmin>=0) aP=aP+rho(i,j)*ustar(i)*DR(i)/Tplus(i)
      else if(isTn) then
       aP=aP+Ds(i,j)
-      if(Ymax>Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Vol(i,j)
-      if(Ymax<=Ym.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
+      if(Ymax>Ym.and.fw1(i,j)>0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Vol(i,j)
+      if(Ymax<=Ym.and.fw1(i,j)>0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
      else if(isSst.and.isTk) then
       if(isGenlaw) then
        aP=aP+rho(i,j)*ustar(i)**3*Uplus(i)*Vol(i,j)/(Tk(i,j)*Yp(i))
@@ -328,8 +330,8 @@ DO j=1,Jc-1
     !aP=aP+DF
     if(isTk.and.isKe) aP=aP+rho(i,j)*Te(i,j)*Vol(i,j)/Tk(i,j)
     if(isTe.and.isKe) aP=aP+C2e*rho(i,j)*Te(i,j)*Vol(i,j)/Tk(i,j)
-    if(isTn.and.isLr.and.fw1(i,j)>=0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
-    if(isTn.and.isWf.and.fw1(i,j)>=0) then
+    if(isTn.and.isLr.and.fw1(i,j)>0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
+    if(isTn.and.isWf.and.fw1(i,j)>0) then
      if(Ymax>Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/(kapa*d(i,j))**2*Vol(i,j)
      if(Ymax<=Ym) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Vol(i,j)
     end if

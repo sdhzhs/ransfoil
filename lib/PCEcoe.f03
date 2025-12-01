@@ -2,12 +2,12 @@ Subroutine PCEcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Sf,Uf,Vf,Unpk,Vnpa,ww,we,ws,wn,cor
+real(8) Sf,Uf,Vf,Unpk,Vnpa,ww,we,ws,wn,cor,cc
 real(8) aP,aW,aE,aS,aN
 real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),Up(Ic,Jc),Vp(Ic,Jc)
 logical(1) isSimp,isSimpC,isCom
-
+cc=1.d+0
 isSimp=solctrl=='SIMPLE'
 isSimpC=solctrl=='SIMPLEC'
 isCom=Proctrl=='com'
@@ -78,17 +78,17 @@ DO j=1,Jc-1
    Uf=interpl(U(Ic,j),U(i,j),dkw(i,j))
    Vf=interpl(V(Ic,j),V(i,j),dkw(i,j))
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))*Sf/dkd(i,j)+cor
+   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))*Sf/dkd(i,j)+cc*cor
   else if(i==Ip) then
    Uf=interpl(U(i-1,j),U(1,j),dkw(i,j))
    Vf=interpl(V(i-1,j),V(1,j),dkw(i,j))
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))*Sf/dkd(i,j)+cor
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))*Sf/dkd(i,j)+cc*cor
   else
    Uf=interpl(U(i-1,j),U(i,j),dkw(i,j))
    Vf=interpl(V(i-1,j),V(i,j),dkw(i,j))
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)+cor
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)+cc*cor
   end if
  end DO
 end DO
@@ -119,14 +119,14 @@ DO j=1,Jc
    Uf=interpl(U(Ic+1-i,j),U(i,j),daw(i,j))
    Vf=interpl(V(Ic+1-i,j),V(i,j),daw(i,j))
    cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)+cor
+   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)+cc*cor
   else if(j==1) then
    Vna(i,j)=0
   else
    Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
    Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
    cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cor
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor
   end if
  end DO
 end DO

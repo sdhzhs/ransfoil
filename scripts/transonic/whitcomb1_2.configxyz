@@ -35,9 +35,9 @@ Input relaxation factor of velocity:
 Input relaxation factor of pressure:
 3e-1
 Input relaxation factor of temperature:
-3e-1
+5e-1
 Input relaxation factor of turbulence:
-3e-1
+5e-1
 Input dimensionless near wall mesh spacing:
 1e-5
 Input layers of uniform near wall mesh:
