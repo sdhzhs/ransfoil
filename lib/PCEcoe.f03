@@ -2,16 +2,17 @@ Subroutine PCEcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,cc,noc
+real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,cc,noc,Xf,Yf
 real(8) aP,aW,aE,aS,aN
 real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),dw(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
-logical(1) isSimp,isSimpC,isCom
+logical(1) isSimp,isSimpC,isCom,isInOut
 noc=1.d+0
 cc=1.d+0
 isSimp=solctrl=='SIMPLE'
 isSimpC=solctrl=='SIMPLEC'
 isCom=Proctrl=='com'
+isInOut=Fstype=='vinpout'
 
 !$OMP PARALLEL
 if(isSimp) then
@@ -50,25 +51,25 @@ DO j=1,Jc-1
    duk(i,j)=interpl(du(i,j),du(Ic,j),dk(i,j),dk(Ic,j))
    dwk=interpl(dw(i,j)*dy,dw(Ic,j)*dy,dk(i,j),dk(Ic,j))
    Unpk=interpl(Unp(i,j),Unp(Ic,j),dk(i,j),dk(Ic,j))
-  else if(i==2) then
-   if(Is>1) then
+  else if(Is>1.and.i==2) then
+   if(isInOut) then
+    duk(i,j)=interpl(du(i,j),du(i,j),dk(i,j),dk(i-1,j))
+    dwk=interpl(dw(i,j)*dy,dw(i,j)*dy,dk(i,j),dk(i-1,j))
+    Unpk=interpl(Unp(i,j),Unp(i,j),dk(i,j),dk(i-1,j))
+   else
     duk(i,j)=interpl(du(i,j),0.0,dk(i,j),dk(i-1,j))
     dwk=interpl(dw(i,j)*dy,0.0,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
-   else
-    duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i-1,j))
-    dwk=interpl(dw(i,j)*dy,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
-    Unpk=interpl(Unp(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
    end if
-  else if(i==Ic) then
-   if(Is>1) then
+  else if(Is>1.and.i==Ic) then
+   if(isInOut) then
+    duk(i,j)=interpl(du(i-1,j),du(i-1,j),dk(i,j),dk(i-1,j))
+    dwk=interpl(dw(i-1,j)*dy,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
+    Unpk=interpl(Unp(i-1,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
+   else
     duk(i,j)=interpl(0.0,du(i-1,j),dk(i,j),dk(i-1,j))
     dwk=interpl(0.0,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i-1,j),Un(i,j),dk(i-1,j),dk(i,j))
-   else
-    duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i-1,j))
-    dwk=interpl(dw(i,j)*dy,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
-    Unpk=interpl(Unp(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
    end if
   else if(i==Ip) then
    duk(i,j)=interpl(du(1,j),du(i-1,j),dk(1,j),dk(i-1,j))
@@ -125,8 +126,6 @@ DO j=1,Jc
    dva(i,j)=0
    Vna(i,j)=0
   else if(j==Jc) then
-   dva(i,j)=interpl(0.0,dv(i,j-1),da(i,j),da(i,j-1))
-   dwa=interpl(0.0,dw(i,j-1)*dx,da(i,j),da(i,j-1))
    if(i==1) then
     Pka=(P(i+1,j-1)+P(i+1,j)-P(Ic,j-1)-P(Ic,j))/(4*dx)
    else if(i==Ic) then
@@ -134,8 +133,19 @@ DO j=1,Jc
    else
     Pka=(P(i+1,j-1)+P(i+1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
    end if
-   Vnpa=interpl(Vnp(i,j-1),Vn(i,j),da(i,j-1),da(i,j))
-   cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
+   if(isInOut) then
+    dva(i,j)=0.0
+    dwa=0.0
+    Xf=interpl(Xgk(i,j-1),Xgk(i,j),da(i,j-1),da(i,j))
+    Yf=interpl(Ygk(i,j-1),Ygk(i,j),da(i,j-1),da(i,j))
+    Vnpa=V(i,j)*Xf-U(i,j)*Yf
+    cor=0.0
+   else
+    dva(i,j)=interpl(0.0,dv(i,j-1),da(i,j),da(i,j-1))
+    dwa=interpl(0.0,dw(i,j-1)*dx,da(i,j),da(i,j-1))
+    Vnpa=interpl(Vnp(i,j-1),Vn(i,j),da(i,j-1),da(i,j))
+    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
+   end if
    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cc*cor+noc*dwa*Pka
   else
    dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j-1))
@@ -184,6 +194,10 @@ DO j=1,Jc-1
      aS=aS+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(i,j-1)/Ma)
     end if
     aP=aP+Rap*((0.5+we)*Unk(i+1,j)*dy-(0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx-(0.5-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)
+    if(isInOut.and.j==Jc-1) then
+     aN=aN+Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
+     aP=aP-Rap*(0.5+wn)*Vna(i,j+1)*dx/(R*T(i,j)/Ma)
+    end if
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW

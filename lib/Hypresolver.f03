@@ -156,18 +156,18 @@ end if
 
 end Subroutine hyprerelease
 
-Subroutine hypresolve(A,b,x,solver,precond,aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,scalar)
+Subroutine hypresolve(A,b,x,solver,precond,aM,ba,F,Ic,Jc,Ib1,solid,scalar,bctype)
 implicit none
 include 'HYPREf.h'
 
-integer      i,j,Ic,Jc,Ib1,Ib2,Is,Ie
+integer      i,j,Ic,Jc,Ib1
 integer(1)   solid
 integer      ierr,nentries,part,var,itmax,prlv,iter,precond_id
 integer      ilower(2),iupper(2),stencil_indices(5)
-real(8)      Ra,tol,res
-real(8)      aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
-character(*) scalar
-logical(1) isP,isT,isTe,isTw
+real(8)      tol,res
+real(8)      aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc)
+character(*) scalar,bctype
+logical(1) isP,isT,isInOut
 
 integer(8)  A
 integer(8)  b
@@ -179,29 +179,14 @@ integer(8)  solver,precond
 
 isP = scalar=='dP'
 isT = scalar=='T'
-isTe = scalar=='Te'
-isTw = scalar=='Tw'
-
-if(Ib1>1.and.Ib2<Ic) then
- Is=2
- Ie=Ic-1
-else
- Is=1
- Ie=Ic
-end if
+isInOut = bctype=='vinpout'
 
 DO j=1,Jc
  DO i=1,Ic
-  if(i>=Is.and.i<=Ie.and.j<Jc) then
-   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
-    ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
-    aM(1,i,j)=aM(1,i,j)/Ra
-    aM(2,i,j)=-aM(2,i,j)
-    aM(3,i,j)=-aM(3,i,j)
-    aM(4,i,j)=-aM(4,i,j)
-    aM(5,i,j)=-aM(5,i,j)
-   end if
-  end if
+  aM(2,i,j)=-aM(2,i,j)
+  aM(3,i,j)=-aM(3,i,j)
+  aM(4,i,j)=-aM(4,i,j)
+  aM(5,i,j)=-aM(5,i,j)
  end DO
 end DO
 
@@ -296,6 +281,16 @@ end if
 
 Call HYPRE_SStructVectorGather(x,ierr)
 Call HYPRE_SStructVectorGetBoxValues(x,part,ilower,iupper,var,F,ierr)
+
+if(isInOut) then
+ if(Ib1>1.and.(.not.isP)) then
+  F(1,1:Jc-1)=F(2,1:Jc-1)
+  F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
+ end if
+ if(isP) then
+  F(:,Jc)=F(:,Jc-1)
+ end if
+end if
 
 if(solid==1) then
  Call HYPRE_SStructBiCGSTABGetNumIter(solver, iter, ierr)

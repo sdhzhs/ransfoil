@@ -182,7 +182,7 @@ stat = device_free(p_values)
 
 end Subroutine hyprerelease_gpu
 
-Subroutine hyprecompute_gpu(A,b,x,solver,precond,p_values,aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,scalar)
+Subroutine hyprecompute_gpu(A,b,x,solver,precond,p_values,aM,ba,F,Ic,Jc,Ib1,solid,scalar,bctype)
 use, intrinsic :: iso_c_binding
 use, intrinsic :: iso_fortran_env, only: int64
 use cudaf
@@ -190,14 +190,14 @@ use cudaf
 implicit none
 include 'HYPREf.h'
 
-integer      i,j,Ic,Jc,Ib1,Ib2,Is,Ie
+integer      i,j,Ic,Jc,Ib1
 integer(1)   solid
 integer      ierr,nentries,part,var,itmax,prlv,iter,precond_id
 integer      ilower(2),iupper(2),stencil_indices(5)
-real(8)      Ra,tol,res
-real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
-character(*) scalar
-logical(1) isP,isT,isTe,isTw
+real(8)      tol,res
+real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc)
+character(*) scalar,bctype
+logical(1) isP,isT,isInOut
 
 integer(8)  A
 integer(8)  b
@@ -214,34 +214,19 @@ integer :: stat
 
 isP = scalar=='dP'
 isT = scalar=='T'
-isTe = scalar=='Te'
-isTw = scalar=='Tw'
+isInOut = bctype=='vinpout'
 
 Call c_f_pointer(p_values, values, [5*Ic*Jc])
 p_F = C_LOC(F)
 p_aM = C_LOC(aM)
 p_ba = C_LOC(ba)
 
-if(Ib1>1.and.Ib2<Ic) then
- Is=2
- Ie=Ic-1
-else
- Is=1
- Ie=Ic
-end if
-
 DO j=1,Jc
  DO i=1,Ic
-  if(i>=Is.and.i<=Ie.and.j<Jc) then
-   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
-    ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
-    aM(1,i,j)=aM(1,i,j)/Ra
-    aM(2,i,j)=-aM(2,i,j)
-    aM(3,i,j)=-aM(3,i,j)
-    aM(4,i,j)=-aM(4,i,j)
-    aM(5,i,j)=-aM(5,i,j)
-   end if
-  end if
+  aM(2,i,j)=-aM(2,i,j)
+  aM(3,i,j)=-aM(3,i,j)
+  aM(4,i,j)=-aM(4,i,j)
+  aM(5,i,j)=-aM(5,i,j)
  end DO
 end DO
 
@@ -357,6 +342,16 @@ Call HYPRE_SStructVectorGetBoxValues(x,part,ilower,iupper,var,values,ierr)
 
 stat = copy_device_to_host(int(Ic*Jc * 8, int64), p_F, p_values)
 
+if(isInOut) then
+ if(Ib1>1.and.(.not.isP)) then
+  F(1,1:Jc-1)=F(2,1:Jc-1)
+  F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
+ end if
+ if(isP) then
+  F(:,Jc)=F(:,Jc-1)
+ end if
+end if
+
 if(solid==1) then
  Call HYPRE_SStructBiCGSTABGetNumIter(solver, iter, ierr)
  Call HYPRE_SStructBiCGSTABGetFinalRe(solver, res, ierr)
@@ -375,7 +370,7 @@ end if
 
 end Subroutine hyprecompute_gpu
 
-Subroutine hypresolve_gpu(aM,ba,F,F0,Ra,Ic,Jc,Ib1,Ib2,solid,scalar)
+Subroutine hypresolve_gpu(aM,ba,F,Ic,Jc,Ib1,Ib2,solid,scalar,bctype)
 use, intrinsic :: iso_c_binding
 use, intrinsic :: iso_fortran_env, only: int64
 use cudaf
@@ -383,14 +378,14 @@ use cudaf
 implicit none
 include 'HYPREf.h'
 
-integer      i,j,Ic,Jc,Ib1,Ib2,Is,Ie
+integer      i,j,Ic,Jc,Ib1,Ib2
 integer(1)   solid
 integer      ierr,ndims,nentries,nparts,nvars,part,var,object_type,nb,itmax,prlv,iter,precond_id
 integer      ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
-real(8)      Ra,tol,res
-real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),F0(Ic,Jc)
-character(*) scalar
-logical(1) isP,isT,isTe,isTw
+real(8)      tol,res
+real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc)
+character(*) scalar,bctype
+logical(1) isP,isT,isInOut
 
 integer(8)  grid
 integer(8)  stencil
@@ -413,8 +408,7 @@ integer :: stat
 
 isP = scalar=='dP'
 isT = scalar=='T'
-isTe = scalar=='Te'
-isTw = scalar=='Tw'
+isInOut = bctype=='vinpout'
 
 !stat = device_malloc_managed(int(5*Ic*Jc * 8, int64), p_values)
 stat = device_malloc(int(5*Ic*Jc * 8, int64), p_values)
@@ -531,26 +525,12 @@ else if(solid==4) then
  Call HYPRE_BoomerAMGCreate(precond, ierr)
 end if
 
-if(Ib1>1.and.Ib2<Ic) then
- Is=2
- Ie=Ic-1
-else
- Is=1
- Ie=Ic
-end if
-
 DO j=1,Jc
  DO i=1,Ic
-  if(i>=Is.and.i<=Ie.and.j<Jc) then
-   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
-    ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
-    aM(1,i,j)=aM(1,i,j)/Ra
-    aM(2,i,j)=-aM(2,i,j)
-    aM(3,i,j)=-aM(3,i,j)
-    aM(4,i,j)=-aM(4,i,j)
-    aM(5,i,j)=-aM(5,i,j)
-   end if
-  end if
+  aM(2,i,j)=-aM(2,i,j)
+  aM(3,i,j)=-aM(3,i,j)
+  aM(4,i,j)=-aM(4,i,j)
+  aM(5,i,j)=-aM(5,i,j)
  end DO
 end DO
 
@@ -651,6 +631,16 @@ Call HYPRE_SStructVectorGather(x,ierr)
 Call HYPRE_SStructVectorGetBoxValues(x,part,ilower,iupper,var,values,ierr)
 
 stat = copy_device_to_host(int(Ic*Jc * 8, int64), p_F, p_values)
+
+if(isInOut) then
+ if(Ib1>1.and.(.not.isP)) then
+  F(1,1:Jc-1)=F(2,1:Jc-1)
+  F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
+ end if
+ if(isP) then
+  F(:,Jc)=F(:,Jc-1)
+ end if
+end if
 
 if(solid==1) then
  Call HYPRE_SStructBiCGSTABGetNumIter(solver, iter, ierr)
