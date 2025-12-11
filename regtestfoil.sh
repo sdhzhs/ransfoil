@@ -97,6 +97,14 @@ if [ $? -eq 0 ]; then
 else
   echo "naca0012_far_cpt case: Fail"
 fi
+mkdir naca0012_freebc_cpt
+ransfoil --script test/ransfoil.config.0012.freebc.cpt > naca0012_freebc_cpt/output.txt
+python comgolden.py naca0012_freebc_cpt golden/naca0012_freebc_cpt >> naca0012_freebc_cpt/output.txt
+if [ $? -eq 0 ]; then
+  echo "naca0012_freebc_cpt case: Pass"
+else
+  echo "naca0012_freebc_cpt case: Fail"
+fi
 cd scripts
 ./runwhitcomb.bat
 python ../comgolden.py whitcomb1 ../golden/whitcomb_xyz_super > 3.txt

@@ -5,7 +5,7 @@
 
 int main(void)
 {
-  int i,prlv,iw1,iw2,iw3;
+  int i,prlv,iw1,iw2,iw3,status;
   char *mode;
   double max,min;
 
@@ -44,16 +44,16 @@ int main(void)
   tvr=10.;
   ksi=0.;
   fp=fopen("../cases/NACA0012.xyz","rt");
-  fscanf(fp,"%d",&iwd);
+  status=fscanf(fp,"%d",&iwd);
   cxwd=(double *) malloc(iwd*sizeof(double));
   cywd=(double *) malloc(iwd*sizeof(double));
   for(i=0;i<iwd;i++)
-    fscanf(fp,"%le %le",&cxwd[i],&cywd[i]);
-  fscanf(fp,"%d",&iwu);
+    status=fscanf(fp,"%le %le",&cxwd[i],&cywd[i]);
+  status=fscanf(fp,"%d",&iwu);
   cxwu=(double *) malloc(iwu*sizeof(double));
   cywu=(double *) malloc(iwu*sizeof(double));
   for(i=0;i<iwu;i++)
-    fscanf(fp,"%le %le",&cxwu[i],&cywu[i]);
+    status=fscanf(fp,"%le %le",&cxwu[i],&cywu[i]);
   fclose(fp);
   printf("Read airfoil coordinates completed!\n");
   iw1=(iwd>iwu)?iwd:iwu;

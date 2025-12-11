@@ -62,6 +62,8 @@ Input a directory of export files:
 naca0012_mat_xyz
 Input ratio of far field distance to chord length:
 10
+Set boundary condition type of free stream(allfixed/vinpout):
+allfixed
 Input topological type of generating mesh(C/O):
 C
 Is the materials of fluid air(Y/N)?

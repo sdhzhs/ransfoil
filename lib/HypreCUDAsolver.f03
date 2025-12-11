@@ -195,7 +195,7 @@ integer(1)   solid
 integer      ierr,nentries,part,var,itmax,prlv,iter,precond_id
 integer      ilower(2),iupper(2),stencil_indices(5)
 real(8)      tol,res
-real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc)
+real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),Vn(Ic)
 character(*) scalar,bctype
 logical(1) isP,isT,isInOut
 
@@ -229,6 +229,14 @@ DO j=1,Jc
   aM(5,i,j)=-aM(5,i,j)
  end DO
 end DO
+if(isInOut) then
+ Vn=ba(:,Jc)
+ if(isP) then
+  ba(:,Jc)=0
+ else
+  ba(:,Jc)=F(:,Jc)
+ end if
+end if
 
 stat = copy_host_to_device(int(Ic*Jc * 40, int64), p_values, p_aM)
 
@@ -347,8 +355,14 @@ if(isInOut) then
   F(1,1:Jc-1)=F(2,1:Jc-1)
   F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
  end if
- if(isP) then
-  F(:,Jc)=F(:,Jc-1)
+ if(.not.isP) then
+  DO i=1,Ic
+   if(Vn(i)>0) F(i,Jc)=F(i,Jc-1)
+  end DO
+ else
+  DO i=1,Ic
+   if(Vn(i)<0) F(i,Jc)=F(i,Jc-1)
+  end DO
  end if
 end if
 
@@ -383,7 +397,7 @@ integer(1)   solid
 integer      ierr,ndims,nentries,nparts,nvars,part,var,object_type,nb,itmax,prlv,iter,precond_id
 integer      ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
 real(8)      tol,res
-real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc)
+real(8), target:: aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),Vn(Ic)
 character(*) scalar,bctype
 logical(1) isP,isT,isInOut
 
@@ -533,6 +547,14 @@ DO j=1,Jc
   aM(5,i,j)=-aM(5,i,j)
  end DO
 end DO
+if(isInOut) then
+ Vn=ba(:,Jc)
+ if(isP) then
+  ba(:,Jc)=0
+ else
+  ba(:,Jc)=F(:,Jc)
+ end if
+end if
 
 stat = copy_host_to_device(int(Ic*Jc * 40, int64), p_values, p_aM)
 
@@ -637,8 +659,14 @@ if(isInOut) then
   F(1,1:Jc-1)=F(2,1:Jc-1)
   F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
  end if
- if(isP) then
-  F(:,Jc)=F(:,Jc-1)
+ if(.not.isP) then
+  DO i=1,Ic
+   if(Vn(i)>0) F(i,Jc)=F(i,Jc-1)
+  end DO
+ else
+  DO i=1,Ic
+   if(Vn(i)<0) F(i,Jc)=F(i,Jc-1)
+  end DO
  end if
 end if
 

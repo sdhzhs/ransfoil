@@ -165,7 +165,7 @@ integer(1)   solid
 integer      ierr,nentries,part,var,itmax,prlv,iter,precond_id
 integer      ilower(2),iupper(2),stencil_indices(5)
 real(8)      tol,res
-real(8)      aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc)
+real(8)      aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),Vn(Ic)
 character(*) scalar,bctype
 logical(1) isP,isT,isInOut
 
@@ -189,6 +189,15 @@ DO j=1,Jc
   aM(5,i,j)=-aM(5,i,j)
  end DO
 end DO
+
+if(isInOut) then
+ Vn=ba(:,Jc)
+ if(isP) then
+  ba(:,Jc)=0
+ else
+  ba(:,Jc)=F(:,Jc)
+ end if
+end if
 
 nentries = 5
 part = 0
@@ -287,8 +296,14 @@ if(isInOut) then
   F(1,1:Jc-1)=F(2,1:Jc-1)
   F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
  end if
- if(isP) then
-  F(:,Jc)=F(:,Jc-1)
+ if(.not.isP) then
+  DO i=1,Ic
+   if(Vn(i)>0) F(i,Jc)=F(i,Jc-1)
+  end DO
+ else
+  DO i=1,Ic
+   if(Vn(i)<0) F(i,Jc)=F(i,Jc-1)
+  end DO
  end if
 end if
 
@@ -306,5 +321,7 @@ else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABGetNumIter(solver, iter, ierr)
  Call HYPRE_ParCSRBiCGSTABGetFinalRel(solver, res, ierr)
 end if
+
+!print *, scalar, ' Hypre solver iterations: ', iter, ' Final residual: ', res
 
 end Subroutine hypresolve

@@ -68,5 +68,7 @@ Input a directory of export files:
 nasasup5_otype_cpt
 Input ratio of far field distance to chord length:
 10
+Set boundary condition type of free stream(allfixed/vinpout):
+allfixed
 Input topological type of generating mesh(C/O):
 O

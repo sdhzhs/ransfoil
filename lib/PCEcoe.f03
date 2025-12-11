@@ -134,12 +134,19 @@ DO j=1,Jc
     Pka=(P(i+1,j-1)+P(i+1,j)-P(i-1,j-1)-P(i-1,j))/(4*dx)
    end if
    if(isInOut) then
+   if(Vn(i,j)<0.0) then
     dva(i,j)=0.0
     dwa=0.0
     Xf=interpl(Xgk(i,j-1),Xgk(i,j),da(i,j-1),da(i,j))
     Yf=interpl(Ygk(i,j-1),Ygk(i,j),da(i,j-1),da(i,j))
     Vnpa=V(i,j)*Xf-U(i,j)*Yf
     cor=0.0
+   else
+    dva(i,j)=interpl(dv(i,j-1),dv(i,j-1),da(i,j),da(i,j-1))
+    dwa=interpl(dw(i,j-1)*dx,dw(i,j-1)*dx,da(i,j),da(i,j-1))
+    Vnpa=interpl(Vnp(i,j-1),Vnp(i,j-1),da(i,j),da(i,j-1))
+    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
+   end if
    else
     dva(i,j)=interpl(0.0,dv(i,j-1),da(i,j),da(i,j-1))
     dwa=interpl(0.0,dw(i,j-1)*dx,da(i,j),da(i,j-1))
@@ -194,7 +201,7 @@ DO j=1,Jc-1
      aS=aS+Rap*(0.5+ws)*Vna(i,j)*dx/(R*T(i,j-1)/Ma)
     end if
     aP=aP+Rap*((0.5+we)*Unk(i+1,j)*dy-(0.5-ww)*Unk(i,j)*dy+(0.5+wn)*Vna(i,j+1)*dx-(0.5-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)
-    if(isInOut.and.j==Jc-1) then
+    if(isInOut.and.j==Jc-1.and.Vn(i,j+1)<0.0) then
      aN=aN+Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
      aP=aP-Rap*(0.5+wn)*Vna(i,j+1)*dx/(R*T(i,j)/Ma)
     end if
@@ -217,5 +224,13 @@ DO j=1,Jc-1
   end DO
 end DO
 !$OMP END DO
+!$OMP WORKSHARE
+rmsm=sum(abs(b))/(Ic*Jc)
+!$OMP END WORKSHARE
+if(isInOut) then
+ !$OMP WORKSHARE
+ b(:,Jc)=Vn(:,Jc)
+ !$OMP END WORKSHARE
+end if
 !$OMP END PARALLEL
 end Subroutine PCEcoe
