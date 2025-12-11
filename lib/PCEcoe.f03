@@ -6,11 +6,12 @@ real(8) Sf,Uf,Vf,Unpk,Vnpa,ww,we,ws,wn,cor,cc
 real(8) aP,aW,aE,aS,aN
 real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),Up(Ic,Jc),Vp(Ic,Jc)
-logical(1) isSimp,isSimpC,isCom
+logical(1) isSimp,isSimpC,isCom,isInOut
 cc=1.d+0
 isSimp=solctrl=='SIMPLE'
 isSimpC=solctrl=='SIMPLEC'
 isCom=Proctrl=='com'
+isInOut=Fstype=='vinpout'
 
 !$OMP PARALLEL
 if(isSimp) then
@@ -43,25 +44,25 @@ DO j=1,Jc-1
    duk(i,j)=interpl(du(Ic,j),du(i,j),dkw(i,j))
    Uf=interpl(Up(Ic,j),Up(i,j),dkw(i,j))
    Vf=interpl(Vp(Ic,j),Vp(i,j),dkw(i,j))
-  else if(i==2) then
-   if(Is>1) then
+  else if(Is>1.and.i==2) then
+   if(isInOut) then
+    duk(i,j)=interpl(du(i,j),du(i,j),dkw(i,j))
+    Uf=interpl(Up(i,j),Up(i,j),dkw(i,j))
+    Vf=interpl(Vp(i,j),Vp(i,j),dkw(i,j))
+   else
     duk(i,j)=interpl(0.0,du(i,j),dkw(i,j))
     Uf=interpl(U(i-1,j),Up(i,j),dkw(i,j))
     Vf=interpl(V(i-1,j),Vp(i,j),dkw(i,j))
-   else
-    duk(i,j)=interpl(du(i-1,j),du(i,j),dkw(i,j))
-    Uf=interpl(Up(i-1,j),Up(i,j),dkw(i,j))
-    Vf=interpl(Vp(i-1,j),Vp(i,j),dkw(i,j))
    end if
-  else if(i==Ic) then
-   if(Is>1) then
+  else if(Is>1.and.i==Ic) then
+   if(isInOut) then
+    duk(i,j)=interpl(du(i-1,j),du(i-1,j),dkw(i,j))
+    Uf=interpl(Up(i-1,j),Up(i-1,j),dkw(i,j))
+    Vf=interpl(Vp(i-1,j),Vp(i-1,j),dkw(i,j))
+   else
     duk(i,j)=interpl(du(i-1,j),0.0,dkw(i,j))
     Uf=interpl(Up(i-1,j),U(i,j),dkw(i,j))
     Vf=interpl(Vp(i-1,j),V(i,j),dkw(i,j))
-   else
-    duk(i,j)=interpl(du(i-1,j),du(i,j),dkw(i,j))
-    Uf=interpl(Up(i-1,j),Up(i,j),dkw(i,j))
-    Vf=interpl(Vp(i-1,j),Vp(i,j),dkw(i,j))
    end if
   else if(i==Ip) then
    duk(i,j)=interpl(du(i-1,j),du(1,j),dkw(i,j))
@@ -105,9 +106,15 @@ DO j=1,Jc
    Uf=0
    Vf=0
   else if(j==Jc) then
-   dva(i,j)=interpl(dv(i,j-1),0.0,daw(i,j))
-   Uf=interpl(Up(i,j-1),U(i,j),daw(i,j))
-   Vf=interpl(Vp(i,j-1),V(i,j),daw(i,j))
+   if(isInOut) then
+    dva(i,j)=0.0
+    Uf=interpl(U(i,j),U(i,j),daw(i,j))
+    Vf=interpl(V(i,j),V(i,j),daw(i,j))
+   else
+    dva(i,j)=interpl(dv(i,j-1),0.0,daw(i,j))
+    Uf=interpl(Up(i,j-1),U(i,j),daw(i,j))
+    Vf=interpl(Vp(i,j-1),V(i,j),daw(i,j))
+   end if
   else
    dva(i,j)=interpl(dv(i,j-1),dv(i,j),daw(i,j))
    Uf=interpl(Up(i,j-1),Up(i,j),daw(i,j))
@@ -122,6 +129,8 @@ DO j=1,Jc
    Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)+cc*cor
   else if(j==1) then
    Vna(i,j)=0
+  else if(j==Jc) then
+   Vna(i,j)=Vnpa
   else
    Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
    Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
@@ -167,6 +176,10 @@ DO j=1,Jc-1
      aS=aS+Rap*(0.5+ws)*Vna(i,j)/(R*T(i,j-1)/Ma)
     end if
     aP=aP+Rap*((0.5+we)*Unk(i+1,j)-(0.5-ww)*Unk(i,j)+(0.5+wn)*Vna(i,j+1)-(0.5-ws)*Vna(i,j))/(R*T(i,j)/Ma)
+    if(isInOut.and.j==Jc-1) then
+     aN=aN+Rap*(0.5-wn)*Vna(i,j+1)/(R*T(i,j+1)/Ma)
+     aP=aP-Rap*(0.5+wn)*Vna(i,j+1)/(R*T(i,j)/Ma)
+    end if
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW

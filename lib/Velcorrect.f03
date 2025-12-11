@@ -3,6 +3,8 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Sf
+logical(1) isInOut
+isInOut=Fstype=='vinpout'
 
 !$OMP PARALLEL
 if(solctrl=='SIMPLE') then
@@ -23,6 +25,14 @@ else if(solctrl=='SIMPLEC') then
      end DO
    end DO
    !$OMP END DO
+end if
+if(isInOut.and.Is>1) then
+ !$OMP WORKSHARE
+ U(1,1:Jc-1)=U(2,1:Jc-1)
+ U(Ic,1:Jc-1)=U(Ic-1,1:Jc-1)
+ V(1,1:Jc-1)=V(2,1:Jc-1)
+ V(Ic,1:Jc-1)=V(Ic-1,1:Jc-1)
+ !$OMP END WORKSHARE
 end if
 !$OMP DO PRIVATE(i,Sf)
 DO j=1,Jc-1

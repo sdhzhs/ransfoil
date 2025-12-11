@@ -59,50 +59,60 @@ DO s=1,maxs
   Call Derivatives('mvy')
   Call Wallfunc
   Call Condiff('U')
+  Call ImplicitRelax(aM,b,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
 #if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,Ic,Jc,Ib1,solid,'U',Fstype)
 #elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,solid,'U')
+  Call hypresolve_gpu(aM,b,U,Ic,Jc,Ib1,Ib2,solid,'U',Fstype)
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,U,Ic,Jc,Ib1,solid,'U',Fstype)
 #else
   if(Linsol=='sor') then
-   Call sor(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+   Call sor(aM,b,U,Ic,Jc,Ib1,Ib2,'U',Fstype)
   else if(Linsol=='pbicg') then
-   Call CGSTAB(aM,b,U,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+   Call CGSTAB(aM,b,U,Ic,Jc,Ib1,Ib2,'U',Fstype)
   end if
 #endif
   Call Condiff('V')
+  Call ImplicitRelax(aM,b,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
 #if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,Ic,Jc,Ib1,solid,'V',Fstype)
 #elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,solid,'V')
+  Call hypresolve_gpu(aM,b,V,Ic,Jc,Ib1,Ib2,solid,'V',Fstype)
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,V,Ic,Jc,Ib1,solid,'V',Fstype)
 #else
   if(Linsol=='sor') then
-   Call sor(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+   Call sor(aM,b,V,Ic,Jc,Ib1,Ib2,'V',Fstype)
   else if(Linsol=='pbicg') then
-   Call CGSTAB(aM,b,V,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+   Call CGSTAB(aM,b,V,Ic,Jc,Ib1,Ib2,'V',Fstype)
   end if
 #endif
   Call PCEcoe
   rmsm=sum(abs(b))/(Ic*Jc)
 #if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,Ic,Jc,Ib1,solid,'dP',Fstype)
 #elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,solid,'dP')
+  Call hypresolve_gpu(aM,b,dP,Ic,Jc,Ib1,Ib2,solid,'dP',Fstype)
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,dP,Ic,Jc,Ib1,solid,'dP',Fstype)
 #else
-  !Call sor(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
-  Call CGSTAB(aM,b,dP,dP,1.0,Ic,Jc,Ib1,Ib2,'dP')
+  !Call sor(aM,b,dP,Ic,Jc,Ib1,Ib2,'dP',Fstype)
+  Call CGSTAB(aM,b,dP,Ic,Jc,Ib1,Ib2,'dP',Fstype)
 #endif
   if(Proctrl=='com') then
    Call StabSol('dP')
   end if
   P=P+Rap*dP
+  if(Fstype=='vinpout'.and.gtype=='O') then
+   Pref=P(Ic/2,Jc)
+   P=P-Pref
+  end if
   Call Derivatives('dP')
   Call Velcorrect
   if(Proctrl=='com') then
-   rho=rho+Rap*dP*Ma/(R*T)
+   if(Fstype=='vinpout') then
+    rho(:,1:Jc-1)=rho(:,1:Jc-1)+Rap*dP(:,1:Jc-1)*Ma/(R*T(:,1:Jc-1))
+   else 
+    rho=rho+Rap*dP*Ma/(R*T)
+   end if
    Call Derivatives('rho')
    Call Densityinterp
   end if
@@ -112,21 +122,26 @@ DO s=1,maxs
   if(Energy=='Y') then
    Call Wallfunc
    Call Condiff('T')
+   Call ImplicitRelax(aM,b,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,Ic,Jc,Ib1,solid,'T',Fstype)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
-   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,solid,'T')
+   Call hypresolve_gpu(aM,b,T,Ic,Jc,Ib1,Ib2,solid,'T',Fstype)
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,T,Ic,Jc,Ib1,solid,'T',Fstype)
 #else
    if(Linsol=='sor') then
-    Call sor(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+    Call sor(aM,b,T,Ic,Jc,Ib1,Ib2,'T',Fstype)
    else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,T,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+    Call CGSTAB(aM,b,T,Ic,Jc,Ib1,Ib2,'T',Fstype)
    end if
 #endif
    if(Proctrl=='com') then
     Call StabSol('T')
-    rho=(Po+P)*Ma/(R*T)
+    if(Fstype=='vinpout') then
+     rho(:,1:Jc-1)=(Po+P(:,1:Jc-1))*Ma/(R*T(:,1:Jc-1))
+    else
+     rho=(Po+P)*Ma/(R*T)
+    end if
     Call Derivatives('rho')
     Call Densityinterp
    end if
@@ -140,16 +155,17 @@ DO s=1,maxs
   if(Turmod=='sa') then
    Call Wallfunc
    Call Condiff('Tn')
+   Call ImplicitRelax(aM,b,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Ic,Jc,Ib1,solid,'Tn',Fstype)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn')
-   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tn') 
+   Call hypresolve_gpu(aM,b,Tn,Ic,Jc,Ib1,Ib2,solid,'Tn',Fstype)
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,Tn,Ic,Jc,Ib1,solid,'Tn',Fstype) 
 #else
    if(Linsol=='sor') then
-    Call sor(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+    Call sor(aM,b,Tn,Ic,Jc,Ib1,Ib2,'Tn',Fstype)
    else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Tn,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+    Call CGSTAB(aM,b,Tn,Ic,Jc,Ib1,Ib2,'Tn',Fstype)
    end if
 #endif
    Call StabSol('Tn')
@@ -157,28 +173,30 @@ DO s=1,maxs
   else if(Turmod=='ke') then
    Call Wallfunc
    Call Condiff('Tk')
+   Call ImplicitRelax(aM,b,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Ic,Jc,Ib1,solid,'Tk',Fstype)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
+   Call hypresolve_gpu(aM,b,Tk,Ic,Jc,Ib1,Ib2,solid,'Tk',Fstype)
 #else
    if(Linsol=='sor') then
-    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+    Call sor(aM,b,Tk,Ic,Jc,Ib1,Ib2,'Tk',Fstype)
    else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+    Call CGSTAB(aM,b,Tk,Ic,Jc,Ib1,Ib2,'Tk',Fstype)
    end if
 #endif
    Call StabSol('Tk')
    Call Condiff('Te')
+   Call ImplicitRelax(aM,b,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,solid,'Te')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Ic,Jc,Ib1,solid,'Te',Fstype)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,solid,'Te')
+   Call hypresolve_gpu(aM,b,Te,Ic,Jc,Ib1,Ib2,solid,'Te',Fstype)
 #else
    if(Linsol=='sor') then
-    Call sor(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+    Call sor(aM,b,Te,Ic,Jc,Ib1,Ib2,'Te',Fstype)
    else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Te,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+    Call CGSTAB(aM,b,Te,Ic,Jc,Ib1,Ib2,'Te',Fstype)
    end if
 #endif
    Call StabSol('Te')
@@ -187,28 +205,30 @@ DO s=1,maxs
   else if(Turmod=='sst') then
    Call Wallfunc
    Call Condiff('Tk')
+   Call ImplicitRelax(aM,b,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Ic,Jc,Ib1,solid,'Tk',Fstype)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tk')
+   Call hypresolve_gpu(aM,b,Tk,Ic,Jc,Ib1,Ib2,solid,'Tk',Fstype)
 #else
    if(Linsol=='sor') then
-    Call sor(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+    Call sor(aM,b,Tk,Ic,Jc,Ib1,Ib2,'Tk',Fstype)
    else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Tk,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+    Call CGSTAB(aM,b,Tk,Ic,Jc,Ib1,Ib2,'Tk',Fstype)
    end if
 #endif
    Call StabSol('Tk')
    Call Condiff('Tw')
+   Call ImplicitRelax(aM,b,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tw')
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Ic,Jc,Ib1,solid,'Tw',Fstype)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,solid,'Tw')
+   Call hypresolve_gpu(aM,b,Tw,Ic,Jc,Ib1,Ib2,solid,'Tw',Fstype)
 #else
    if(Linsol=='sor') then
-    Call sor(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+    Call sor(aM,b,Tw,Ic,Jc,Ib1,Ib2,'Tw',Fstype)
    else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Tw,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+    Call CGSTAB(aM,b,Tw,Ic,Jc,Ib1,Ib2,'Tw',Fstype)
    end if
 #endif
    Call StabSol('Tw')

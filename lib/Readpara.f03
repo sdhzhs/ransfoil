@@ -155,6 +155,7 @@ if(libmod=='S'.or.libmod=='M') then
    read(10,*) ch
    read(10,*) matfile
   end if
+  Fstype='allfixed'
  close(10)
 else if(libmod=='I') then
  print *,'Input a name of airfoil coordinates file(1D XYZ/CPT):'

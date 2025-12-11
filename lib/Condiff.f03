@@ -374,23 +374,24 @@ DO j=1,Jc-1
      b(i,j)=b(i,j)+rho(i,j)*ustar(i)*DR(i)/Uplus(i)*Xfa(i,j)*Yfa(i,j)*U(i,j)/DR(i)**2
     end if
    else if(isT) then
+    if(isCom) then
+     if(isVisheatY) then
+      b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
+      (mu(i,j)+mut(i,j))*St(i,j)**2)/ca
+     else
+      b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca
+     end if
+    else if(isIncom) then
+     if(isVisheatY) then
+      b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca
+     else
+      b(i,j)=0
+     end if
+    end if
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      if(isFixed) then
        if((isSa.and.isLr).or.(isSst.and.isLr).or.isLam.or.isInv) then
-        if(isCom) then
-         if(isVisheatY) then
-          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
-          (mu(i,j)+mut(i,j))*St(i,j)**2)/ca+Ds(i,j)*Tf
-         else
-          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+Ds(i,j)*Tf
-         end if
-        else if(isIncom) then
-         if(isVisheatY) then
-          b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca+Ds(i,j)*Tf
-         else
-          b(i,j)=Ds(i,j)*Tf
-         end if
-        end if
+        b(i,j)=b(i,j)+Ds(i,j)*Tf
        else if(isSst.and.isWf.or.(isSa.and.isWf).or.isKe) then
         if(isCom) then
          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
@@ -404,20 +405,7 @@ DO j=1,Jc-1
        end if
      else if(isFlux) then
        if((isSa.and.isLr).or.(isSst.and.isLr).or.isLam.or.isInv) then
-        if(isCom) then
-         if(isVisheatY) then
-          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
-          (mu(i,j)+mut(i,j))*St(i,j)**2)/ca+Qf*DR(i)/ca
-         else
-          b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+Qf*DR(i)/ca
-         end if
-        else if(isIncom) then
-         if(isVisheatY) then
-          b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca+Qf*DR(i)/ca
-         else
-          b(i,j)=Qf*DR(i)/ca
-         end if
-        end if
+        b(i,j)=b(i,j)+Qf*DR(i)/ca
        else if(isSst.and.isWf.or.(isSa.and.isWf).or.isKe) then
          if(isCom) then
           b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca+Qf*DR(i)/ca
@@ -425,21 +413,6 @@ DO j=1,Jc-1
           b(i,j)=Qf*DR(i)/ca
          end if
        end if
-     end if
-    else
-     if(isCom) then
-      if(isVisheatY) then
-       b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
-       (mu(i,j)+mut(i,j))*St(i,j)**2)/ca
-      else
-       b(i,j)=Vol(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))/ca
-      end if
-     else if(isIncom) then
-      if(isVisheatY) then
-       b(i,j)=Vol(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2/ca
-      else
-       b(i,j)=0
-      end if
      end if
     end if
    else if(isTn) then
@@ -529,3 +502,33 @@ end if
 !$OMP END PARALLEL
 !print *,'Completed assembling the coefficient matrix:',scalar,minval(aM(1,Is:Ie,1:Jc-1)),maxval(aM(1,Is:Ie,1:Jc-1))
 end Subroutine Condiff
+
+Subroutine ImplicitRelax(aM,ba,F0,Ra,Ic,Jc,Ib1,Ib2,scalar)
+implicit none
+integer i,j,Ic,Jc,Ib1,Ib2,Is,Ie
+real(8) Ra
+real(8) aM(5,Ic,Jc),ba(Ic,Jc),F0(Ic,Jc)
+character(*) scalar
+logical(1) isTe,isTw
+
+if(Ib1>1.and.Ib2<Ic) then
+ Is=2
+ Ie=Ic-1
+else
+ Is=1
+ Ie=Ic
+end if
+isTe = scalar=='Te'
+isTw = scalar=='Tw'
+
+DO j=1,Jc
+ DO i=1,Ic
+  if(i>=Is.and.i<=Ie.and.j<Jc) then
+   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
+    ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
+    aM(1,i,j)=aM(1,i,j)/Ra
+   end if
+  end if
+ end DO
+end DO
+end Subroutine ImplicitRelax
