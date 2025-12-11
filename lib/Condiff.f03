@@ -14,7 +14,7 @@ character(*) scalar
 character(6) wallfunutype,wallfunktype
 logical(1) productlimit,sstlowre,sstcom,saprodlimit
 logical(1) isU,isV,isT,isTn,isTk,isTe,isTw,isKe,isSst,isSa,isLam,isInv,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,&
-isCom,isIncom,isVisheatY
+isCom,isIncom,isVisheatY,isInOut
 
 wallfunutype='parvel'
 wallfunktype='loglaw'
@@ -45,6 +45,7 @@ isGenlaw = wallfunktype=='genlaw'
 isCom = Proctrl=='com'
 isIncom = Proctrl=='incom'
 isVisheatY = visheat=='Y'
+isInOut = Fstype=='vinpout'
 
 !$OMP PARALLEL
 if(isU.or.isV) then
@@ -532,6 +533,11 @@ DO j=1,Jc-1
   end DO
 end DO
 !$OMP END DO
+if(isInOut) then
+ !$OMP WORKSHARE
+ b(:,Jc)=Vn(:,Jc)
+ !$OMP END WORKSHARE
+end if
 if(isU) then
  !$OMP WORKSHARE
  auP=aM(1,:,:)
@@ -559,14 +565,14 @@ end if
 isTe = scalar=='Te'
 isTw = scalar=='Tw'
 
-DO j=1,Jc
- DO i=1,Ic
-  if(i>=Is.and.i<=Ie.and.j<Jc) then
-   if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
-    ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
-    aM(1,i,j)=aM(1,i,j)/Ra
-   end if
+!$OMP PARALLEL DO PRIVATE(i)
+DO j=1,Jc-1
+ DO i=Is,Ie
+  if(.not.(j==1.and.i>=Ib1.and.i<=Ib2.and.(isTe.or.isTw))) then
+   ba(i,j)=ba(i,j)+(1-Ra)*aM(1,i,j)*F0(i,j)/Ra
+   aM(1,i,j)=aM(1,i,j)/Ra
   end if
  end DO
 end DO
+!$OMP END PARALLEL DO
 end Subroutine ImplicitRelax
