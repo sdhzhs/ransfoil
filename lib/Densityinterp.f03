@@ -27,8 +27,8 @@ isFromm = denface=='Fromm'
      dkcc=dk(1,j)
      Gxupc1=rhox(1,j)
      Gyupc1=rhoy(1,j)
-     Xc1=Xc(i,j)
-     Yc1=Yc(i,j)
+     Xc1=Xc(1,j)
+     Yc1=Yc(1,j)
     else
      rhoc=rho(i,j)
      dkcc=dk(i,j)
