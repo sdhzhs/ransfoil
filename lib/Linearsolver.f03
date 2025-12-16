@@ -62,10 +62,18 @@ DO k=1,maxl
     F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
     !$OMP END WORKSHARE
    end if
-   if(isP) then
-    !$OMP WORKSHARE
-    F(:,Jc)=F(:,Jc-1)
-    !$OMP END WORKSHARE
+   if(.not.isP) then
+    !$OMP DO
+    DO i=1,Ic
+     if(b(i,Jc)>0) F(i,Jc)=F(i,Jc-1)
+    end DO
+    !$OMP END DO
+   else
+    !$OMP DO
+    DO i=1,Ic
+     if(b(i,Jc)<0) F(i,Jc)=F(i,Jc-1)
+    end DO
+    !$OMP END DO
    end if
   end if
   !$OMP SINGLE
@@ -90,7 +98,7 @@ end Subroutine sor
 
 Subroutine CGSTAB(aM,b,F,Ic,Jc,Ib1,Ib2,scalar,bctype)
 implicit none
-integer maxl,k,Ic,Jc,Ib1,Ib2,iter,preid
+integer maxl,k,Ic,Jc,Ib1,Ib2,iter,preid,i
 real(8) err,normb
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc)
 real(8) alpha,beta,rho,omega,rho0,sumrmsi,sumvrms,sumptz,sumpts,sumrms
@@ -221,10 +229,18 @@ if(isInOut) then
   F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
   !$OMP END WORKSHARE
  end if
- if(isP) then
-  !$OMP WORKSHARE
-  F(:,Jc)=F(:,Jc-1)
-  !$OMP END WORKSHARE
+ if(.not.isP) then
+  !$OMP DO
+  DO i=1,Ic
+   if(b(i,Jc)>0) F(i,Jc)=F(i,Jc-1)
+  end DO
+  !$OMP END DO
+ else
+  !$OMP DO
+  DO i=1,Ic
+   if(b(i,Jc)<0) F(i,Jc)=F(i,Jc-1)
+  end DO
+  !$OMP END DO
  end if
 end if
 !$OMP END PARALLEL

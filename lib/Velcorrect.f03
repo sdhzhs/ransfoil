@@ -26,14 +26,6 @@ else if(solctrl=='SIMPLEC') then
    end DO
    !$OMP END DO
 end if
-if(isInOut.and.Is>1) then
- !$OMP WORKSHARE
- U(1,1:Jc-1)=U(2,1:Jc-1)
- U(Ic,1:Jc-1)=U(Ic-1,1:Jc-1)
- V(1,1:Jc-1)=V(2,1:Jc-1)
- V(Ic,1:Jc-1)=V(Ic-1,1:Jc-1)
- !$OMP END WORKSHARE
-end if
 !$OMP DO PRIVATE(i,Sf)
 DO j=1,Jc-1
   DO i=Is,Ie+1
@@ -62,5 +54,24 @@ DO j=1,Jc
   end DO
 end DO
 !$OMP END DO
+
+if(isInOut.and.Is>1) then
+ !$OMP WORKSHARE
+ U(1,1:Jc-1)=U(2,1:Jc-1)
+ U(Ic,1:Jc-1)=U(Ic-1,1:Jc-1)
+ V(1,1:Jc-1)=V(2,1:Jc-1)
+ V(Ic,1:Jc-1)=V(Ic-1,1:Jc-1)
+ !$OMP END WORKSHARE
+end if
+if(isInOut) then
+ !$OMP DO
+ DO i=1,Ic
+  if(Ui*Xfa(i,Jp)+Vi*Yfa(i,Jp)>0) then
+   U(i,Jc)=U(i,Jc-1)
+   V(i,Jc)=V(i,Jc-1)
+  end if
+ end DO
+ !$OMP END DO
+end if
 !$OMP END PARALLEL
 end Subroutine Velcorrect

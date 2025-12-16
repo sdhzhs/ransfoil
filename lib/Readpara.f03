@@ -141,6 +141,12 @@ if(libmod=='S'.or.libmod=='M') then
   end if
   read(10,*,IOSTAT=stat) ch
   if(is_iostat_end(stat).or.stat>0) then
+   Fstype='allfixed'
+  else
+   read(10,*) Fstype
+  end if
+  read(10,*,IOSTAT=stat) ch
+  if(is_iostat_end(stat).or.stat>0) then
    gtype='C'
   else
    read(10,*) gtype
@@ -155,7 +161,6 @@ if(libmod=='S'.or.libmod=='M') then
    read(10,*) ch
    read(10,*) matfile
   end if
-  Fstype='allfixed'
  close(10)
 else if(libmod=='I') then
  print *,'Input a name of airfoil coordinates file(1D XYZ/CPT):'
@@ -285,6 +290,8 @@ else if(libmod=='I') then
  print *,'Input ratio of far field distance to chord length:'
  read (*,*,IOSTAT=stat,IOMSG=ioerrmsg) lfar
  if(stat>0) STOP ioerrmsg
+ print *,'Set boundary condition type of free stream(allfixed/vinpout):'
+ read *,Fstype
  print *,'Input topological type of generating mesh(C/O):'
  read *,gtype
  print *,'Is the materials of fluid air(Y/N)?'

@@ -87,7 +87,6 @@ DO s=1,maxs
   end if
 #endif
   Call PCEcoe
-  rmsm=sum(abs(b))/(Ic*Jc)
 #if defined(HYPRE)
   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,Ic,Jc,Ib1,solid,'dP',Fstype)
 #elif defined(HYPRE_GPU)
@@ -101,15 +100,12 @@ DO s=1,maxs
    Call StabSol('dP')
   end if
   P=P+Rap*dP
-  if(Fstype=='vinpout'.and.gtype=='O') then
-   Pref=P(Ic/2,Jc)
-   P=P-Pref
-  end if
   Call Derivatives('dP')
   Call Velcorrect
   if(Proctrl=='com') then
    if(Fstype=='vinpout') then
     rho(:,1:Jc-1)=rho(:,1:Jc-1)+Rap*dP(:,1:Jc-1)*Ma/(R*T(:,1:Jc-1))
+    where(Ui*Xfa(:,Jp)+Vi*Yfa(:,Jp)>0.0) rho(:,Jc)=rho(:,Jc)+Rap*dP(:,Jc)*Ma/(R*T(:,Jc))
    else 
     rho=rho+Rap*dP*Ma/(R*T)
    end if
@@ -139,6 +135,7 @@ DO s=1,maxs
     Call StabSol('T')
     if(Fstype=='vinpout') then
      rho(:,1:Jc-1)=(Po+P(:,1:Jc-1))*Ma/(R*T(:,1:Jc-1))
+     where(Ui*Xfa(:,Jp)+Vi*Yfa(:,Jp)>0.0) rho(:,Jc)=(Po+P(:,Jc))*Ma/(R*T(:,Jc))
     else
      rho=(Po+P)*Ma/(R*T)
     end if

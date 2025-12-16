@@ -107,9 +107,15 @@ DO j=1,Jc
    Vf=0
   else if(j==Jc) then
    if(isInOut) then
-    dva(i,j)=0.0
-    Uf=interpl(U(i,j),U(i,j),daw(i,j))
-    Vf=interpl(V(i,j),V(i,j),daw(i,j))
+    if(Ui*Xfa(i,Jp)+Vi*Yfa(i,Jp)<0.0) then
+     dva(i,j)=0.0
+     Uf=interpl(U(i,j),U(i,j),daw(i,j))
+     Vf=interpl(V(i,j),V(i,j),daw(i,j))
+    else
+     dva(i,j)=interpl(dv(i,j-1),dv(i,j-1),daw(i,j))
+     Uf=interpl(Up(i,j-1),Up(i,j-1),daw(i,j))
+     Vf=interpl(Vp(i,j-1),Vp(i,j-1),daw(i,j))
+    end if
    else
     dva(i,j)=interpl(dv(i,j-1),0.0,daw(i,j))
     Uf=interpl(Up(i,j-1),U(i,j),daw(i,j))
@@ -130,7 +136,14 @@ DO j=1,Jc
   else if(j==1) then
    Vna(i,j)=0
   else if(j==Jc) then
-   Vna(i,j)=Vnpa
+   if(isInOut.and.Ui*Xfa(i,Jp)+Vi*Yfa(i,Jp)<0.0) then
+    Vna(i,j)=Vnpa
+   else
+    Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
+    Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
+    cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
+    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor
+   end if
   else
    Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
    Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
@@ -176,7 +189,7 @@ DO j=1,Jc-1
      aS=aS+Rap*(0.5+ws)*Vna(i,j)/(R*T(i,j-1)/Ma)
     end if
     aP=aP+Rap*((0.5+we)*Unk(i+1,j)-(0.5-ww)*Unk(i,j)+(0.5+wn)*Vna(i,j+1)-(0.5-ws)*Vna(i,j))/(R*T(i,j)/Ma)
-    if(isInOut.and.j==Jc-1) then
+    if(isInOut.and.j==Jc-1.and.Ui*Xfa(i,Jp)+Vi*Yfa(i,Jp)<0.0) then
      aN=aN+Rap*(0.5-wn)*Vna(i,j+1)/(R*T(i,j+1)/Ma)
      aP=aP-Rap*(0.5+wn)*Vna(i,j+1)/(R*T(i,j)/Ma)
     end if
@@ -205,6 +218,14 @@ DO j=1,Jc-1
   end DO
 end DO
 !$OMP END DO
+!$OMP WORKSHARE
+rmsm=sum(abs(b))/(Ic*Jc)
+!$OMP END WORKSHARE
+if(isInOut) then
+ !$OMP WORKSHARE
+ b(:,Jc)=Ui*Xfa(:,Jp)+Vi*Yfa(:,Jp)
+ !$OMP END WORKSHARE
+end if
 !$OMP END PARALLEL
 !print *,'Completed assembling the coefficient matrix:','P',minval(aM(1,Is:Ie,1:Jc-1)),maxval(aM(1,Is:Ie,1:Jc-1))
 end Subroutine PCEcoe
