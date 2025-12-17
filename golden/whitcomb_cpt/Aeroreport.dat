@@ -4,7 +4,7 @@
  Solving energy equation? Y       
  Including viscous heating? Y       
  Turbulence model: sst     
- Wall treatment method: lr      
+ Wall treatment method: wf      
  Coupling algorithm: SIMPLE  
  Spatial discretization scheme: Fromm   
  Density interpolation scheme: Fromm   
@@ -19,9 +19,9 @@
  Reynolds number:   21424850.880931877     
  Mach number:  0.80000001017181221     
  Angle of attack:   4.0000000000000000     
- Average Y+:   710.45111645786233     
- Lift coefficient:  0.36978793577299812     
- Drag coefficient:   5.8871286772395025E-002
- Friction coefficient:   2.9277269697765243E-002
- Pitching moment coefficient (1/4 chord):  -3.4569956178203867E-002
- Pressure center (unit chord):  0.34096034655174723        0.0000000000000000     
+ Average Y+:   281.27502789804419     
+ Lift coefficient:  0.85218181131356963     
+ Drag coefficient:   7.8491125093175629E-002
+ Friction coefficient:   3.6410552708079540E-003
+ Pitching moment coefficient (1/4 chord): -0.16985687333549940     
+ Pressure center (unit chord):  0.44844816572617846        0.0000000000000000     

@@ -153,8 +153,10 @@ DO j=1,Jc
  end DO
 end DO
 !$OMP END DO
+!$OMP WORKSHARE
 aM=0
 aM(1,:,:)=1
+!$OMP END WORKSHARE
 !$OMP DO PRIVATE(i,Sf,ww,we,ws,wn,aP,aW,aE,aS,aN)
 DO j=1,Jc-1
   DO i=Is,Ie
