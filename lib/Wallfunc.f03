@@ -161,7 +161,7 @@ if(isSst) then
   Twplus=exp(lamda)*Twplusl+exp(1./lamda)*Twplust
   !$OMP END WORKSHARE
  else if(isLr) then
-  !$OMP DO PRIVATE(Dwplus,phi1,F1)
+  !$OMP DO
   DO i=Ib1,Ib2
    if(ksplus(i)>0) then
     ksplus(i)=max(1.0,ksplus(i))

@@ -30,7 +30,7 @@ DO k=1,maxl
   !$OMP WORKSHARE
   Fo=F
   !$OMP END WORKSHARE
-  !$OMP DO
+  !$OMP DO PRIVATE(i,FW,FE,FS,FN)
   DO j=1,Jc-1
     DO i=Is,Ie
       if(i==1) then
