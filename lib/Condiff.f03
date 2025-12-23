@@ -496,7 +496,7 @@ end DO
 !$OMP END DO
 if(isInOut) then
  !$OMP WORKSHARE
- b(:,Jc)=Ui*Xfa(:,Jp)+Vi*Yfa(:,Jp)
+ b(:,Jc)=Vna(:,Jc)
  !$OMP END WORKSHARE
 end if
 if(isU) then

@@ -107,7 +107,7 @@ DO s=1,maxs
   if(Proctrl=='com') then
    if(Fstype=='vinpout') then
     rho(:,1:Jc-1)=rho(:,1:Jc-1)+Rap*dP(:,1:Jc-1)*Ma/(R*T(:,1:Jc-1))
-    where(Ui*Xfa(:,Jp)+Vi*Yfa(:,Jp)>0.0) rho(:,Jc)=rho(:,Jc)+Rap*dP(:,Jc)*Ma/(R*T(:,Jc))
+    where(Vna(:,Jc)>0.0) rho(:,Jc)=rho(:,Jc)+Rap*dP(:,Jc)*Ma/(R*T(:,Jc))
    else 
     rho=rho+Rap*dP*Ma/(R*T)
    end if
@@ -137,7 +137,7 @@ DO s=1,maxs
     Call StabSol('T')
     if(Fstype=='vinpout') then
      rho(:,1:Jc-1)=(Po+P(:,1:Jc-1))*Ma/(R*T(:,1:Jc-1))
-     where(Ui*Xfa(:,Jp)+Vi*Yfa(:,Jp)>0.0) rho(:,Jc)=(Po+P(:,Jc))*Ma/(R*T(:,Jc))
+     where(Vna(:,Jc)>0.0) rho(:,Jc)=(Po+P(:,Jc))*Ma/(R*T(:,Jc))
     else
      rho=(Po+P)*Ma/(R*T)
     end if

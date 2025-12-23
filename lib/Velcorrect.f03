@@ -66,7 +66,7 @@ end if
 if(isInOut) then
  !$OMP DO
  DO i=1,Ic
-  if(Ui*Xfa(i,Jp)+Vi*Yfa(i,Jp)>0) then
+  if(Vna(i,Jc)>0) then
    U(i,Jc)=U(i,Jc-1)
    V(i,Jc)=V(i,Jc-1)
   end if
