@@ -1,119 +1,54 @@
 #!/bin/sh
-mkdir naca0012_xyz
-ransfoil --script test/ransfoil.config.0012.xyz > naca0012_xyz/output.txt
-python comgolden.py naca0012_xyz golden/naca0012_xyz >> naca0012_xyz/output.txt
-if [ $? -eq 0 ]; then
-  echo "naca0012_xyz case: Pass"
-else
-  echo "naca0012_xyz case: Fail"
-fi
-mkdir naca001264_cpt
-ransfoil --script test/ransfoil.config.001264.cpt > naca001264_cpt/output.txt
-python comgolden.py naca001264_cpt golden/naca001264_cpt >> naca001264_cpt/output.txt
-if [ $? -eq 0 ]; then
-  echo "naca001264_cpt case: Pass"
-else
-  echo "naca001264_cpt case: Fail"
-fi
-mkdir GA_W-1_xyz
-ransfoil --script test/ransfoil.config.GA_W-1.xyz > GA_W-1_xyz/output.txt
-python comgolden.py GA_W-1_xyz golden/GA_W-1_xyz >> GA_W-1_xyz/output.txt
-if [ $? -eq 0 ]; then
-  echo "GA_W-1_xyz case: Pass"
-else
-  echo "GA_W-1_xyz case: Fail"
-fi
-mkdir GA_W-1_cpt
-ransfoil --script test/ransfoil.config.GA_W-1.cpt > GA_W-1_cpt/output.txt
-python comgolden.py GA_W-1_cpt golden/GA_W-1_cpt >> GA_W-1_cpt/output.txt
-if [ $? -eq 0 ]; then
-  echo "GA_W-1_cpt case: Pass"
-else
-  echo "GA_W-1_cpt case: Fail"
-fi
-mkdir whitcomb_xyz
-ransfoil --script test/ransfoil.config.whitcomb.xyz.1 > whitcomb_xyz/output.txt
-ransfoil --script test/ransfoil.config.whitcomb.xyz.2 >> whitcomb_xyz/output.txt
-python comgolden.py whitcomb_xyz golden/whitcomb_xyz >> whitcomb_xyz/output.txt
-if [ $? -eq 0 ]; then
-  echo "whitcomb_xyz case: Pass"
-else
-  echo "whitcomb_xyz case: Fail"
-fi
-mkdir whitcomb_cpt
-ransfoil --script test/ransfoil.config.whitcomb.cpt.1 > whitcomb_cpt/output.txt
-ransfoil --script test/ransfoil.config.whitcomb.cpt.2 >> whitcomb_cpt/output.txt
-python comgolden.py whitcomb_cpt golden/whitcomb_cpt >> whitcomb_cpt/output.txt
-if [ $? -eq 0 ]; then
-  echo "whitcomb_cpt case: Pass"
-else
-  echo "whitcomb_cpt case: Fail"
-fi
-mkdir goe495_cpt
-ransfoil --script test/ransfoil.config.goe495.cpt > goe495_cpt/output.txt
-python comgolden.py goe495_cpt golden/goe495_cpt >> goe495_cpt/output.txt
-if [ $? -eq 0 ]; then
-  echo "goe495_cpt case: Pass"
-else
-  echo "goe495_cpt case: Fail"
-fi
-mkdir cylinder_grd
-ransfoil --mesh test/ransfoil.config.cylinder.grd > cylinder_grd/output.txt
-python comgolden.py cylinder_grd golden/cylinder_grd >> cylinder_grd/output.txt
-if [ $? -eq 0 ]; then
-  echo "cylinder_grd case: Pass"
-else
-  echo "cylinder_grd case: Fail"
-fi
-mkdir cylinder_xyz
-ransfoil --script test/ransfoil.config.cylinder.xyz > cylinder_xyz/output.txt
-python comgolden.py cylinder_xyz golden/cylinder_xyz >> cylinder_xyz/output.txt
-if [ $? -eq 0 ]; then
-  echo "cylinder_xyz case: Pass"
-else
-  echo "cylinder_xyz case: Fail"
-fi
-mkdir nasasup5_otype_cpt
-ransfoil --script test/ransfoil.config.nasasup5.otype.cpt > nasasup5_otype_cpt/output.txt
-python comgolden.py nasasup5_otype_cpt golden/nasasup5_otype_cpt >> nasasup5_otype_cpt/output.txt
-if [ $? -eq 0 ]; then
-  echo "nasasup5_otype_cpt case: Pass"
-else
-  echo "nasasup5_otype_cpt case: Fail"
-fi
-mkdir naca0012_mat_xyz
-ransfoil --script test/ransfoil.config.0012.mat.xyz > naca0012_mat_xyz/output.txt
-python comgolden.py naca0012_mat_xyz golden/naca0012_mat_xyz >> naca0012_mat_xyz/output.txt
-if [ $? -eq 0 ]; then
-  echo "naca0012_mat_xyz case: Pass"
-else
-  echo "naca0012_mat_xyz case: Fail"
-fi
-mkdir naca0012_far_cpt
-ransfoil --script test/ransfoil.config.0012.farboundist.cpt > naca0012_far_cpt/output.txt
-python comgolden.py naca0012_far_cpt golden/naca0012_far_cpt >> naca0012_far_cpt/output.txt
-if [ $? -eq 0 ]; then
-  echo "naca0012_far_cpt case: Pass"
-else
-  echo "naca0012_far_cpt case: Fail"
-fi
-mkdir naca0012_freebc_cpt
-ransfoil --script test/ransfoil.config.0012.freebc.cpt > naca0012_freebc_cpt/output.txt
-python comgolden.py naca0012_freebc_cpt golden/naca0012_freebc_cpt >> naca0012_freebc_cpt/output.txt
-if [ $? -eq 0 ]; then
-  echo "naca0012_freebc_cpt case: Pass"
-else
-  echo "naca0012_freebc_cpt case: Fail"
-fi
-cd scripts
-./runwhitcomb.bat
-python ../comgolden.py whitcomb1 ../golden/whitcomb_xyz_super > 3.txt
-if [ $? -eq 0 ]; then
-  echo "whitcomb_xyz_super case: Pass"
-else
-  echo "whitcomb_xyz_super case: Fail"
-fi
-cd ../src
+runIncomCase() {
+ mkdir $1
+ ransfoil --script test/ransfoil.config.$2 > $1/output.txt
+ python comgolden.py $1 $3/$1 >> $1/output.txt
+ if [ $? -eq 0 ]; then
+   echo "$1 case: Pass"
+ else
+   echo "$1 case: Fail"
+ fi
+}
+
+runMeshCase() {
+ mkdir $1
+ ransfoil --mesh test/ransfoil.config.$2 > $1/output.txt
+ python comgolden.py $1 $3/$1 >> $1/output.txt
+ if [ $? -eq 0 ]; then
+   echo "$1 case: Pass"
+ else
+   echo "$1 case: Fail"
+ fi
+}
+
+runComCase() {
+ mkdir $1
+ ransfoil --script test/ransfoil.config.$2.1 > $1/output.txt
+ ransfoil --script test/ransfoil.config.$2.2 >> $1/output.txt
+ python comgolden.py $1 $3/$1 >> $1/output.txt
+ if [ $? -eq 0 ]; then
+   echo "$1 case: Pass"
+ else
+   echo "$1 case: Fail"
+ fi
+}
+
+runIncomCase naca0012_xyz 0012.xyz golden
+runIncomCase naca001264_cpt 001264.cpt golden
+runIncomCase GA_W-1_xyz GA_W-1.xyz golden
+runIncomCase GA_W-1_cpt GA_W-1.cpt golden
+runComCase whitcomb_xyz whitcomb.xyz golden
+runComCase whitcomb_cpt whitcomb.cpt golden
+runIncomCase goe495_cpt goe495.cpt golden
+runMeshCase cylinder_grd cylinder.grd golden
+runIncomCase cylinder_xyz cylinder.xyz golden
+runIncomCase nasasup5_otype_cpt nasasup5.otype.cpt golden
+runIncomCase naca0012_mat_xyz 0012.mat.xyz golden
+runIncomCase naca0012_far_cpt 0012.farboundist.cpt golden
+runIncomCase naca0012_freebc_cpt 0012.freebc.cpt golden
+runComCase whitcomb_xyz_super whitcomb.xyz.super golden
+
+cd src
 gfcompile.sh
 ./caller.exe > output.txt
 if [ $? -eq 0 ]; then

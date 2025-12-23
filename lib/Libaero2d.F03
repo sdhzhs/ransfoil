@@ -2,9 +2,10 @@ Subroutine Aero2D(libmod,prtl,scptname)
 #include <config.h>
 use Aero2DCOM
 implicit none
-integer s
 integer(C_INT)::prtl
 character(*) libmod,scptname
+integer s,ioerr
+character(128) ioerrmsg
 integer time0(8),time1(8)
 real(8) rtime0,rtime1,cputime,walltime
 logical(1) lconv,ldiv
@@ -29,7 +30,8 @@ Call Initial
 Call Densityinterp
 if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
  filename(2)=trim(dir)//'/iteration.txt'
- open(unit=2,file=filename(2),status='replace')
+ open(unit=2,file=filename(2),status='replace',IOSTAT=ioerr,IOMSG=ioerrmsg)
+  if(ioerr>0) stop ioerrmsg
   write(2,*) 'Residual of RANS equations:'
   if(Turmod=='sa') then
    write(2,*) 'U equation   ','V equation   ','T equation   ','v equation   ','c equation   ','Iteration step'
