@@ -190,7 +190,7 @@ open(unit=4,file=filename(7),status='replace')
    end if
   end DO
 close(4)
-open(unit=4,file=filename(8),status='replace')
+open(unit=4,file=filename(8),status='replace',recl=256)
  write(4,*) 'File name of airfoil coordinates: ',filename(1)
  write(4,*) 'Using control points based parametric spline? ',Pntctrl
  write(4,*) 'Property: ',Proctrl

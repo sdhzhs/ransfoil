@@ -12,3 +12,4 @@ rm -rf nasasup5_otype_cpt
 rm -rf naca0012_mat_xyz
 rm -rf naca0012_far_cpt
 rm -rf naca0012_freebc_cpt
+rm -rf whitcomb_xyz_super
