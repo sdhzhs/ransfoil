@@ -43,9 +43,12 @@ readaeropara(filename,tokenlist,aeroparagolden)
 #  print('%E'%a)
 #for a in aeroparagolden:
 #  print('%E'%a)
-tol = 1e-2
+if(len(sys.argv) > 3):
+  tol = float(sys.argv[3])
+else:
+  tol = 1e-2
 flag = True
-for i in range(len(aeropara)):
+for i in range(len(aeropara)-1):
   if(aeroparagolden[i] != 0.0):
     absrelerr = abs((aeropara[i]-aeroparagolden[i])/aeroparagolden[i])
     relerr = (aeropara[i]-aeroparagolden[i])*100/aeroparagolden[i]
@@ -54,10 +57,7 @@ for i in range(len(aeropara)):
     relerr = (aeropara[i]-aeroparagolden[i])*100
   if(absrelerr > tol):
     flag = False
-    if(i<9):
-      print("The relative error of",tokenlist[i],"with golden is",relerr,"%")
-    else:
-      print("The relative error of",tokenlist[i-1],"with golden is",relerr,"%")
+    print("The relative error of",tokenlist[i],"with golden is",relerr,"%")
 if(flag):
   print("The relative errors of all the aeropara with golden are smaller than",tol)
   sys.exit(0)

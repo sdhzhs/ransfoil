@@ -135,7 +135,7 @@ rmsi=rms
 p=0
 v=p
 aD=aM(1,:,:)
-normb=sum(abs(b))
+!normb=sum(abs(b))
 !$OMP END WORKSHARE
 if(preid==2) then
  Call DILU(aM,aD,Ic,Jc,Ib2)
@@ -277,15 +277,25 @@ npt=(Jc-1)/nt
 rpt=mod(Jc-1,nt)
 
 if(Ib1>1.and.Ib2<Ic) then
-!$OMP WORKSHARE
- vt(1,:)=omega*vt(1,:)
- vt(Ic,:)=omega*vt(Ic,:)
-!$OMP END WORKSHARE
+!$OMP DO
+ DO j=1,Jc
+  vt(1,j)=omega*vt(1,j)
+  vt(Ic,j)=omega*vt(Ic,j)
+ end DO 
+!$OMP END DO
 end if
-!$OMP WORKSHARE
-vt(:,Jc)=omega*vt(:,Jc)
-!$ vt0=vt
-!$OMP END WORKSHARE
+!$OMP DO
+DO i=1,Ic
+ vt(i,Jc)=omega*vt(i,Jc)
+end DO
+!$OMP END DO
+!$OMP DO
+!$ DO j=1,Jc
+!$  DO i=1,Ic
+!$   vt0(i,j)=vt(i,j)
+!$  end DO
+!$ end DO
+!$OMP END DO
 
 cond(1)=(npt==0)
 cond(2)=(nt>1.and.tid>0)
@@ -329,9 +339,13 @@ end DO
 !!$OMP END SINGLE
 !$OMP END DO
 
-!$OMP WORKSHARE
-vt=(2-omega)*vt/omega
-!$OMP END WORKSHARE
+!$OMP DO
+DO j=1,Jc
+ DO i=1,Ic
+  vt(i,j)=(2-omega)*vt(i,j)/omega
+ end DO
+end DO
+!$OMP END DO
 
 !$OMP DO
 DO j=1,Jc-1
@@ -342,15 +356,25 @@ end DO
 !$OMP END DO
 
 if(Ib1>1.and.Ib2<Ic) then
-!$OMP WORKSHARE
- vt(1,:)=omega*vt(1,:)
- vt(Ic,:)=omega*vt(Ic,:)
-!$OMP END WORKSHARE
+!$OMP DO
+ DO j=1,Jc
+  vt(1,j)=omega*vt(1,j)
+  vt(Ic,j)=omega*vt(Ic,j)
+ end DO 
+!$OMP END DO
 end if
-!$OMP WORKSHARE
-vt(:,Jc)=omega*vt(:,Jc)
-!$ vt0=vt
-!$OMP END WORKSHARE
+!$OMP DO
+DO i=1,Ic
+ vt(i,Jc)=omega*vt(i,Jc)
+end DO
+!$OMP END DO
+!$OMP DO
+!$ DO j=1,Jc
+!$  DO i=1,Ic
+!$   vt0(i,j)=vt(i,j)
+!$  end DO
+!$ end DO
+!$OMP END DO
 
 !$OMP DO
 !!$OMP SINGLE
@@ -405,9 +429,13 @@ else
  Ie=Ic
 end if
 
-!$OMP WORKSHARE
-rms=0
-!$OMP END WORKSHARE
+!$OMP DO
+DO j=1,Jc
+ DO i=1,Ic
+  rms(i,j)=0.0d0
+ end DO
+end DO
+!$OMP END DO
 !$OMP DO
 DO j=1,Jc-1
  DO i=Is,Ie
@@ -487,9 +515,13 @@ else
  Ie=Ic
 end if
 
-!$OMP WORKSHARE
-v=u
-!$OMP END WORKSHARE
+!$OMP DO
+DO j=1,Jc
+ DO i=1,Ic
+  v(i,j)=u(i,j)
+ end DO
+end DO
+!$OMP END DO
 !$OMP DO
 DO j=1,Jc-1
   DO i=Is,Ie

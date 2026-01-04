@@ -30,7 +30,7 @@ Call Initial
 Call Densityinterp
 if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
  filename(2)=trim(dir)//'/iteration.txt'
- open(unit=2,file=filename(2),status='replace',IOSTAT=ioerr,IOMSG=ioerrmsg)
+ open(unit=2,file=filename(2),status='replace',IOSTAT=ioerr,IOMSG=ioerrmsg,recl=128)
   if(ioerr>0) stop ioerrmsg
   write(2,*) 'Residual of RANS equations:'
   if(Turmod=='sa') then
@@ -533,7 +533,7 @@ real(8) divnum
 
 lconv=.false.
 ldiv=.false.
-divnum=1e+10
+divnum=1e+20
 
 if(Turmod=='sa') then
  if(rmsm<delta.and.rmsu<delta.and.rmsv<delta.and.rmst<delta.and.rmsn<delta) then
