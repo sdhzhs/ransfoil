@@ -33,6 +33,10 @@ runComCase() {
  fi
 }
 
+echo "=========================================="
+echo "Normal Accuracy Regression Test"
+echo "=========================================="
+
 runIncomCase naca0012_xyz 0012.xyz golden
 runIncomCase naca001264_cpt 001264.cpt golden
 runIncomCase GA_W-1_xyz GA_W-1.xyz golden
@@ -64,3 +68,7 @@ else
   echo "c call lib case: Fail"
 fi
 cd ..
+
+echo "=========================================="
+echo "Normal Accuracy Regression Test Complete"
+echo "=========================================="

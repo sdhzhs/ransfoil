@@ -1,0 +1,31 @@
+#!/bin/sh
+cp $1/naca0012_xyz/Aeroreport.dat golden/naca0012_xyz/
+cp $1/naca0012_xyz/Wallsol.dat golden/naca0012_xyz/
+cp $1/naca001264_cpt/Aeroreport.dat golden/naca001264_cpt/
+cp $1/naca001264_cpt/Wallsol.dat golden/naca001264_cpt/
+cp $1/GA_W-1_xyz/Aeroreport.dat golden/GA_W-1_xyz/
+cp $1/GA_W-1_xyz/Wallsol.dat golden/GA_W-1_xyz/
+cp $1/GA_W-1_cpt/Aeroreport.dat golden/GA_W-1_cpt/
+cp $1/GA_W-1_cpt/Wallsol.dat golden/GA_W-1_cpt/
+cp $1/whitcomb_xyz/Aeroreport.dat golden/whitcomb_xyz/
+cp $1/whitcomb_xyz/Wallsol.dat golden/whitcomb_xyz/
+cp $1/whitcomb_cpt/Aeroreport.dat golden/whitcomb_cpt/
+cp $1/whitcomb_cpt/Wallsol.dat golden/whitcomb_cpt/
+cp $1/goe495_cpt/Aeroreport.dat golden/goe495_cpt/
+cp $1/goe495_cpt/Wallsol.dat golden/goe495_cpt/
+cp $1/cylinder_grd/Aeroreport.dat golden/cylinder_grd/
+cp $1/cylinder_grd/Wallsol.dat golden/cylinder_grd/
+cp $1/cylinder_xyz/Aeroreport.dat golden/cylinder_xyz/
+cp $1/cylinder_xyz/Wallsol.dat golden/cylinder_xyz/
+cp $1/nasasup5_otype_cpt/Aeroreport.dat golden/nasasup5_otype_cpt/
+cp $1/nasasup5_otype_cpt/Wallsol.dat golden/nasasup5_otype_cpt/
+cp $1/naca0012_mat_xyz/Aeroreport.dat golden/naca0012_mat_xyz/
+cp $1/naca0012_mat_xyz/Wallsol.dat golden/naca0012_mat_xyz/
+cp $1/naca0012_far_cpt/Aeroreport.dat golden/naca0012_far_cpt/
+cp $1/naca0012_far_cpt/Wallsol.dat golden/naca0012_far_cpt/
+cp $1/naca0012_freebc_cpt/Aeroreport.dat golden/naca0012_freebc_cpt/
+cp $1/naca0012_freebc_cpt/Wallsol.dat golden/naca0012_freebc_cpt/
+cp $1/whitcomb_xyz_super/Aeroreport.dat golden/whitcomb_xyz_super
+cp $1/whitcomb_xyz_super/Wallsol.dat golden/whitcomb_xyz_super
+
+echo "Regolden completed."
