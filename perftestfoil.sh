@@ -11,8 +11,11 @@ runIncomCase() {
  mkdir -p $1
  ransfoil --script test/ransfoil.config.$2 > $1/output.txt
  python comperf.py $1/output.txt $3/$1/output.txt >> $1/output.txt
- if [ $? -eq 0 ]; then
+ exitcode=$?
+ if [ $exitcode -eq 0 ]; then
    echo "$1 case: Pass"
+ elif [ $exitcode -eq 2 ]; then
+   echo "$1 case: Improved"
  else
    echo "$1 case: Fail"
  fi
@@ -22,8 +25,11 @@ runMeshCase() {
  mkdir -p $1
  ransfoil --mesh test/ransfoil.config.$2 > $1/output.txt
  python comperf.py $1/output.txt $3/$1/output.txt >> $1/output.txt
- if [ $? -eq 0 ]; then
+ exitcode=$?
+ if [ $exitcode -eq 0 ]; then
    echo "$1 case: Pass"
+ elif [ $exitcode -eq 2 ]; then
+   echo "$1 case: Improved"
  else
    echo "$1 case: Fail"
  fi
@@ -34,8 +40,11 @@ runComCase() {
  ransfoil --script test/ransfoil.config.$2.1 > $1/output.txt
  ransfoil --script test/ransfoil.config.$2.2 >> $1/output.txt
  python comperf.py $1/output.txt $3/$1/output.txt >> $1/output.txt
- if [ $? -eq 0 ]; then
+ exitcode=$?
+ if [ $exitcode -eq 0 ]; then
    echo "$1 case: Pass"
+ elif [ $exitcode -eq 2 ]; then
+   echo "$1 case: Improved"
  else
    echo "$1 case: Fail"
  fi

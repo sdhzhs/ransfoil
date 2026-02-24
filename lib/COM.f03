@@ -45,9 +45,9 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 ! Tmptype                control parameter, configure the type of boundary condition for wall temperature
 ! Fstype                 control parameter, configure the type of boundary condition for free stream
 ! gtype                  control parameter, configure the topological type of generating mesh
-! Matair                 control parameter, configure whether the materials of fluid is air
+! Matair                 control parameter, configure whether the material of fluid is air
 ! dir                    directory name of output files
-! matfile                material property filename of incomporessible fluid
+! matfile                material property filename of incompressible fluid
 ! -----------------------------------------------------
 ! characters arrays
 ! identifier name        meaning

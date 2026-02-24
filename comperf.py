@@ -90,17 +90,18 @@ if time1 > time2 * (1 + tol):
 print(f"{'Iteration elapsed time':<25} {time1_str:<15} {time2_str:<15} {speedup:<12.4f} {diff_percent:<12.2f}{status}")
 print("-" * 79)
 
-# Check for significant performance improvement (10% or more faster)
-if time2 != 0.0 and time1 < time2 * (1 - tol):
-    improvement = (time2 - time1) * 100 / time2
-    print(f"\n[IMPROVED] Performance improved by {improvement:.2f}% (more than {tol*100}% faster than golden)")
-
 if flag:
-    if time1 <= time2:
+    # Check for significant performance improvement (10% or more faster)
+    if time1 < time2 * (1 - tol):
+        improvement = (time2 - time1) * 100 / time2
+        print(f"\n[IMPROVED] Performance improved by {improvement:.2f}% (more than {tol*100}% faster than golden)")
+        sys.exit(2)
+    elif time1 <= time2:
         print(f"\n[PASS] Performance is equal to or better than golden")
+        sys.exit(0) 
     else:
         print(f"\n[PASS] Performance is within acceptable range (not more than {tol*100}% slower than golden)")
-    sys.exit(0)
+        sys.exit(0)
 else:
     print(f"\n[FAIL] Performance is too slow (more than {tol*100}% slower than golden)")
     sys.exit(1)
