@@ -88,7 +88,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = cases
+subdir = test
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -274,7 +274,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-dist_data_DATA = NACA0012.xyz GA_W-1.xyz whitcomb.xyz NACA001264.xyz NACA0012.cpt NACA001264.cpt GA_W-1.cpt whitcomb.cpt goe495.cpt circle_1e-3hy.grd circle_hy.xyz nasasup5.cpt material.prop
+dist_data_DATA = ransfoil.config.0012.xyz ransfoil.config.cylinder.grd ransfoil.config.whitcomb.cpt.1 ransfoil.config.whitcomb.xyz.super.1 \
+ransfoil.config.0012.farboundist.cpt ransfoil.config.001264.cpt ransfoil.config.cylinder.xyz ransfoil.config.whitcomb.cpt.2 ransfoil.config.whitcomb.xyz.super.2 \
+ransfoil.config.0012.freebc.cpt ransfoil.config.GA_W-1.cpt ransfoil.config.goe495.cpt ransfoil.config.whitcomb.xyz.1 \
+ransfoil.config.0012.mat.xyz ransfoil.config.GA_W-1.xyz ransfoil.config.nasasup5.otype.cpt ransfoil.config.whitcomb.xyz.2
+
 all: all-am
 
 .SUFFIXES:
@@ -287,9 +291,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign cases/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign test/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign cases/Makefile
+	  $(AUTOMAKE) --foreign test/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
