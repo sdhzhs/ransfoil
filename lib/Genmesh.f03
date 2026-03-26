@@ -7,14 +7,16 @@ real(8) err,ft,ltrail,ratio,ratio0,Xi,Yi
 real(8)::tol=1e-8
 real(8),allocatable,dimension(:)::Xt,fac
 character(*) libmod
-character(6)::trailconfig=''
+integer trailconfig
+integer,parameter::NONE=0,BLUNT=1,SHARP=2
 
 opentrail=.false.
+trailconfig=NONE
 
 if(libmod=='S'.or.libmod=='I') then
  Call Readfoil
 else if(libmod=='M') then
- Call Readmesh(libmod)
+ Call Readmesh
  if(Ib1>1.and.Ib2<Ic) then
   Is=2
   Ie=Ic-1
@@ -24,7 +26,7 @@ else if(libmod=='M') then
  end if
  return
 else if(libmod=='C') then
- if(Pntctrl=='N') then
+ if(.not.PntctrlFlag) then
   allocate(Xwd(Iwd),Ywd(Iwd))
   allocate(Xwu(Iwu),Ywu(Iwu))
   Call C_F_POINTER(cXwd,fXwd,(/Iwd/))
@@ -43,22 +45,22 @@ else if(libmod=='C') then
   Ywp0=fYwp0
  end if
 end if
-if(Pntctrl=='Y') then
+if(PntctrlFlag) then
  allocate(Xwp(Iw),Ywp(Iw))
- if(gtype=='C') then
+ if(gtypeFlag==CTYPE) then
   Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0,'cubic4')
- else if(gtype=='O') then
+ else if(gtypeFlag==OTYPE) then
   Call Connector2(Xwp,Ywp,Xwp0,Ywp0,fb,eb,Iw,Iw0,'cyclic')
  end if
  Iwu=(Iw+1)/2
  Iwd=Iw-Iwu+1
- if(gtype=='C'.and.abs(Ywp(Iw)-Ywp(1))>tol) then
+ if(gtypeFlag==CTYPE.and.abs(Ywp(Iw)-Ywp(1))>tol) then
   opentrail=.true.
-  trailconfig='blunt'
-  if(trailconfig=='blunt') then
+  trailconfig=BLUNT
+  if(trailconfig==BLUNT) then
    It=6
    Iwu=Iwu+It
-  else if(trailconfig=='sharp') then
+  else if(trailconfig==SHARP) then
    Iwu=Iwu+1
    Iwd=Iwd+1
   end if
@@ -70,12 +72,12 @@ if(Pntctrl=='Y') then
  Xwu(1:(Iw+1)/2)=Xwp((Iw+1)/2:1:-1)
  Ywu(1:(Iw+1)/2)=Ywp((Iw+1)/2:1:-1)
  if(opentrail) then
-  if(trailconfig=='blunt') then
+  if(trailconfig==BLUNT) then
    DO i=1,It
     Xwu((Iw+1)/2+i)=Xwp(Iw)
     Ywu((Iw+1)/2+i)=Ywp(1)+i*(Ywp(Iw)-Ywp(1))/It
    end DO
-  else if(trailconfig=='sharp') then
+  else if(trailconfig==SHARP) then
    Call Segintersect(Xwd(Iwd-2:Iwd-1),Ywd(Iwd-2:Iwd-1),Xwu(Iwu-2:Iwu-1),Ywu(Iwu-2:Iwu-1),Xi,Yi)
    Xwd(Iwd)=Xi
    Ywd(Iwd)=Yi
@@ -84,12 +86,12 @@ if(Pntctrl=='Y') then
   end if
  end if
 else
- if(gtype=='C'.and.(abs(Xwd(Iwd)-Xwd(Iwd-1))<tol.or.abs(Xwu(Iwu)-Xwu(Iwu-1))<tol)) then
+ if(gtypeFlag==CTYPE.and.(abs(Xwd(Iwd)-Xwd(Iwd-1))<tol.or.abs(Xwu(Iwu)-Xwu(Iwu-1))<tol)) then
   opentrail=.true.
-  trailconfig='blunt'
+  trailconfig=BLUNT
  end if
 end if
-if(gtype=='C') then
+if(gtypeFlag==CTYPE) then
  Iw1=max(Iwd,Iwu)
  Iw2=Iw1+Iwd-1
  Iw3=Iw2+Iwu-1
@@ -99,7 +101,7 @@ if(gtype=='C') then
   Jc=Jp-1
   Ib1=Iw1
   Ib2=Iw3-1
-  Call Allocarray(libmod)
+  Call Allocarray
  end if
  allocate(Xt(Iw1))
  Xg(Iw2:Iw1:-1,1)=Xwd
@@ -117,14 +119,14 @@ if(gtype=='C') then
  Xg(1:Iw1-1,1)=Xg(Ip:Iw3+1:-1,1)
  Yg(1:Iw1-1,1)=Yg(Ip:Iw3+1:-1,1)
  deallocate(Xt)
-else if(gtype=='O') then
+else if(gtypeFlag==OTYPE) then
  if(libmod=='S'.or.libmod=='I') then
   Ip=Iwd+Iwu-1
   Ic=Ip-1
   Jc=Jp-1
   Ib1=1
   Ib2=Ic
-  Call Allocarray(libmod)
+  Call Allocarray
  end if
  Xg(Iwd:1:-1,1)=Xwd
  Yg(Iwd:1:-1,1)=Ywd
@@ -154,10 +156,10 @@ DO j=2,Jp
   fac(j)=ratio
  end if
 end DO
-Call hypmeshgen(Xg(:,1),Yg(:,1),Xg,Yg,fac,fd,Ip,Jp,trailconfig,gtype)
-if(gtype=='C') then
+Call hypmeshgen(Xg(:,1),Yg(:,1),Xg,Yg,fac,fd,Ip,Jp,trailconfig,gtypeFlag)
+if(gtypeFlag==CTYPE) then
  print *,'Generate 2D C-type structured mesh completed!'
-else if(gtype=='O') then
+else if(gtypeFlag==OTYPE) then
  print *,'Generate 2D O-type structured mesh completed!'
 end if
 deallocate(fac)
@@ -172,7 +174,7 @@ character(128) ioerrmsg
 
 open(unit=1,file=filename(1),status='old',IOSTAT=stat,IOMSG=ioerrmsg)
 if(stat>0) stop ioerrmsg
- if(Pntctrl=='N') then
+ if(.not.PntctrlFlag) then
   read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) Iwd
   allocate(Xwd(Iwd),Ywd(Iwd))
   DO i=1,Iwd
@@ -193,7 +195,7 @@ if(stat>0) stop ioerrmsg
 if(stat>0) stop filename(1)//ioerrmsg
 close(1)
 print *,'Read airfoil coordinates completed!'
-if(Pntctrl=='N') then
+if(.not.PntctrlFlag) then
  if(Ywd(2)>=Ywu(2)) then
   stop 'Error: The coordinates of lower airfoil should be given first in the xyz file!'
  end if
@@ -205,12 +207,11 @@ end if
 
 end Subroutine Readfoil
 
-Subroutine Readmesh(libmod)
+Subroutine Readmesh
 use Aero2DCOM
 implicit none
 integer blocks,i,j,stat
 character(128) ioerrmsg
-character(*) libmod
 
 open(unit=1,file=filename(1),status='old',IOSTAT=stat,IOMSG=ioerrmsg)
 if(stat>0) stop ioerrmsg
@@ -219,14 +220,14 @@ if(stat>0) stop ioerrmsg
  if(stat>0) stop filename(1)//ioerrmsg
  Ic=Ip-1
  Jc=Jp-1
- Call Allocarray(libmod)
+ Call Allocarray
  read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) ((Xg(i,j),i=1,Ip),j=1,Jp)
  read(1,*,IOSTAT=stat,IOMSG=ioerrmsg) ((Yg(i,j),i=1,Ip),j=1,Jp)
  if(stat>0) stop filename(1)//ioerrmsg
 close(1)
-if(gtype=='C') then
+if(gtypeFlag==CTYPE) then
  print *,'Read airfoil 2D C-type mesh completed!'
-else if(gtype=='O') then
+else if(gtypeFlag==OTYPE) then
  print *,'Read airfoil 2D O-type mesh completed!'
 end if
 

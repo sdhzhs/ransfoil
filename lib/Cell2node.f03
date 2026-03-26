@@ -3,15 +3,15 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Fg(Ip,Jp),Fc(Ic,Jc)
-character(*) scalar
+integer scalar
 DO j=1,Jc
   DO i=Is,Ie+1
   if(j==1.and.i>=Ib1.and.i<=Ib2+1) then
-   if((scalar=='U'.or.scalar=='V').and.Turmod/='inv'.or.scalar=='Tn'.or.scalar=='Tk') then
+   if((scalar==VELX.or.scalar==VELY).and.TurmodFlag/=INV.or.scalar==TURBNU.or.scalar==TURBK) then
     Fg(i,j)=0
-   else if(scalar=='T') then
+   else if(scalar==TEMP) then
     Fg(i,j)=Tf
-   else if(scalar=='rho'.and.Proctrl=='incom') then
+   else if(scalar==DENS.and.ProctrlFlag==INCOM) then
     Fg(i,j)=rhoi
    else
     if(i==1) then
@@ -35,55 +35,55 @@ DO j=1,Jc
   end if
   end DO
 end DO
-if(scalar=='U') then
+if(scalar==VELX) then
  Fg(:,Jp)=Ui
  if(Is>1) then 
   Fg(1,:)=Ui
   Fg(Ip,:)=Ui
  end if
-else if(scalar=='V') then
+else if(scalar==VELY) then
  Fg(:,Jp)=Vi
  if(Is>1) then
   Fg(1,:)=Vi
   Fg(Ip,:)=Vi
  end if
-else if(scalar=='P') then
+else if(scalar==PRES) then
  Fg(:,Jp)=0
  if(Is>1) then
   Fg(1,:)=0
   Fg(Ip,:)=0
  end if
-else if(scalar=='T') then
+else if(scalar==TEMP) then
  Fg(:,Jp)=Ta
  if(Is>1) then
   Fg(1,:)=Ta
   Fg(Ip,:)=Ta
  end if
-else if(scalar=='rho') then
+else if(scalar==DENS) then
  Fg(:,Jp)=rhoi
  if(Is>1) then
   Fg(1,:)=rhoi
   Fg(Ip,:)=rhoi
  end if
-else if(scalar=='Tn') then
+else if(scalar==TURBNU) then
  Fg(:,Jp)=Tni
  if(Is>1) then
   Fg(1,:)=Tni
   Fg(Ip,:)=Tni
  end if
-else if(scalar=='Tk') then
+else if(scalar==TURBK) then
  Fg(:,Jp)=Tki
  if(Is>1) then
   Fg(1,:)=Tki
   Fg(Ip,:)=Tki
  end if
-else if(scalar=='Te') then
+else if(scalar==TURBE) then
  Fg(:,Jp)=Tei
  if(Is>1) then
   Fg(1,:)=Tei
   Fg(Ip,:)=Tei
  end if
-else if(scalar=='Tw') then
+else if(scalar==TURBW) then
  Fg(:,Jp)=Twi
  if(Is>1) then
   Fg(1,:)=Twi

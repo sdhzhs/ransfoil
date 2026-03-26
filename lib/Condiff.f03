@@ -10,11 +10,10 @@ real(8) Fwall(Ib1:Ib2)
 real(8) F(Ic,Jc),Ga(Ic,Jc)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
-character(*) scalar
+integer scalar
 character(6) wallfunutype,wallfunktype
 logical(1) productlimit,sstlowre,sstcom,saprodlimit
-logical(1) isU,isV,isT,isTn,isTk,isTe,isTw,isKe,isSst,isSa,isLam,isInv,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,&
-isCom,isIncom,isVisheatY,isInOut
+logical(1) isU,isV,isT,isTn,isTk,isTe,isTw,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,isInOut
 
 wallfunutype='parvel'
 wallfunktype='loglaw'
@@ -24,28 +23,28 @@ sstcom=.false.
 saprodlimit=.false.
 Ym=11.225
 
-isU = scalar=='U'
-isV = scalar=='V'
-isT = scalar=='T'
-isTn = scalar=='Tn'
-isTk = scalar=='Tk'
-isTe = scalar=='Te'
-isTw = scalar=='Tw'
-isKe = Turmod=='ke'
-isSst = Turmod=='sst'
-isSa = Turmod=='sa'
-isLam = Turmod=='lam'
-isInv = Turmod=='inv'
-isFixed = Tmptype=='fixed'
-isFlux = Tmptype=='flux'
-isWf = Walltreat=='wf'
-isLr = Walltreat=='lr'
+isU = scalar==VELX
+isV = scalar==VELY
+isT = scalar==TEMP
+isTn = scalar==TURBNU
+isTk = scalar==TURBK
+isTe = scalar==TURBE
+isTw = scalar==TURBW
+isKe = TurmodFlag==KE
+isSst = TurmodFlag==SST
+isSa = TurmodFlag==SA
+isLam = TurmodFlag==LAM
+isInv = TurmodFlag==INV
+isCom = ProctrlFlag==COM
+isIncom = ProctrlFlag==INCOM
+isWf = WalltreatFlag==WF
+isLr = WalltreatFlag==LR
+isInOut = FstypeFlag==VINPOUT
+
+isFixed = TmptypeFlag==FIXED
+isFlux = TmptypeFlag==FLUX
 isParvel = wallfunutype=='parvel'
 isGenlaw = wallfunktype=='genlaw'
-isCom = Proctrl=='com'
-isIncom = Proctrl=='incom'
-isVisheatY = visheat=='Y'
-isInOut = Fstype=='vinpout'
 
 !$OMP PARALLEL
 if(isU.or.isV) then
@@ -415,14 +414,14 @@ DO j=1,Jc-1
     end if
    else if(isT) then
     if(isCom) then
-     if(isVisheatY) then
+     if(visheatFlag) then
       b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j)-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+&
       (mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca
      else
       b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca
      end if
     else if(isIncom) then
-     if(isVisheatY) then
+     if(visheatFlag) then
       b(i,j)=Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca
      else
       b(i,j)=0
@@ -436,10 +435,10 @@ DO j=1,Jc-1
         if(isCom) then
          b(i,j)=Jg(i,j)*(U(i,j)*Px(i,j)+V(i,j)*Py(i,j))*dx*dy/ca+rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
          !b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
-         if(isVisheatY.and.(isSst.or.Ymax<=Ym)) b(i,j)=b(i,j)+Jg(i,j)*(-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+(mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca
+         if(visheatFlag.and.(isSst.or.Ymax<=Ym)) b(i,j)=b(i,j)+Jg(i,j)*(-2*(mu(i,j)+mut(i,j))*(Ux(i,j)+Vy(i,j))**2/3+(mu(i,j)+mut(i,j))*St(i,j)**2)*dx*dy/ca
         else if(isIncom) then
          b(i,j)=rho(i,j)*ustar(i)*Tf*DR(i)/Tplus(i)
-         if(isVisheatY.and.(isSst.or.Ymax<=Ym)) b(i,j)=b(i,j)+Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca
+         if(visheatFlag.and.(isSst.or.Ymax<=Ym)) b(i,j)=b(i,j)+Jg(i,j)*(mu(i,j)+mut(i,j))*St(i,j)**2*dx*dy/ca
         end if
         if(Tmin<0) b(i,j)=b(i,j)-rho(i,j)*ustar(i)*T(i,j)*DR(i)/Tplus(i)
        end if
@@ -552,8 +551,12 @@ implicit none
 integer i,j,Ic,Jc,Ib1,Ib2,Is,Ie
 real(8) Ra
 real(8) aM(5,Ic,Jc),ba(Ic,Jc),F0(Ic,Jc)
-character(*) scalar
+integer scalar
+integer,parameter::TURBE=7,TURBW=8
 logical(1) isTe,isTw
+
+isTe = scalar==TURBE
+isTw = scalar==TURBW
 
 if(Ib1>1.and.Ib2<Ic) then
  Is=2
@@ -562,8 +565,6 @@ else
  Is=1
  Ie=Ic
 end if
-isTe = scalar=='Te'
-isTw = scalar=='Tw'
 
 !$OMP PARALLEL DO PRIVATE(i)
 DO j=1,Jc-1

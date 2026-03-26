@@ -6,20 +6,6 @@ Program libaero2dcaller
   character(64) filenamei
   mode='A'
   filenamei='../cases/NACA0012.xyz'
-  Matair='Y'
-  Pntctrl='N'
-  Proctrl='incom'
-  Energy='Y'
-  visheat='N'
-  Turmod='sa'
-  Walltreat='wf'
-  solctrl='SIMPLE'
-  Discret='2upwind'
-  Linsol='sor'
-  Tmptype='fixed'
-  gtype='C'
-  Init='N'
-  Stag='N'
   maxs=2000
   delta=1e-4
   Rau=7e-1
@@ -38,6 +24,21 @@ Program libaero2dcaller
   Po=100000
   tvr=10
   ksi=0
+  TurmodFlag=SA
+  ProctrlFlag=INCOM
+  WalltreatFlag=WF
+  FstypeFlag=ALLFIX
+  solctrlFlag=SIMPLE
+  DiscretFlag=SUP
+  LinsolFlag=SORGS
+  TmptypeFlag=FIXED
+  gtypeFlag=CTYPE
+  InitFlag=INITBC
+  PntctrlFlag=.false.
+  EnergyFlag=.true.
+  visheatFlag=.false.
+  StagFlag=.false.
+  MatairFlag=.true.
   open(unit=1,file=filenamei,status='old')
   read(1,*) Iwd
   allocate(Xwd(Iwd),Ywd(Iwd))
@@ -59,17 +60,17 @@ Program libaero2dcaller
   Jc=Jp-1
   Ib1=Iw1
   Ib2=Iw3-1
-  Call Allocarray(mode)
+  Call Allocarray
   Call Aero2D(mode,0,'')
   print *,Cl,Cd,Cf,Cm
   print *,Xpc,Ypc
   print *,maxval(hcv),minval(hcv)
   AoA=5
-  Init='A'
+  InitFlag=INITMEM
   Call Aero2D(mode,0,'')
   print *,Cl,Cd,Cf,Cm
   print *,Xpc,Ypc
   print *,maxval(hcv),minval(hcv)
-  Call Deallocarray(mode)
+  Call Deallocarray
   deallocate(Xwd,Ywd,Xwu,Ywu)
 end Program libaero2dcaller

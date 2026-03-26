@@ -9,15 +9,15 @@ logical(1) isKe,isSst,isSa,isLam,isInv,isFixed,isFlux,isWf,isLr,isParvel
 
 wallfunutype='parvel'
 
-isKe = Turmod=='ke'
-isSst = Turmod=='sst'
-isSa = Turmod=='sa'
-isLam = Turmod=='lam'
-isInv = Turmod=='inv'
-isFixed = Tmptype=='fixed'
-isFlux = Tmptype=='flux'
-isWf = Walltreat=='wf'
-isLr = Walltreat=='lr'
+isKe = TurmodFlag==KE
+isSst = TurmodFlag==SST
+isSa = TurmodFlag==SA
+isLam = TurmodFlag==LAM
+isInv = TurmodFlag==INV
+isWf = WalltreatFlag==WF
+isLr = WalltreatFlag==LR
+isFixed = TmptypeFlag==FIXED
+isFlux = TmptypeFlag==FLUX
 isParvel = wallfunutype=='parvel'
 
 if(isFixed) then
@@ -30,7 +30,7 @@ else if(isFlux) then
  end if
 end if
 DO i=Ib1,Ib2
- if(isSa.and.isLr.or.(isSst.and.isLr).or.isLam.or.isInv) then
+ if((isSa.or.isSst).and.isLr.or.isLam.or.isInv) then
   Q(i)=ca*(ka/ca+mut(i,1)/Prt)*(T(i,1)-Fwall(i))/Yp(i)
   if(Ta-Fwall(i)/=0) then
    hcv(i)=Q(i)/(Ta-Fwall(i))
@@ -39,7 +39,7 @@ DO i=Ib1,Ib2
   end if
   Ax(i)=(mu(i,1)+mut(i,1))*U(i,1)/Yp(i)
   Ay(i)=(mu(i,1)+mut(i,1))*V(i,1)/Yp(i)
- else if(isKe.or.(isSa.and.isWf).or.(isSst.and.isWf)) then
+ else if(isKe.or.((isSa.or.isSst).and.isWf)) then
   if(Ta-Fwall(i)/=0) then
    hcv(i)=Q(i)/(Fwall(i)-Ta)
   else

@@ -11,12 +11,12 @@ real(8) rtime0,rtime1,cputime,walltime
 logical(1) lconv,ldiv
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
-integer(1) solid
+integer solid
 #endif
 #ifdef HYPRE_GPU
 !type(c_ptr) :: p_values
 !integer(8) matA,vecb,vecx,solver,precond
-integer(1) solid
+integer solid
 #endif
 
 if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
@@ -33,13 +33,13 @@ if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
  open(unit=2,file=filename(2),status='replace',IOSTAT=ioerr,IOMSG=ioerrmsg,recl=128)
   if(ioerr>0) stop ioerrmsg
   write(2,*) 'Residual of RANS equations:'
-  if(Turmod=='sa') then
+  if(TurmodFlag==SA) then
    write(2,*) 'U equation   ','V equation   ','T equation   ','v equation   ','c equation   ','Iteration step'
-  else if(Turmod=='ke') then
+  else if(TurmodFlag==KE) then
    write(2,*) 'U equation   ','V equation   ','T equation   ','k equation   ','e equation   ','c equation   ','Iteration step'
-  else if(Turmod=='sst') then
+  else if(TurmodFlag==SST) then
    write(2,*) 'U equation   ','V equation   ','T equation   ','k equation   ','w equation   ','c equation   ','Iteration step'
-  else if(Turmod=='lam'.or.Turmod=='inv') then
+  else if(TurmodFlag==LAM.or.TurmodFlag==INV) then
    write(2,*) 'U equation   ','V equation   ','T equation   ','c equation   ','Iteration step'
   end if
 end if
@@ -55,57 +55,57 @@ print *,'RANS equations iteration is beginning...'
 Call DATE_AND_TIME(VALUES=time0)
 Call CPU_TIME(rtime0)
 DO s=1,maxs
-  Call Derivatives('mux')
-  Call Derivatives('muy')
-  Call Derivatives('mvx')
-  Call Derivatives('mvy')
+  Call Derivatives(MUX)
+  Call Derivatives(MUY)
+  Call Derivatives(MVX)
+  Call Derivatives(MVY)
   Call Wallfunc
-  Call Condiff('U')
-  Call ImplicitRelax(aM,b,U0,Rau,Ic,Jc,Ib1,Ib2,'U')
+  Call Condiff(VELX)
+  Call ImplicitRelax(aM,b,U0,Rau,Ic,Jc,Ib1,Ib2,VELX)
 #if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,Ic,Jc,Ib1,solid,'U',Fstype)
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,Ic,Jc,Ib1,solid,VELX,FstypeFlag)
 #elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,U,Ic,Jc,Ib1,Ib2,solid,'U',Fstype)
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,U,Ic,Jc,Ib1,solid,'U',Fstype)
+  Call hypresolve_gpu(aM,b,U,Ic,Jc,Ib1,Ib2,solid,VELX,FstypeFlag)
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,U,Ic,Jc,Ib1,solid,VELX,FstypeFlag)
 #else
-  if(Linsol=='sor') then
-   Call sor(aM,b,U,Ic,Jc,Ib1,Ib2,'U',Fstype)
-  else if(Linsol=='pbicg') then
-   Call CGSTAB(aM,b,U,Ic,Jc,Ib1,Ib2,'U',Fstype)
+  if(LinsolFlag==SORGS) then
+   Call sor(aM,b,U,Ic,Jc,Ib1,Ib2,VELX,FstypeFlag)
+  else if(LinsolFlag==PBICG) then
+   Call CGSTAB(aM,b,U,Ic,Jc,Ib1,Ib2,VELX,FstypeFlag)
   end if
 #endif
-  Call Condiff('V')
-  Call ImplicitRelax(aM,b,V0,Rau,Ic,Jc,Ib1,Ib2,'V')
+  Call Condiff(VELY)
+  Call ImplicitRelax(aM,b,V0,Rau,Ic,Jc,Ib1,Ib2,VELY)
 #if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,Ic,Jc,Ib1,solid,'V',Fstype)
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,Ic,Jc,Ib1,solid,VELY,FstypeFlag)
 #elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,V,Ic,Jc,Ib1,Ib2,solid,'V',Fstype)
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,V,Ic,Jc,Ib1,solid,'V',Fstype)
+  Call hypresolve_gpu(aM,b,V,Ic,Jc,Ib1,Ib2,solid,VELY,FstypeFlag)
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,V,Ic,Jc,Ib1,solid,VELY,FstypeFlag)
 #else
-  if(Linsol=='sor') then
-   Call sor(aM,b,V,Ic,Jc,Ib1,Ib2,'V',Fstype)
-  else if(Linsol=='pbicg') then
-   Call CGSTAB(aM,b,V,Ic,Jc,Ib1,Ib2,'V',Fstype)
+  if(LinsolFlag==SORGS) then
+   Call sor(aM,b,V,Ic,Jc,Ib1,Ib2,VELY,FstypeFlag)
+  else if(LinsolFlag==PBICG) then
+   Call CGSTAB(aM,b,V,Ic,Jc,Ib1,Ib2,VELY,FstypeFlag)
   end if
 #endif
   Call PCEcoe
 #if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,Ic,Jc,Ib1,solid,'dP',Fstype)
+  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,Ic,Jc,Ib1,solid,DPRES,FstypeFlag)
 #elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,dP,Ic,Jc,Ib1,Ib2,solid,'dP',Fstype)
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,dP,Ic,Jc,Ib1,solid,'dP',Fstype)
+  Call hypresolve_gpu(aM,b,dP,Ic,Jc,Ib1,Ib2,solid,DPRES,FstypeFlag)
+  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,dP,Ic,Jc,Ib1,solid,DPRES,FstypeFlag)
 #else
-  !Call sor(aM,b,dP,Ic,Jc,Ib1,Ib2,'dP',Fstype)
-  Call CGSTAB(aM,b,dP,Ic,Jc,Ib1,Ib2,'dP',Fstype)
+  !Call sor(aM,b,dP,Ic,Jc,Ib1,Ib2,DPRES,FstypeFlag)
+  Call CGSTAB(aM,b,dP,Ic,Jc,Ib1,Ib2,DPRES,FstypeFlag)
 #endif
-  if(Proctrl=='com') then
-   Call StabSol('dP')
+  if(ProctrlFlag==COM) then
+   Call StabSol(DPRES)
   end if
   P=P+Rap*dP
-  Call Derivatives('dP')
+  Call Derivatives(DPRES)
   Call Velcorrect
-  if(Proctrl=='com') then
-   if(Fstype=='vinpout') then
+  if(ProctrlFlag==COM) then
+   if(FstypeFlag==VINPOUT) then
     rho(:,1:Jc-1)=rho(:,1:Jc-1)+Rap*dP(:,1:Jc-1)*Ma/(R*T(:,1:Jc-1))
     where(Vn(:,Jc)>0.0) rho(:,Jc)=rho(:,Jc)+Rap*dP(:,Jc)*Ma/(R*T(:,Jc))
    else 
@@ -113,28 +113,28 @@ DO s=1,maxs
    end if
    Call Densityinterp
   end if
-  Call Derivatives('U')
-  Call Derivatives('V')
-  Call Derivatives('P')
-  if(Energy=='Y') then
+  Call Derivatives(VELX)
+  Call Derivatives(VELY)
+  Call Derivatives(PRES)
+  if(EnergyFlag) then
    Call Wallfunc
-   Call Condiff('T')
-   Call ImplicitRelax(aM,b,T0,Rae,Ic,Jc,Ib1,Ib2,'T')
+   Call Condiff(TEMP)
+   Call ImplicitRelax(aM,b,T0,Rae,Ic,Jc,Ib1,Ib2,TEMP)
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,Ic,Jc,Ib1,solid,'T',Fstype)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,T,Ic,Jc,Ib1,solid,TEMP,FstypeFlag)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,T,Ic,Jc,Ib1,Ib2,solid,'T',Fstype)
-   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,T,Ic,Jc,Ib1,solid,'T',Fstype)
+   Call hypresolve_gpu(aM,b,T,Ic,Jc,Ib1,Ib2,solid,TEMP,FstypeFlag)
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,T,Ic,Jc,Ib1,solid,TEMP,FstypeFlag)
 #else
-   if(Linsol=='sor') then
-    Call sor(aM,b,T,Ic,Jc,Ib1,Ib2,'T',Fstype)
-   else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,T,Ic,Jc,Ib1,Ib2,'T',Fstype)
+   if(LinsolFlag==SORGS) then
+    Call sor(aM,b,T,Ic,Jc,Ib1,Ib2,TEMP,FstypeFlag)
+   else if(LinsolFlag==PBICG) then
+    Call CGSTAB(aM,b,T,Ic,Jc,Ib1,Ib2,TEMP,FstypeFlag)
    end if
 #endif
-   if(Proctrl=='com') then
-    Call StabSol('T')
-    if(Fstype=='vinpout') then
+   if(ProctrlFlag==COM) then
+    Call StabSol(TEMP)
+    if(FstypeFlag==VINPOUT) then
      rho(:,1:Jc-1)=(Po+P(:,1:Jc-1))*Ma/(R*T(:,1:Jc-1))
      where(Vn(:,Jc)>0.0) rho(:,Jc)=(Po+P(:,Jc))*Ma/(R*T(:,Jc))
     else
@@ -142,92 +142,92 @@ DO s=1,maxs
     end if
     Call Densityinterp
    end if
-   if(Turmod/='inv'.and.Matair=='Y') then
+   if(TurmodFlag/=INV.and.MatairFlag) then
     mu=mu0*(T/Ti)**1.5*(Ti+Si)/(T+Si)
    end if
    Pr=mu*ca/ka
    Pc=9.24*((Pr/Prt)**0.75-1)*(1+0.28*exp(-0.007*Pr/Prt))
   end if
-  if(Turmod=='sa') then
-   Call Derivatives('Tn')
+  if(TurmodFlag==SA) then
+   Call Derivatives(TURBNU)
    Call Wallfunc
-   Call Condiff('Tn')
-   Call ImplicitRelax(aM,b,Tn0,Rat,Ic,Jc,Ib1,Ib2,'Tn')
+   Call Condiff(TURBNU)
+   Call ImplicitRelax(aM,b,Tn0,Rat,Ic,Jc,Ib1,Ib2,TURBNU)
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Ic,Jc,Ib1,solid,'Tn',Fstype)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tn,Ic,Jc,Ib1,solid,TURBNU,FstypeFlag)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Tn,Ic,Jc,Ib1,Ib2,solid,'Tn',Fstype)
-   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,Tn,Ic,Jc,Ib1,solid,'Tn',Fstype) 
+   Call hypresolve_gpu(aM,b,Tn,Ic,Jc,Ib1,Ib2,solid,TURBNU,FstypeFlag)
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,Tn,Ic,Jc,Ib1,solid,TURBNU,FstypeFlag) 
 #else
-   if(Linsol=='sor') then
-    Call sor(aM,b,Tn,Ic,Jc,Ib1,Ib2,'Tn',Fstype)
-   else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Tn,Ic,Jc,Ib1,Ib2,'Tn',Fstype)
+   if(LinsolFlag==SORGS) then
+    Call sor(aM,b,Tn,Ic,Jc,Ib1,Ib2,TURBNU,FstypeFlag)
+   else if(LinsolFlag==PBICG) then
+    Call CGSTAB(aM,b,Tn,Ic,Jc,Ib1,Ib2,TURBNU,FstypeFlag)
    end if
 #endif
-   Call StabSol('Tn')
-  else if(Turmod=='ke') then
+   Call StabSol(TURBNU)
+  else if(TurmodFlag==KE) then
    Call Wallfunc
-   Call Condiff('Tk')
-   Call ImplicitRelax(aM,b,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   Call Condiff(TURBK)
+   Call ImplicitRelax(aM,b,Tk0,Rat,Ic,Jc,Ib1,Ib2,TURBK)
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Ic,Jc,Ib1,solid,'Tk',Fstype)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Ic,Jc,Ib1,solid,TURBK,FstypeFlag)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Tk,Ic,Jc,Ib1,Ib2,solid,'Tk',Fstype)
+   Call hypresolve_gpu(aM,b,Tk,Ic,Jc,Ib1,Ib2,solid,TURBK,FstypeFlag)
 #else
-   if(Linsol=='sor') then
-    Call sor(aM,b,Tk,Ic,Jc,Ib1,Ib2,'Tk',Fstype)
-   else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Tk,Ic,Jc,Ib1,Ib2,'Tk',Fstype)
+   if(LinsolFlag==SORGS) then
+    Call sor(aM,b,Tk,Ic,Jc,Ib1,Ib2,TURBK,FstypeFlag)
+   else if(LinsolFlag==PBICG) then
+    Call CGSTAB(aM,b,Tk,Ic,Jc,Ib1,Ib2,TURBK,FstypeFlag)
    end if
 #endif
-   Call StabSol('Tk')
-   Call Condiff('Te')
-   Call ImplicitRelax(aM,b,Te0,Rat,Ic,Jc,Ib1,Ib2,'Te')
+   Call StabSol(TURBK)
+   Call Condiff(TURBE)
+   Call ImplicitRelax(aM,b,Te0,Rat,Ic,Jc,Ib1,Ib2,TURBE)
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Ic,Jc,Ib1,solid,'Te',Fstype)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Te,Ic,Jc,Ib1,solid,TURBE,FstypeFlag)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Te,Ic,Jc,Ib1,Ib2,solid,'Te',Fstype)
+   Call hypresolve_gpu(aM,b,Te,Ic,Jc,Ib1,Ib2,solid,TURBE,FstypeFlag)
 #else
-   if(Linsol=='sor') then
-    Call sor(aM,b,Te,Ic,Jc,Ib1,Ib2,'Te',Fstype)
-   else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Te,Ic,Jc,Ib1,Ib2,'Te',Fstype)
+   if(LinsolFlag==SORGS) then
+    Call sor(aM,b,Te,Ic,Jc,Ib1,Ib2,TURBE,FstypeFlag)
+   else if(LinsolFlag==PBICG) then
+    Call CGSTAB(aM,b,Te,Ic,Jc,Ib1,Ib2,TURBE,FstypeFlag)
    end if
 #endif
-   Call StabSol('Te')
-  else if(Turmod=='sst') then
-   Call Derivatives('Tk')
-   Call Derivatives('Tw')
+   Call StabSol(TURBE)
+  else if(TurmodFlag==SST) then
+   Call Derivatives(TURBK)
+   Call Derivatives(TURBW)
    Call Wallfunc
-   Call Condiff('Tk')
-   Call ImplicitRelax(aM,b,Tk0,Rat,Ic,Jc,Ib1,Ib2,'Tk')
+   Call Condiff(TURBK)
+   Call ImplicitRelax(aM,b,Tk0,Rat,Ic,Jc,Ib1,Ib2,TURBK)
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Ic,Jc,Ib1,solid,'Tk',Fstype)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tk,Ic,Jc,Ib1,solid,TURBK,FstypeFlag)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Tk,Ic,Jc,Ib1,Ib2,solid,'Tk',Fstype)
+   Call hypresolve_gpu(aM,b,Tk,Ic,Jc,Ib1,Ib2,solid,TURBK,FstypeFlag)
 #else
-   if(Linsol=='sor') then
-    Call sor(aM,b,Tk,Ic,Jc,Ib1,Ib2,'Tk',Fstype)
-   else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Tk,Ic,Jc,Ib1,Ib2,'Tk',Fstype)
+   if(LinsolFlag==SORGS) then
+    Call sor(aM,b,Tk,Ic,Jc,Ib1,Ib2,TURBK,FstypeFlag)
+   else if(LinsolFlag==PBICG) then
+    Call CGSTAB(aM,b,Tk,Ic,Jc,Ib1,Ib2,TURBK,FstypeFlag)
    end if
 #endif
-   Call StabSol('Tk')
-   Call Condiff('Tw')
-   Call ImplicitRelax(aM,b,Tw0,Rat,Ic,Jc,Ib1,Ib2,'Tw')
+   Call StabSol(TURBK)
+   Call Condiff(TURBW)
+   Call ImplicitRelax(aM,b,Tw0,Rat,Ic,Jc,Ib1,Ib2,TURBW)
 #if defined(HYPRE)
-   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Ic,Jc,Ib1,solid,'Tw',Fstype)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,Tw,Ic,Jc,Ib1,solid,TURBW,FstypeFlag)
 #elif defined(HYPRE_GPU)
-   Call hypresolve_gpu(aM,b,Tw,Ic,Jc,Ib1,Ib2,solid,'Tw',Fstype)
+   Call hypresolve_gpu(aM,b,Tw,Ic,Jc,Ib1,Ib2,solid,TURBW,FstypeFlag)
 #else
-   if(Linsol=='sor') then
-    Call sor(aM,b,Tw,Ic,Jc,Ib1,Ib2,'Tw',Fstype)
-   else if(Linsol=='pbicg') then
-    Call CGSTAB(aM,b,Tw,Ic,Jc,Ib1,Ib2,'Tw',Fstype)
+   if(LinsolFlag==SORGS) then
+    Call sor(aM,b,Tw,Ic,Jc,Ib1,Ib2,TURBW,FstypeFlag)
+   else if(LinsolFlag==PBICG) then
+    Call CGSTAB(aM,b,Tw,Ic,Jc,Ib1,Ib2,TURBW,FstypeFlag)
    end if
 #endif
-   Call StabSol('Tw')
+   Call StabSol(TURBW)
   end if
   Call Turvis
   Call Postprocess(s)
@@ -238,12 +238,12 @@ DO s=1,maxs
   Call RMS(U,U0,Ic,Jc,rmsu)
   Call RMS(V,V0,Ic,Jc,rmsv)
   Call RMS(T,T0,Ic,Jc,rmst)
-  if(Turmod=='sa') then
+  if(TurmodFlag==SA) then
    Call RMS(Tn,Tn0,Ic,Jc,rmsn)
-  else if(Turmod=='ke') then
+  else if(TurmodFlag==KE) then
    Call RMS(Tk,Tk0,Ic,Jc,rmsk)
    Call RMS(Te,Te0,Ic,Jc,rmse)
-  else if(Turmod=='sst') then
+  else if(TurmodFlag==SST) then
    Call RMS(Tk,Tk0,Ic,Jc,rmsk)
    Call RMS(Tw,Tw0,Ic,Jc,rmsw)
   end if
@@ -252,13 +252,13 @@ DO s=1,maxs
    print *,rmsm,s
   end if
   if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
-   if(Turmod=='sa') then
+   if(TurmodFlag==SA) then
     write(2,'(5(ES11.4,2X),I5)') rmsu,rmsv,rmst,rmsn,rmsm,s
-   else if(Turmod=='ke') then
+   else if(TurmodFlag==KE) then
     write(2,'(6(ES11.4,2X),I5)') rmsu,rmsv,rmst,rmsk,rmse,rmsm,s
-   else if(Turmod=='sst') then
+   else if(TurmodFlag==SST) then
     write(2,'(6(ES11.4,2X),I5)') rmsu,rmsv,rmst,rmsk,rmsw,rmsm,s
-   else if(Turmod=='lam'.or.Turmod=='inv') then
+   else if(TurmodFlag==LAM.or.TurmodFlag==INV) then
     write(2,'(4(ES11.4,2X),I5)') rmsu,rmsv,rmst,rmsm,s
    end if
   end if
@@ -273,12 +273,12 @@ DO s=1,maxs
   U0=U
   V0=V
   T0=T
-  if(Turmod=='sa') then
+  if(TurmodFlag==SA) then
    Tn0=Tn
-  else if(Turmod=='ke') then
+  else if(TurmodFlag==KE) then
    Tk0=Tk
    Te0=Te
-  else if(Turmod=='sst') then
+  else if(TurmodFlag==SST) then
    Tk0=Tk
    Tw0=Tw
   end if
@@ -315,14 +315,14 @@ if(libmod=='S'.or.libmod=='I'.or.libmod=='M') then
  print *,'Save results successfully!'
 end if
 if(libmod=='S'.or.libmod=='I') then
- Call Deallocarray(libmod)
+ Call Deallocarray
  deallocate(Xwd,Ywd,Xwu,Ywu)
- if(Pntctrl=='Y') then
+ if(PntctrlFlag) then
   deallocate(Xwp,Ywp,Xwp0,Ywp0)
  end if
 else if(libmod=='C') then
  Call ArraypointerF2C
- if(Pntctrl=='Y') then
+ if(PntctrlFlag) then
   deallocate(Xwp,Ywp,Xwp0,Ywp0)
  else
   deallocate(Xwd,Ywd,Xwu,Ywu)
@@ -342,83 +342,6 @@ use Aero2DCOM
 implicit none
 integer i
 
-DO i=1,8
- if(cPntctrl(i)(1:1)/=C_NULL_CHAR) then
-  Pntctrl(i:i)=cPntctrl(i)(1:1)
- else
-  Pntctrl(i:i)=' '
- end if
- if(cProctrl(i)(1:1)/=C_NULL_CHAR) then
-  Proctrl(i:i)=cProctrl(i)(1:1)
- else
-  Proctrl(i:i)=' '
- end if
- if(cEnergy(i)(1:1)/=C_NULL_CHAR) then
-  Energy(i:i)=cEnergy(i)(1:1)
- else
-  Energy(i:i)=' '
- end if
- if(cvisheat(i)(1:1)/=C_NULL_CHAR) then
-  visheat(i:i)=cvisheat(i)(1:1)
- else
-  visheat(i:i)=' '
- end if
- if(cTurmod(i)(1:1)/=C_NULL_CHAR) then
-  Turmod(i:i)=cTurmod(i)(1:1)
- else
-  Turmod(i:i)=' '
- end if
- if(cWalltreat(i)(1:1)/=C_NULL_CHAR) then
-  Walltreat(i:i)=cWalltreat(i)(1:1)
- else
-  Walltreat(i:i)=' '
- end if
- if(csolctrl(i)(1:1)/=C_NULL_CHAR) then
-  solctrl(i:i)=csolctrl(i)(1:1)
- else
-  solctrl(i:i)=' '
- end if
- if(cDiscret(i)(1:1)/=C_NULL_CHAR) then
-  Discret(i:i)=cDiscret(i)(1:1)
- else
-  Discret(i:i)=' '
- end if
- if(cdenface(i)(1:1)/=C_NULL_CHAR) then
-  denface(i:i)=cdenface(i)(1:1)
- else
-  denface(i:i)=' '
- end if
- if(cLinsol(i)(1:1)/=C_NULL_CHAR) then
-  Linsol(i:i)=cLinsol(i)(1:1)
- else
-  Linsol(i:i)=' '
- end if
- if(cTmptype(i)(1:1)/=C_NULL_CHAR) then
-  Tmptype(i:i)=cTmptype(i)(1:1)
- else
-  Tmptype(i:i)=' '
- end if
- if(cInit(i)(1:1)/=C_NULL_CHAR) then
-  Init(i:i)=cInit(i)(1:1)
- else
-  Init(i:i)=' '
- end if
- if(cStag(i)(1:1)/=C_NULL_CHAR) then
-  Stag(i:i)=cStag(i)(1:1)
- else
-  Stag(i:i)=' '
- end if
- if(cgtype(i)(1:1)/=C_NULL_CHAR) then
-  gtype(i:i)=cgtype(i)(1:1)
- else
-  gtype(i:i)=' '
- end if
- if(cMatair(i)(1:1)/=C_NULL_CHAR) then
-  Matair(i:i)=cMatair(i)(1:1)
- else
-  Matair(i:i)=' '
- end if
-end DO
 DO i=1,64
  if(cfilename(i)(1:1)/=C_NULL_CHAR) then
   filename(9)(i:i)=cfilename(i)(1:1)
@@ -466,7 +389,7 @@ cTk=C_LOC(Tk)
 cTe=C_LOC(Te)
 cTw=C_LOC(Tw)
 cmut=C_LOC(mut)
-if(Pntctrl=='Y') then
+if(PntctrlFlag) then
  cXwd=C_LOC(Xwd)
  cYwd=C_LOC(Ywd)
  cXwu=C_LOC(Xwu)
@@ -491,9 +414,9 @@ DO i=1,n
  hcv=hcv+hcvnw(:,i)
  Ax=Ax+Axnw(:,i)
  Ay=Ay+Aynw(:,i)
- if(Turmod=='sa'.or.Turmod=='sst') then
+ if(TurmodFlag==SA.or.TurmodFlag==SST) then
   Yplus=Yplus+Ypnw(:,i)
- else if(Turmod=='ke') then
+ else if(TurmodFlag==KE) then
   Ystar=Ystar+Ypnw(:,i)
  end if
  P(Ib1:Ib2,1)=P(Ib1:Ib2,1)+Pnw(:,i)
@@ -511,9 +434,9 @@ Ypc=Ypc/(n+1)
 hcv=hcv/(n+1)
 Ax=Ax/(n+1)
 Ay=Ay/(n+1)
-if(Turmod=='sa'.or.Turmod=='sst') then
+if(TurmodFlag==SA.or.TurmodFlag==SST) then
  Yplus=Yplus/(n+1)
-else if(Turmod=='ke') then
+else if(TurmodFlag==KE) then
  Ystar=Ystar/(n+1)
 end if
 P(Ib1:Ib2,1)=P(Ib1:Ib2,1)/(n+1)
@@ -535,7 +458,7 @@ lconv=.false.
 ldiv=.false.
 divnum=1e+20
 
-if(Turmod=='sa') then
+if(TurmodFlag==SA) then
  if(rmsm<delta.and.rmsu<delta.and.rmsv<delta.and.rmst<delta.and.rmsn<delta) then
   lconv=.true.
  end if
@@ -543,7 +466,7 @@ if(Turmod=='sa') then
  (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsn))) then
   ldiv=.true.
  end if
-else if(Turmod=='ke') then
+else if(TurmodFlag==KE) then
  if(rmsm<delta.and.rmsu<delta.and.rmsv<delta.and.rmst<delta.and.rmsk<delta.and.rmse<delta) then
   lconv=.true.
  end if
@@ -551,7 +474,7 @@ else if(Turmod=='ke') then
  (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsk)).or.(.not.ieee_is_normal(rmse))) then
   ldiv=.true.
  end if
-else if(Turmod=='sst') then
+else if(TurmodFlag==SST) then
  if(rmsm<delta.and.rmsu<delta.and.rmsv<delta.and.rmst<delta.and.rmsk<delta.and.rmsw<delta) then
   lconv=.true.
  end if
@@ -559,7 +482,7 @@ else if(Turmod=='sst') then
  (.not.ieee_is_normal(rmsv)).or.(.not.ieee_is_normal(rmst)).or.(.not.ieee_is_normal(rmsk)).or.(.not.ieee_is_normal(rmsw))) then
   ldiv=.true.
  end if
-else if(Turmod=='lam'.or.Turmod=='inv') then
+else if(TurmodFlag==LAM.or.TurmodFlag==INV) then
  if(rmsm<delta.and.rmsu<delta.and.rmsv<delta.and.rmst<delta) then
   lconv=.true.
  end if
@@ -574,49 +497,38 @@ end Subroutine Convergence
 Subroutine StabSol(scalar)
 use Aero2DCOM
 implicit none
-character(*) scalar
+integer scalar
 
-if(scalar=='dP') then
+if(scalar==DPRES) then
  dP=min(max(dP,(1-Po-P)/Rap),(5e+10-Po-P)/Rap)
-else if(scalar=='T') then
+else if(scalar==TEMP) then
  T=max(min(5e+3,T),1.0)
-else if(scalar=='Tn') then
+else if(scalar==TURBNU) then
  Tn=min(max(Tn,1e-15),1e+5*mu/rho)
-else if(scalar=='Tk') then
+else if(scalar==TURBK) then
  Tk=max(Tk,1e-15)
-else if(scalar=='Te') then
+else if(scalar==TURBE) then
  Te=max(Te,(rho*Cu*Tk**2)/(1e+5*mu))
-else if(scalar=='Tw') then
+else if(scalar==TURBW) then
  Tw=max(Tw,(rho*Tk)/(1e+5*mu))
 end if
 
 end Subroutine StabSol
 
-Subroutine Allocarray(libmod)
+Subroutine Allocarray
 use Aero2DCOM
 implicit none
-integer i
-character(*) libmod
 
-if(libmod=='C') then
- DO i=1,8
-  if(cTurmod(i)(1:1)/=C_NULL_CHAR) then
-   Turmod(i:i)=cTurmod(i)(1:1)
-  else
-   Turmod(i:i)=' '
-  end if
- end DO
-end if
 allocate(U0(Ic,Jc),V0(Ic,Jc),T0(Ic,Jc),U(Ic,Jc),V(Ic,Jc),T(Ic,Jc),rho(Ic,Jc),mu(Ic,Jc),P(Ic,Jc),dP(Ic,Jc),mut(Ic,Jc),&
 Pr(Ic,Jc),Pc(Ic,Jc),auP(Ic,Jc),auNB(Ic,Jc),aM(5,Ic,Jc),b(Ic,Jc),Xg(Ip,Jp),Yg(Ip,Jp),Xc(Ic,Jc),Yc(Ic,Jc),Xga(Ic,Jc),Xgk(Ic,Jc),&
 Yga(Ic,Jc),Ygk(Ic,Jc),dk(Ic,Jc),da(Ic,Jc),Jg(Ic,Jc),a1(Ic,Jc),y1(Ic,Jc),b1(Ic,Jc),Un(Ic,Jc),Vn(Ic,Jc),Unk(Ip,Jc),Vna(Ic,Jp),&
 duk(Ip,Jc),dva(Ic,Jp),Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),muxy(Ic,Jc),&
 muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc))
-if(Turmod=='sa') then
+if(TurmodFlag==SA) then
  allocate(Tn0(Ic,Jc),Tn(Ic,Jc),Tnx(Ic,Jc),Tny(Ic,Jc))
-else if(Turmod=='ke') then
+else if(TurmodFlag==KE) then
  allocate(Tk0(Ic,Jc),Te0(Ic,Jc),Tk(Ic,Jc),Te(Ic,Jc))
-else if(Turmod=='sst') then
+else if(TurmodFlag==SST) then
  allocate(Tk0(Ic,Jc),Tw0(Ic,Jc),Tk(Ic,Jc),Tw(Ic,Jc),Tkx(Ic,Jc),Tky(Ic,Jc),Twx(Ic,Jc),Twy(Ic,Jc),sigmatk(Ic,Jc),sigmatw(Ic,Jc))
 end if
 allocate(Xw(Ib1:Ib2),Yw(Ib1:Ib2),Yp(Ib1:Ib2),DR(Ib1:Ib2),Sw(Ib1:Ib2),ks(Ib1:Ib2),Q(Ib1:Ib2),Yplus(Ib1:Ib2),Ystar(Ib1:Ib2),&
@@ -626,28 +538,17 @@ allocate(Clrec(3),Cdrec(3),Cfrec(3),Cmrec(3),Xpcrec(3),Ypcrec(3))
 
 end Subroutine Allocarray
 
-Subroutine Deallocarray(libmod)
+Subroutine Deallocarray
 use Aero2DCOM
 implicit none
-integer i
-character(*) libmod
 
-if(libmod=='C') then
- DO i=1,8
- if(cTurmod(i)(1:1)/=C_NULL_CHAR) then
-  Turmod(i:i)=cTurmod(i)(1:1)
- else
-  Turmod(i:i)=' '
- end if
- end DO
-end if
 deallocate(U0,V0,T0,U,V,T,rho,mu,mut,P,dP,Pr,Pc,auP,auNB,aM,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,&
 Un,Vn,Unk,Vna,duk,dva,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,d)
-if(Turmod=='sa') then
+if(TurmodFlag==SA) then
  deallocate(Tn0,Tn,Tnx,Tny)
-else if(Turmod=='ke') then
+else if(TurmodFlag==KE) then
  deallocate(Tk0,Te0,Tk,Te)
-else if(Turmod=='sst') then
+else if(TurmodFlag==SST) then
  deallocate(Tk0,Tw0,Tk,Tw,Tkx,Tky,Twx,Twy,sigmatk,sigmatw)
 end if
 deallocate(Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay)

@@ -9,7 +9,8 @@ real(8) axE1,axW1,axP1,ayE1,ayW1,ayP1,b1,axE2,axW2,axP2,ayE2,ayW2,ayP2,b2,df,N,S
 tx,ty,nx,ny,dsp,dsm,dsp0,dsm0,Xgkm,Ygkm,Xgam,Ygam,Detm,epsi,txplus,txminus,typlus,tyminus,Xgk,Ygk,Xga,Yga,Det
 real(8) V(Ip),V0(Ip),Vo(Ip),Xg0(Ip),Yg0(Ip),Xg00(Ip),Yg00(Ip),d(Ip),d0(Ip)
 real(8) Ap(2,2,Ip),Aw(2,2,Ip),Ae(2,2,Ip),B(2,Ip),X(2,Ip)
-character(*) trailconfig,gtype
+integer gtype,trailconfig
+integer,parameter::CTYPE=0,OTYPE=1,BLUNT=1
 
 Xg(:,1)=Xb
 Yg(:,1)=Yb
@@ -19,7 +20,7 @@ Jmax=Jp
 jtran=int(3*Jmax/4)
 dis=fd
 nua=2./3
-if(trailconfig=='blunt') then
+if(trailconfig==BLUNT) then
  theta=6
 else
  theta=1
@@ -49,7 +50,7 @@ DO j=2,Jp
  end DO
  DO l=1,j-2
   Vo=V
-  if(gtype=='O') then
+  if(gtype==OTYPE) then
    DO i=1,Ip
     if(i==1) then
      V(i)=(1-nua)*Vo(i)+nua*0.5*(Vo(i+1)+Vo(Ip-1))
@@ -59,7 +60,7 @@ DO j=2,Jp
      V(i)=(1-nua)*Vo(i)+nua*0.5*(Vo(i+1)+Vo(i-1))
     end if
    end DO
-  else if(gtype=='C') then
+  else if(gtype==CTYPE) then
    DO i=2,Ip-1
     if(i==2) then
      V(i)=(1-nua)*Vo(i)+nua*0.5*(Vo(i+1)+Vo(i))
@@ -225,7 +226,7 @@ DO j=2,Jp
   B(1,i)=b1
   B(2,i)=b2
  end DO
- if(gtype=='C') then
+ if(gtype==CTYPE) then
   Ap(1,1,1)=1
   Aw(1,1,1)=0
   Ae(1,1,1)=0
@@ -255,7 +256,7 @@ DO j=2,Jp
   B(1,Ip)=0
   B(2,Ip)=0
   Call BlockTDMA(Ap,Aw,Ae,B,X,2,Ip)
- else if(gtype=='O') then
+ else if(gtype==OTYPE) then
   Call BlockCTDMA(Ap(:,:,1:Ip-1),Aw(:,:,1:Ip-1),Ae(:,:,1:Ip-1),B(:,1:Ip-1),X(:,1:Ip-1),2,Ip-1)
   X(:,Ip)=X(:,1)
  end if

@@ -4,16 +4,15 @@ implicit none
 integer i,j
 real(8) Xi,fnu1,Dwplus,phi1,F1,betai,St,phi2,F2,Ret,alphastar,Ymax,Ym
 logical(1) sstlowre
-logical(1) isKe,isSst,isSa,isLam,isInv,isWf,isLr
+logical(1) isKe,isSst,isSa,isLam,isInv,isLr
 
  sstlowre=.false.
- isKe = Turmod=='ke'
- isSst = Turmod=='sst'
- isSa = Turmod=='sa'
- isLam = Turmod=='lam'
- isInv = Turmod=='inv'
- isWf = Walltreat=='wf'
- isLr = Walltreat=='lr'
+ isKe = TurmodFlag==KE
+ isSst = TurmodFlag==SST
+ isSa = TurmodFlag==SA
+ isLam = TurmodFlag==LAM
+ isInv = TurmodFlag==INV
+ isLr = WalltreatFlag==LR
 
  Ym=11.225
  if(isKe) then
