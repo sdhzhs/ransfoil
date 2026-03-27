@@ -4,11 +4,13 @@ integer maxl,i,j,k,Ic,Jc,Ib1,Ib2,Is,Ie
 real(8) err,omega,rms,FW,FE,FS,FN
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc)
 real(8) Fo(Ic,Jc)
-character(*) scalar,bctype
+
+integer scalar,bctype
+integer,parameter::DPRES=3,VINPOUT=1
 logical(1) isP,isInOut
 
-isP = scalar=='dP'
-isInOut = bctype=='vinpout'
+isP = scalar==DPRES
+isInOut = bctype==VINPOUT
 
 !$OMP PARALLEL PRIVATE(k,maxl,err,omega,Is,Ie)
 maxl=1000
@@ -98,28 +100,19 @@ end Subroutine sor
 
 Subroutine CGSTAB(aM,b,F,Ic,Jc,Ib1,Ib2,scalar,bctype)
 implicit none
-integer maxl,k,Ic,Jc,Ib1,Ib2,iter,preid,i
+integer maxl,k,Ic,Jc,Ib1,Ib2,iter,i
 real(8) err,normb
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc)
 real(8) alpha,beta,rho,omega,rho0,sumrmsi,sumvrms,sumptz,sumpts,sumrms
 real(8) rmsi(Ic,Jc),rms(Ic,Jc),p(Ic,Jc),v(Ic,Jc),s(Ic,Jc),t(Ic,Jc),pt(Ic,Jc),y(Ic,Jc),z(Ic,Jc),aD(Ic,Jc),vec0(Ic,Jc)
-character(*) scalar,bctype
-character(4) pretype
+
+integer scalar,preid,bctype
+integer,parameter::DPRES=3,JAC=0,SSOR=1,ILU=2,VINPOUT=1
 logical(1) isP,isInOut
 
-isP = scalar=='dP'
-isInOut = bctype=='vinpout'
-pretype = 'ILU'
-
-if(pretype=='JAC') then
- preid=0
-else if(pretype=='SSOR') then
- preid=1
-else if(pretype=='ILU') then
- preid=2
-else
- preid=-1
-end if
+isP = scalar==DPRES
+isInOut = bctype==VINPOUT
+preid = ILU
 
 !$OMP PARALLEL PRIVATE(alpha,beta,rho,omega,rho0,k,maxl,err)
 maxl=1000
@@ -137,7 +130,7 @@ v=p
 aD=aM(1,:,:)
 !normb=sum(abs(b))
 !$OMP END WORKSHARE
-if(preid==2) then
+if(preid==ILU) then
  Call DILU(aM,aD,Ic,Jc,Ib2)
 end if
 alpha=1
@@ -153,7 +146,7 @@ DO k=1,maxl
  !$OMP WORKSHARE
  p=rms+beta*(p-omega*v)
  !$OMP END WORKSHARE
- if(preid==0) then
+ if(preid==JAC) then
   !$OMP WORKSHARE
   y=p/aM(1,:,:)
   !$OMP END WORKSHARE
@@ -162,8 +155,8 @@ DO k=1,maxl
   y=p
   !$OMP END WORKSHARE
  end if
- if(preid==1.or.preid==2) then
-!  Call Sorprecond(aM,aD,y,vec0,Ic,Jc,Ib1,Ib2,scalar,pretype)
+ if(preid==SSOR.or.preid==ILU) then
+!  Call Sorprecond(aM,aD,y,vec0,Ic,Jc,Ib1,Ib2,scalar,preid)
   Call SSorpcond(y,vec0)
  end if
  Call Multmatrixvector(aM,y,v,Ic,Jc,Ib1,Ib2)
@@ -174,7 +167,7 @@ DO k=1,maxl
  !$OMP WORKSHARE
  s=rms-alpha*v
  !$OMP END WORKSHARE
- if(preid==0) then
+ if(preid==JAC) then
   !$OMP WORKSHARE
   z=s/aM(1,:,:)
   !$OMP END WORKSHARE
@@ -183,12 +176,12 @@ DO k=1,maxl
   z=s
   !$OMP END WORKSHARE
  end if
- if(preid==1.or.preid==2) then
-!  Call Sorprecond(aM,aD,z,vec0,Ic,Jc,Ib1,Ib2,scalar,pretype)
+ if(preid==SSOR.or.preid==ILU) then
+!  Call Sorprecond(aM,aD,z,vec0,Ic,Jc,Ib1,Ib2,scalar,preid)
   Call SSorpcond(z,vec0)
  end if
  Call Multmatrixvector(aM,z,t,Ic,Jc,Ib1,Ib2)
- if(preid==0) then
+ if(preid==JAC) then
   !$OMP WORKSHARE
   pt=t/aM(1,:,:)
   !$OMP END WORKSHARE
@@ -197,8 +190,8 @@ DO k=1,maxl
   pt=t
   !$OMP END WORKSHARE
  end if
- if(preid==1.or.preid==2) then
-!  Call Sorprecond(aM,aD,pt,vec0,Ic,Jc,Ib1,Ib2,scalar,pretype)
+ if(preid==SSOR.or.preid==ILU) then
+!  Call Sorprecond(aM,aD,pt,vec0,Ic,Jc,Ib1,Ib2,scalar,preid)
   Call SSorpcond(pt,vec0)
  end if
  !$OMP WORKSHARE
@@ -256,7 +249,7 @@ real(8) vt(Ic,Jc),vt0(Ic,Jc)
 real(8) omega
 logical(1) cond(4)
 
-if(preid==1.and.isP) then
+if(preid==SSOR.and.isP) then
  omega=1.5
 else
  omega=1.0
@@ -553,12 +546,13 @@ Subroutine Sorprecond(aM,aD,b,b0,Ic,Jc,Ib1,Ib2,scalar,pretype)
 !$ use omp_lib
 implicit none
 integer i,j,Ic,Jc,Ib1,Ib2,nt,tid,npt,rpt,Is,Ie
-character(*) scalar,pretype
+integer scalar,pretype
+integer,parameter::DPRES=3,SSOR=1
 real(8) aM(5,Ic,Jc),aD(Ic,Jc),b(Ic,Jc),b0(Ic,Jc)
 real(8) omega
 logical(1) cond(4)
 
-if(pretype=='SSOR'.and.scalar=='dP') then
+if(pretype==SSOR.and.scalar==DPRES) then
  omega=1.5
 else
  omega=1.0

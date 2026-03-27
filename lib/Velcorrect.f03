@@ -4,10 +4,10 @@ implicit none
 integer i,j
 real(8) Sf
 logical(1) isInOut
-isInOut=Fstype=='vinpout'
+isInOut=FstypeFlag==VINPOUT
 
 !$OMP PARALLEL
-if(solctrl=='SIMPLE') then
+if(solctrlFlag==SIMPLE) then
    !$OMP DO PRIVATE(i)
    DO j=1,Jc-1
      DO i=Is,Ie
@@ -16,7 +16,7 @@ if(solctrl=='SIMPLE') then
      end DO
    end DO
    !$OMP END DO
-else if(solctrl=='SIMPLEC') then
+else if(solctrlFlag==SIMPLEC) then
    !$OMP DO PRIVATE(i)
    DO j=1,Jc-1
      DO i=Is,Ie

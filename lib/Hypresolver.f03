@@ -3,7 +3,7 @@ implicit none
 include 'HYPREf.h'
 
 integer    i,Ic,Jc,Ib1,Ib2
-integer(1) solid
+integer    solid
 integer    ierr,ndims,nentries,nparts,nvars,part,var,object_type,nb
 integer    ilower(2),iupper(2),stencil_indices(5),offsets(2,5),vartypes(1),bclower(2),bcupper(2),nblower(2),nbupper(2),map(2),dir(2)
 
@@ -132,8 +132,8 @@ Subroutine hyprerelease(A,b,x,solver,precond,solid)
 implicit none
 include 'HYPREf.h'
 
-integer(1)  solid
-integer     ierr
+integer  solid
+integer  ierr
 
 integer(8)  A
 integer(8)  b
@@ -161,13 +161,13 @@ implicit none
 include 'HYPREf.h'
 
 integer      i,j,Ic,Jc,Ib1
-integer(1)   solid
+integer      solid,scalar,bctype
 integer      ierr,nentries,part,var,itmax,prlv,iter,precond_id
 integer      ilower(2),iupper(2),stencil_indices(5)
 real(8)      tol,res
 real(8)      aM(5,Ic,Jc),ba(Ic,Jc),F(Ic,Jc),Vn(Ic)
-character(*) scalar,bctype
-logical(1) isP,isT,isInOut
+logical(1) isInOut
+integer,parameter::DPRES=3,TEMP=4,VINPOUT=1
 
 integer(8)  A
 integer(8)  b
@@ -177,9 +177,7 @@ integer(8)  parb
 integer(8)  parx
 integer(8)  solver,precond
 
-isP = scalar=='dP'
-isT = scalar=='T'
-isInOut = bctype=='vinpout'
+isInOut = bctype==VINPOUT
 
 DO j=1,Jc
  DO i=1,Ic
@@ -192,7 +190,7 @@ end DO
 
 if(isInOut) then
  Vn=ba(:,Jc)
- if(isP) then
+ if(scalar==DPRES) then
   ba(:,Jc)=0
  else
   ba(:,Jc)=F(:,Jc)
@@ -224,9 +222,9 @@ Call HYPRE_SStructVectorGetObject(x, parx, ierr)
 
 itmax = 1000
 prlv = 0
-if(isP) then
+if(scalar==DPRES) then
  tol = 1.0e-4
-else if(isT) then
+else if(scalar==TEMP) then
  tol = 1.0e-8
 else
  tol = 1.0e-6
@@ -249,7 +247,7 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetTol(solver, tol, ierr)
  Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
- if(isP) then
+ if(scalar==DPRES) then
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 20, ierr)
  else
   Call HYPRE_BoomerAMGSetMaxLevels(solver, 1, ierr)
@@ -264,7 +262,7 @@ else if(solid==3) then
  !Call HYPRE_BoomerAMGSetRAP2(solver, .false.)
  !Call HYPRE_BoomerAMGSetNumSweeps(solver, 1, ierr)
  !Call HYPRE_BoomerAMGSetSmoothType(solver, 9, ierr)
- !if(isP) then
+ !if(scalar==DPRES) then
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 20, ierr)
  !else
   !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, 1, ierr)
@@ -292,11 +290,11 @@ Call HYPRE_SStructVectorGather(x,ierr)
 Call HYPRE_SStructVectorGetBoxValues(x,part,ilower,iupper,var,F,ierr)
 
 if(isInOut) then
- if(Ib1>1.and.(.not.isP)) then
+ if(Ib1>1.and.(.not.scalar==DPRES)) then
   F(1,1:Jc-1)=F(2,1:Jc-1)
   F(Ic,1:Jc-1)=F(Ic-1,1:Jc-1)
  end if
- if(.not.isP) then
+ if(.not.scalar==DPRES) then
   DO i=1,Ic
    if(Vn(i)>0) F(i,Jc)=F(i,Jc-1)
   end DO

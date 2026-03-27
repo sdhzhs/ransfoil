@@ -7,14 +7,14 @@ real(8) wk,wa,rwp,rwm,rsp,rsm,Psiwp,Psiwm,Psisp,Psism,Xfc,Yfc,Xc0,Yc0,Xc1,Yc1,Gx
 real(8),external:: interpl
 logical(1) isCom,isIncom,isCenter,isUp,is2ndUp,isQuick,isTvd,isFromm
 
-isCom = Proctrl=='com'
-isIncom = Proctrl=='incom'
-isCenter = denface=='center'
-isUp = denface=='1upwind'
-is2ndUp = denface=='2upwind'
-isQuick = denface=='Quick'
-isTvd = denface=='tvd'
-isFromm = denface=='Fromm'
+isCom = ProctrlFlag==COM
+isIncom = ProctrlFlag==INCOM
+isCenter = denfaceFlag==CDS
+isUp = denfaceFlag==FUP
+is2ndUp = denfaceFlag==SUP
+isQuick = denfaceFlag==QUICK
+isTvd = denfaceFlag==TVD
+isFromm = denfaceFlag==FROMM
 
 !$OMP PARALLEL
   !$OMP DO PRIVATE(wk,rhoc,rhow,rhoe,rhoww,dkc,dkcc,dkcw,dkce,dkcww,rwp,rwm,Psiwp,Psiwm,Xfc,Yfc,Xc0,Yc0,Xc1,Yc1,Gxupc0,Gxupc1,Gyupc0,Gyupc1,i)

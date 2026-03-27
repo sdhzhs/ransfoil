@@ -4,19 +4,19 @@ implicit none
 integer i,j,ioerr
 real(8) Vel
 real(8) Ug(Ip,Jp),Vg(Ip,Jp),Pg(Ip,Jp),rhog(Ip,Jp),Tg(Ip,Jp),Tng(Ip,Jp),Tkg(Ip,Jp),Teg(Ip,Jp),Twg(Ip,Jp)
-Call Cell2node(Ug,U,'U')
-Call Cell2node(Vg,V,'V')
-Call Cell2node(Pg,P,'P')
-Call Cell2node(rhog,rho,'rho')
-Call Cell2node(Tg,T,'T')
-if(Turmod=='sa') then
- Call Cell2node(Tng,Tn,'Tn')
-else if(Turmod=='ke') then
- Call Cell2node(Tkg,Tk,'Tk')
- Call Cell2node(Teg,Te,'Te')
-else if(Turmod=='sst') then
- Call Cell2node(Tkg,Tk,'Tk')
- Call Cell2node(Twg,Tw,'Tw')
+Call Cell2node(Ug,U,VELX)
+Call Cell2node(Vg,V,VELY)
+Call Cell2node(Pg,P,PRES)
+Call Cell2node(rhog,rho,DENS)
+Call Cell2node(Tg,T,TEMP)
+if(TurmodFlag==SA) then
+ Call Cell2node(Tng,Tn,TURBNU)
+else if(TurmodFlag==KE) then
+ Call Cell2node(Tkg,Tk,TURBK)
+ Call Cell2node(Teg,Te,TURBE)
+else if(TurmodFlag==SST) then
+ Call Cell2node(Tkg,Tk,TURBK)
+ Call Cell2node(Twg,Tw,TURBW)
 end if
 filename(3)=trim(dir)//'/Autosave.dat'
 filename(4)=trim(dir)//'/Grid.xyz'
@@ -32,12 +32,12 @@ open(unit=3,file=filename(3),form='unformatted',status='replace')
   write(3,iostat=ioerr) P
   write(3,iostat=ioerr) T
   write(3,iostat=ioerr) rho
-  if(Turmod=='sa') then
+  if(TurmodFlag==SA) then
    write(3,iostat=ioerr) Tn
-  else if(Turmod=='ke') then
+  else if(TurmodFlag==KE) then
    write(3,iostat=ioerr) Tk
    write(3,iostat=ioerr) Te
-  else if(Turmod=='sst') then
+  else if(TurmodFlag==SST) then
    write(3,iostat=ioerr) Tk
    write(3,iostat=ioerr) Tw
   end if
@@ -50,11 +50,11 @@ open(unit=3,file=filename(4),status='replace')
 close(3)
 open(unit=4,file=filename(5),status='replace')
  write(4,*) 1
- if(Turmod=='sa') then
+ if(TurmodFlag==SA) then
   write(4,*) Ip,Jp,6
- else if(Turmod=='ke'.or.Turmod=='sst') then
+ else if(TurmodFlag==KE.or.TurmodFlag==SST) then
   write(4,*) Ip,Jp,7
- else if(Turmod=='lam'.or.Turmod=='inv') then
+ else if(TurmodFlag==LAM.or.TurmodFlag==INV) then
   write(4,*) Ip,Jp,5
  end if
  write(4,*) ((Ug(i,j),i=1,Ip),j=1,Jp)
@@ -62,12 +62,12 @@ open(unit=4,file=filename(5),status='replace')
  write(4,*) ((Pg(i,j),i=1,Ip),j=1,Jp)
  write(4,*) ((Tg(i,j),i=1,Ip),j=1,Jp)
  write(4,*) ((rhog(i,j),i=1,Ip),j=1,Jp)
- if(Turmod=='sa') then
+ if(TurmodFlag==SA) then
   write(4,*) ((Tng(i,j),i=1,Ip),j=1,Jp)
- else if(Turmod=='ke') then
+ else if(TurmodFlag==KE) then
   write(4,*) ((Tkg(i,j),i=1,Ip),j=1,Jp)
   write(4,*) ((Teg(i,j),i=1,Ip),j=1,Jp)
- else if(Turmod=='sst') then
+ else if(TurmodFlag==SST) then
   write(4,*) ((Tkg(i,j),i=1,Ip),j=1,Jp)
   write(4,*) ((Twg(i,j),i=1,Ip),j=1,Jp)
  end if
@@ -78,12 +78,12 @@ open(unit=4,file=filename(6),status='replace')
  write(4,*) 'static pressure'
  write(4,*) 'static temperature'
  write(4,*) 'density'
- if(Turmod=='sa') then
+ if(TurmodFlag==SA) then
   write(4,*) 'modified turbulent kinematic viscosity'
- else if(Turmod=='ke') then
+ else if(TurmodFlag==KE) then
   write(4,*) 'turbulence kinetic energy'
   write(4,*) 'dissipation rate'
- else if(Turmod=='sst') then
+ else if(TurmodFlag==SST) then
   write(4,*) 'turbulence kinetic energy'
   write(4,*) 'specific dissipation rate'
  end if
@@ -123,7 +123,7 @@ open(unit=4,file=filename(6),status='replace')
    write(4,*) rhog(i,j)
   end DO
  end DO
- if(Turmod=='sa') then
+ if(TurmodFlag==SA) then
   write(4,'(A23)') 'SCALARS Turvis double 1'
   write(4,'(A20)') 'LOOKUP_TABLE default'
   DO j=1,Jp
@@ -131,7 +131,7 @@ open(unit=4,file=filename(6),status='replace')
     write(4,*) Tng(i,j)
    end DO
   end DO
- else if(Turmod=='ke') then
+ else if(TurmodFlag==KE) then
   write(4,'(A22)') 'SCALARS Turke double 1'
   write(4,'(A20)') 'LOOKUP_TABLE default'
   DO j=1,Jp
@@ -146,7 +146,7 @@ open(unit=4,file=filename(6),status='replace')
     write(4,*) Teg(i,j)
    end DO
   end DO
- else if(Turmod=='kw') then
+ else if(TurmodFlag==SST) then
   write(4,'(A22)') 'SCALARS Turke double 1'
   write(4,'(A20)') 'LOOKUP_TABLE default'
   DO j=1,Jp
@@ -171,9 +171,9 @@ open(unit=4,file=filename(6),status='replace')
 close(4)
 open(unit=4,file=filename(7),status='replace')
   write(4,'(12(A11,2X))',advance='no') '#        X=','Y=','S=','P=','U=','V=','Vel=','T=','mut=','hcv=','Ax=','Ay='
-  if(Turmod=='sa'.or.Turmod=='sst') then
+  if(TurmodFlag==SA.or.TurmodFlag==SST) then
    write(4,'(A11)') 'Yplus='
-  else if(Turmod=='ke') then
+  else if(TurmodFlag==KE) then
    write(4,'(A11)') 'Ystar='
   else
    write(4,*) ''
@@ -181,9 +181,9 @@ open(unit=4,file=filename(7),status='replace')
   DO i=Ib1,Ib2
    Vel=sqrt(U(i,1)**2+V(i,1)**2)
    write(4,'(12(ES11.4,2X))',advance='no') Xw(i),Yw(i),Sw(i),P(i,1),U(i,1),V(i,1),Vel,T(i,1),mut(i,1),hcv(i),Ax(i),Ay(i)
-   if(Turmod=='sa'.or.Turmod=='sst') then
+   if(TurmodFlag==SA.or.TurmodFlag==SST) then
     write(4,'(ES11.4)') Yplus(i)
-   else if(Turmod=='ke') then
+   else if(TurmodFlag==KE) then
     write(4,'(ES11.4)') Ystar(i)
    else
     write(4,*) ''
@@ -199,7 +199,7 @@ open(unit=4,file=filename(8),status='replace',recl=256)
   write(4,*) 'Including viscous heating? ',visheat
  end if
  write(4,*) 'Turbulence model: ',Turmod
- if(Turmod=='sa'.or.Turmod=='sst') then
+ if(TurmodFlag==SA.or.TurmodFlag==SST) then
   write(4,*) 'Wall treatment method: ',Walltreat
  end if
  write(4,*) 'Coupling algorithm: ',solctrl
@@ -218,7 +218,7 @@ open(unit=4,file=filename(8),status='replace',recl=256)
  if(Energy=='Y') then
   write(4,*) 'Energy relaxation factor:',Rae
  end if
- if(Turmod/='inv'.and.Turmod/='lam') then
+ if(TurmodFlag/=INV.and.TurmodFlag/=LAM) then
   write(4,*) 'Turbulence relaxation factor:',Rat
  end if
  write(4,*) '----------------------------------------------'
@@ -226,9 +226,9 @@ open(unit=4,file=filename(8),status='replace',recl=256)
  write(4,*) 'Reynolds number:',Re
  write(4,*) 'Mach number:',Mach
  write(4,*) 'Angle of attack:',AoA
- if(Turmod=='sa'.or.Turmod=='sst') then
+ if(TurmodFlag==SA.or.TurmodFlag==SST) then
   write(4,*) 'Average Y+:',sum(Yplus)/(Ib2-Ib1+1)
- else if(Turmod=='ke') then
+ else if(TurmodFlag==KE) then
   write(4,*) 'Average Y*:',sum(Ystar)/(Ib2-Ib1+1)
  end if
  write(4,*) 'Lift coefficient:',Cl

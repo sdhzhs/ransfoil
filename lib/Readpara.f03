@@ -302,7 +302,133 @@ else if(libmod=='I') then
  end if
 end if
 print *,'Read control parameters completed!'
+
+Call ConvertToFlag
 end Subroutine Readpara
+
+Subroutine ConvertToFlag
+use Aero2DCOM
+implicit none
+
+if(Turmod=='inv') then
+ TurmodFlag=INV
+else if(Turmod=='lam') then
+ TurmodFlag=LAM
+else if(Turmod=='sa') then
+ TurmodFlag=SA
+else if(Turmod=='ke') then
+ TurmodFlag=KE
+else if(Turmod=='sst') then
+ TurmodFlag=SST
+end if
+
+if(Proctrl=='incom') then
+ ProctrlFlag=INCOM
+else if(Proctrl=='com') then
+ ProctrlFlag=COM
+end if
+
+if(Walltreat=='wf') then
+ WalltreatFlag=WF
+else if(Walltreat=='lr') then
+ WalltreatFlag=LR
+end if
+
+if(Fstype=='allfixed') then
+ FstypeFlag=ALLFIX
+else if(Fstype=='vinpout') then
+ FstypeFlag=VINPOUT
+end if
+
+if(solctrl=='SIMPLE') then
+ solctrlFlag=SIMPLE
+else if(solctrl=='SIMPLEC') then
+ solctrlFlag=SIMPLEC
+end if
+
+if(Discret=='1upwind') then
+ DiscretFlag=FUP
+else if(Discret=='2upwind') then
+ DiscretFlag=SUP
+else if(Discret=='Fromm') then
+ DiscretFlag=FROMM
+else if(Discret=='Quick') then
+ DiscretFlag=QUICK
+else if(Discret=='tvd') then
+ DiscretFlag=TVD
+end if
+
+if(denface=='center') then
+ denfaceFlag=CDS
+else if(denface=='1upwind') then
+ denfaceFlag=FUP
+else if(denface=='2upwind') then
+ denfaceFlag=SUP
+else if(denface=='Fromm') then
+ denfaceFlag=FROMM
+else if(denface=='Quick') then
+ denfaceFlag=QUICK
+else if(denface=='tvd') then
+ denfaceFlag=TVD
+end if
+
+if(Linsol=='sor') then
+ LinsolFlag=SORGS
+else if(Linsol=='pbicg') then
+ LinsolFlag=PBICG
+end if
+
+if(Tmptype=='fixed') then
+ TmptypeFlag=FIXED
+else if(Tmptype=='flux') then
+ TmptypeFlag=FLUX
+end if
+
+if(gtype=='C') then
+ gtypeFlag=CTYPE
+else if(gtype=='O') then
+ gtypeFlag=OTYPE
+end if
+
+if(Init=='Y') then
+ InitFlag=INITFILE
+else if(Init=='N') then
+ InitFlag=INITBC
+else if(Init=='A') then
+ InitFlag=INITMEM
+end if
+
+if(Pntctrl=='Y') then
+ PntctrlFlag=.true.
+else if(Pntctrl=='N') then
+ PntctrlFlag=.false.
+end if
+
+if(Energy=='Y') then
+ EnergyFlag=.true.
+else if(Energy=='N') then
+ EnergyFlag=.false.
+end if
+
+if(visheat=='Y') then
+ visheatFlag=.true.
+else if(visheat=='N') then
+ visheatFlag=.false.
+end if
+
+if(Stag=='Y') then
+ StagFlag=.true.
+else if(Stag=='N') then
+ StagFlag=.false.
+end if
+
+if(Matair=='Y') then
+ MatairFlag=.true.
+else if(Matair=='N') then
+ MatairFlag=.false.
+end if
+
+end Subroutine ConvertToFlag
 
 Subroutine ReadMat
 use Aero2DCOM

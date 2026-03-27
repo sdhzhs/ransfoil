@@ -6,9 +6,14 @@ real(8),parameter::Pi=3.1415926535897932e+0,R=8.31,Ma=0.029,mu0=1.716e-5,Ti=273.
 Ep=9.793,Cks=0.5,Cb1=0.1355,Cb2=0.622,sigman=2.0/3,Cw2=0.3,Cw3=2.0,Cnu1=7.1,Cw1=Cb1/kapa**2+(1+Cb2)/sigman,C1e=1.44,C2e=1.92,&
 Cu=0.09,sigmak=1.0,sigmae=1.3,sigmak1=1.176,sigmak2=1.0,sigmaw1=2.0,sigmaw2=1.168,alpha1=0.31,betai1=0.075,betai2=0.0828,&
 alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,Mt0=0.25
+integer(C_INT),parameter::INV=0,LAM=1,SA=2,KE=3,SST=4,INCOM=0,COM=1,WF=0,LR=1,VELX=0,VELY=1,PRES=2,DPRES=3,TEMP=4,TURBNU=5,TURBK=6,TURBE=7,&
+TURBW=8,MUX=9,MUY=10,MVX=11,MVY=12,DENS=13,ALLFIX=0,VINPOUT=1,SIMPLE=0,SIMPLEC=1,FUP=0,SUP=1,QUICK=2,TVD=3,CDS=4,FROMM=5,SORGS=0,PBICG=1,&
+FIXED=0,FLUX=1,CTYPE=0,OTYPE=1,INITBC=0,INITFILE=1,INITMEM=2
 
 save
 integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Is,Ie,Iwd,Iwu,Iw,Iw0,Ifd,maxs
+integer(C_INT),bind(C)::TurmodFlag,ProctrlFlag,WalltreatFlag,FstypeFlag,solctrlFlag,DiscretFlag,denfaceFlag,LinsolFlag,TmptypeFlag,gtypeFlag,InitFlag
+logical(C_BOOL),bind(C)::PntctrlFlag,EnergyFlag,visheatFlag,StagFlag,MatairFlag
 character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag,Pntctrl,Linsol,Tmptype,Fstype,gtype,Matair
 character(64) filename(9),dir,matfile
 real(C_DOUBLE),bind(C)::fd,fb,eb,lfar,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Qf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
@@ -19,8 +24,6 @@ real(8),allocatable,target,dimension(:,:,:)::aM
 real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xwp,Ywp,Xwp0,Ywp0,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
 real(8),allocatable,target,dimension(:)::Clrec,Cdrec,Cfrec,Cmrec,Xpcrec,Ypcrec
 real(8),allocatable,target,dimension(:,:)::Pnw,Unw,Vnw,Tnw,mutnw,hcvnw,Axnw,Aynw,Ypnw
-character(C_CHAR),bind(C)::cProctrl(8),cEnergy(8),cvisheat(8),cTurmod(8),cWalltreat(8),csolctrl(8),cDiscret(8),cdenface(8),&
-cInit(8),cStag(8),cPntctrl(8),cLinsol(8),cTmptype(8),cgtype(8),cMatair(8)
 character(C_CHAR),bind(C)::cfilename(64),cdir(64),cmatfile(64)
 real(C_DOUBLE),pointer::fXwd(:),fYwd(:),fXwu(:),fYwu(:),fXwp0(:),fYwp0(:)
 type(C_PTR),bind(C)::cXwd,cYwd,cXwu,cYwu,cXwp0,cYwp0,cXw,cYw,cSw,cYplus,cYstar,chcv,cAx,cAy

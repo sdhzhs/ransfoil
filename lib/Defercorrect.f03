@@ -7,12 +7,12 @@ real(8) rp,rm,Psip,Psim,Xfc,Yfc,Xcc(5),Ycc(5),Gxup(5),Gyup(5)
 real(8) F(Ic,Jc),Fx(Ic,Jc),Fy(Ic,Jc),Fwall(Ib1:Ib2),cor(Ic,Jc),Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc)
 logical(1) isLr,isUp,is2ndUp,isQuick,isTvd,isFromm
 
-isLr = Walltreat=='lr'
-isUp = Discret=='1upwind'
-is2ndUp = Discret=='2upwind'
-isQuick = Discret=='Quick'
-isTvd = Discret=='tvd'
-isFromm = Discret=='Fromm'
+isLr = WalltreatFlag==LR
+isUp = DiscretFlag==FUP
+is2ndUp = DiscretFlag==SUP
+isQuick = DiscretFlag==QUICK
+isTvd = DiscretFlag==TVD
+isFromm = DiscretFlag==FROMM
 
 !$OMP DO
 DO j=1,Jc-1

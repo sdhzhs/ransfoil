@@ -11,20 +11,6 @@ int main(void)
 
   FILE *fp;
   mode="C";
-  strncpy(cpntctrl,"N",1);
-  strncpy(cproctrl,"incom",5);
-  strncpy(cenergy,"Y",1);
-  strncpy(cvisheat,"N",1);
-  strncpy(cturmod,"sa",2);
-  strncpy(cwalltreat,"wf",2);
-  strncpy(csolctrl,"SIMPLE",6);
-  strncpy(cdiscret,"2upwind",7);
-  strncpy(clinsol,"sor",3);
-  strncpy(ctmptype,"fixed",5);
-  strncpy(cinit,"N",1);
-  strncpy(cstag,"N",1);
-  strncpy(cgtype,"C",1);
-  strncpy(cmatair,"Y",1);
   maxs=2000;
   delta=1e-4;
   rau=7e-1;
@@ -43,6 +29,21 @@ int main(void)
   po=100000.;
   tvr=10.;
   ksi=0.;
+  turmodflag=SA;
+  proctrlflag=INCOM;
+  walltreatflag=WF;
+  fstypeflag=ALLFIX;
+  solctrlflag=SIMPLE;
+  discretflag=SUP;
+  linsolflag=SORGS;
+  tmptypeflag=FIXED;
+  gtypeflag=CTYPE;
+  initflag=INITBC;
+  pntctrlflag=false;
+  energyflag=true;
+  visheatflag=false;
+  stagflag=false;
+  matairflag=true;
   fp=fopen("../cases/NACA0012.xyz","rt");
   status=fscanf(fp,"%d",&iwd);
   cxwd=(double *) malloc(iwd*sizeof(double));
@@ -64,7 +65,7 @@ int main(void)
   jc=jp-1;
   ib1=iw1;
   ib2=iw3-1;
-  allocarray_(mode,strlen(mode));
+  allocarray_();
   prlv=1;
   aero2d_(mode,&prlv,"\0",strlen(mode),1);
   printf("%le,%le,%le,%le\n",cl,cd,cf,cm);
@@ -76,7 +77,7 @@ int main(void)
   for(i=0;i<ic*jc;i++)
     if(cp[i]<min) min=cp[i];
   printf("Maximum and minimum values of pressure are %le,%le.\n",max,min);
-  deallocarray_(mode,strlen(mode));
+  deallocarray_();
   free(cxwd);
   free(cywd);
   free(cxwu);

@@ -8,10 +8,11 @@ real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),Up(Ic,Jc),Vp(Ic,Jc)
 logical(1) isSimp,isSimpC,isCom,isInOut
 cc=1.d+0
-isSimp=solctrl=='SIMPLE'
-isSimpC=solctrl=='SIMPLEC'
-isCom=Proctrl=='com'
-isInOut=Fstype=='vinpout'
+
+isSimp=solctrlFlag==SIMPLE
+isSimpC=solctrlFlag==SIMPLEC
+isCom=ProctrlFlag==COM
+isInOut=FstypeFlag==VINPOUT
 
 !$OMP PARALLEL
 if(isSimp) then

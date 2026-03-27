@@ -7,24 +7,23 @@ real(8) Dwplus,phi1,F1,Tplusl,Tplust,Tplusc,Dl,Dt
 real(8) ksplus(Ib1:Ib2),deltaB(Ib1:Ib2),Prough(Ib1:Ib2),lamda(Ib1:Ib2),Uplusl(Ib1:Ib2),Uplust(Ib1:Ib2),&
 Twplusl(Ib1:Ib2),Twplust(Ib1:Ib2),Twplus(Ib1:Ib2),betai(Ib1:Ib2)
 character(6) wallfunutype,wallfunktype
-logical(1) isKe,isSst,isSa,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,isLoglaw,isVisheatY
+logical(1) isKe,isSst,isSa,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,isLoglaw
 
 wallfunutype='parvel'
 wallfunktype='loglaw'
 Ym=11.225
 Yt=11.8
 
-isKe = Turmod=='ke'
-isSst = Turmod=='sst'
-isSa = Turmod=='sa'
-isFixed = Tmptype=='fixed'
-isFlux = Tmptype=='flux'
-isWf = Walltreat=='wf'
-isLr = Walltreat=='lr'
+isKe = TurmodFlag==KE
+isSst = TurmodFlag==SST
+isSa = TurmodFlag==SA
+isWf = WalltreatFlag==WF
+isLr = WalltreatFlag==LR
+isFixed = TmptypeFlag==FIXED
+isFlux = TmptypeFlag==FLUX
 isParvel = wallfunutype=='parvel'
 isGenlaw = wallfunktype=='genlaw'
 isLoglaw = wallfunktype=='loglaw'
-isVisheatY = visheat=='Y'
 
 !$OMP PARALLEL
 !$OMP DO
@@ -79,7 +78,7 @@ if((isSa.or.isSst).and.isWf) then
  !$OMP END WORKSHARE
  !$OMP DO PRIVATE(Tplusl,Tplust,Tplusc,Dl,Dt)
  DO i=Ib1,Ib2
-  if(isVisheatY.and.Ymax>Ym) then
+  if(visheatFlag.and.Ymax>Ym) then
    Tplusl=Pr(i,1)*Uplusl(i)
    Tplust=Prt*(Uplust(i)+Prough(i))
    !Tplust=Prt*Uplust(i)
@@ -113,7 +112,7 @@ else if(isKe) then
  DO i=Ib1,Ib2
   Uplus(i)=log(Ep*Ystar(i))/kapa-deltaB(i)
   !if(Ystar(i)<Ym) Uplus(i)=Ystar(i)
-  if(isVisheatY) then
+  if(visheatFlag) then
    Tplusc=Prt*(Uplus(i)+Prough(i))
    !Tplusc=Prt*Uplus(i)
    if(isFixed) then
