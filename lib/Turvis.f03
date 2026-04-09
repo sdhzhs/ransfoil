@@ -3,10 +3,8 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Xi,fnu1,Dwplus,phi1,F1,betai,St,phi2,F2,Ret,alphastar,Ymax,Ym
-logical(1) sstlowre
 logical(1) isKe,isSst,isSa,isLam,isInv,isLr
 
- sstlowre=.false.
  isKe = TurmodFlag==KE
  isSst = TurmodFlag==SST
  isSa = TurmodFlag==SA

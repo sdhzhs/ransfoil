@@ -6,11 +6,8 @@ real(8) Ym,Yt,Ymax
 real(8) Dwplus,phi1,F1,Tplusl,Tplust,Tplusc,Dl,Dt
 real(8) ksplus(Ib1:Ib2),deltaB(Ib1:Ib2),Prough(Ib1:Ib2),lamda(Ib1:Ib2),Uplusl(Ib1:Ib2),Uplust(Ib1:Ib2),&
 Twplusl(Ib1:Ib2),Twplust(Ib1:Ib2),Twplus(Ib1:Ib2),betai(Ib1:Ib2)
-character(6) wallfunutype,wallfunktype
 logical(1) isKe,isSst,isSa,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,isLoglaw
 
-wallfunutype='parvel'
-wallfunktype='loglaw'
 Ym=11.225
 Yt=11.8
 
@@ -21,9 +18,9 @@ isWf = WalltreatFlag==WF
 isLr = WalltreatFlag==LR
 isFixed = TmptypeFlag==FIXED
 isFlux = TmptypeFlag==FLUX
-isParvel = wallfunutype=='parvel'
-isGenlaw = wallfunktype=='genlaw'
-isLoglaw = wallfunktype=='loglaw'
+isParvel = wallfunutype==PARVEL
+isGenlaw = wallfunktype==GENLAW
+isLoglaw = wallfunktype==LOGLAW
 
 !$OMP PARALLEL
 !$OMP DO

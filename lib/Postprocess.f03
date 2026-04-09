@@ -3,11 +3,8 @@ use Aero2DCOM
 implicit none
 integer i,n,iter
 real(8) Cx,Cy,Ctx,Cty,Cpm,Ctm
-character(6) wallfunutype
 real(8) Fwall(Ib1:Ib2)
 logical(1) isKe,isSst,isSa,isLam,isInv,isFixed,isFlux,isWf,isLr,isParvel
-
-wallfunutype='parvel'
 
 isKe = TurmodFlag==KE
 isSst = TurmodFlag==SST
@@ -18,7 +15,7 @@ isWf = WalltreatFlag==WF
 isLr = WalltreatFlag==LR
 isFixed = TmptypeFlag==FIXED
 isFlux = TmptypeFlag==FLUX
-isParvel = wallfunutype=='parvel'
+isParvel = wallfunutype==PARVEL
 
 if(isFixed) then
  Fwall=Tf

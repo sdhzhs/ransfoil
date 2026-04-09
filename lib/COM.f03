@@ -8,12 +8,13 @@ Cu=0.09,sigmak=1.0,sigmae=1.3,sigmak1=1.176,sigmak2=1.0,sigmaw1=2.0,sigmaw2=1.16
 alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,Mt0=0.25
 integer(C_INT),parameter::INV=0,LAM=1,SA=2,KE=3,SST=4,INCOM=0,COM=1,WF=0,LR=1,VELX=0,VELY=1,PRES=2,DPRES=3,TEMP=4,TURBNU=5,TURBK=6,TURBE=7,&
 TURBW=8,MUX=9,MUY=10,MVX=11,MVY=12,DENS=13,ALLFIX=0,VINPOUT=1,SIMPLE=0,SIMPLEC=1,FUP=0,SUP=1,QUICK=2,TVD=3,CDS=4,SORGS=0,PBICG=1,&
-FIXED=0,FLUX=1,CTYPE=0,OTYPE=1,INITBC=0,INITFILE=1,INITMEM=2
+FIXED=0,FLUX=1,CTYPE=0,OTYPE=1,INITBC=0,INITFILE=1,INITMEM=2,ORIVEL=0,PARVEL=1,LOGLAW=0,GENLAW=1
 
 save
 integer(C_INT),bind(C)::Ip,Jp,Ic,Jc,Ib1,Ib2,Is,Ie,Iwd,Iwu,Iw,Iw0,Ifd,maxs
-integer(C_INT),bind(C)::TurmodFlag,ProctrlFlag,WalltreatFlag,FstypeFlag,solctrlFlag,DiscretFlag,denfaceFlag,LinsolFlag,TmptypeFlag,gtypeFlag,InitFlag
-logical(C_BOOL),bind(C)::PntctrlFlag,EnergyFlag,visheatFlag,StagFlag,MatairFlag
+integer(C_INT),bind(C)::TurmodFlag,ProctrlFlag,WalltreatFlag,FstypeFlag,solctrlFlag,DiscretFlag,denfaceFlag,LinsolFlag,TmptypeFlag,gtypeFlag,InitFlag,&
+wallfunutype,wallfunktype
+logical(C_BOOL),bind(C)::PntctrlFlag,EnergyFlag,visheatFlag,StagFlag,MatairFlag,sstlowre
 character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Init,Stag,Pntctrl,Linsol,Tmptype,Fstype,gtype,Matair
 character(64) filename(9),dir,matfile
 real(C_DOUBLE),bind(C)::dx,dy,fd,fb,eb,lfar,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Qf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
@@ -135,7 +136,9 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 ! identifier name        meaning
 ! aM                     coefficient matrix for linear equations
 
-! The identifiers with prefix `c' is the C partners of the corresponding Fortran variables
+! The identifiers with prefix `c' is the C partners of the corresponding Fortran variables，
+! and characters names with suffix `Flag' is the integer flags for the corresponding characters
+! variables of control parameters. 
 ! ========================================================================================
 
 end Module Aero2DCOM
