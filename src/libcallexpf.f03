@@ -39,6 +39,9 @@ Program libaero2dcaller
   visheatFlag=.false.
   StagFlag=.false.
   MatairFlag=.true.
+  wallfunutype=PARVEL
+  wallfunktype=LOGLAW
+  sstlowre=.false.
   open(unit=1,file=filenamei,status='old')
   read(1,*) Iwd
   allocate(Xwd(Iwd),Ywd(Iwd))

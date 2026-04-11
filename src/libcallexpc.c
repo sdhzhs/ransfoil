@@ -44,6 +44,9 @@ int main(void)
   visheatflag=false;
   stagflag=false;
   matairflag=true;
+  wallfunutype=PARVEL;
+  wallfunktype=LOGLAW;
+  sstlowre=false;
   fp=fopen("../cases/NACA0012.xyz","rt");
   status=fscanf(fp,"%d",&iwd);
   cxwd=(double *) malloc(iwd*sizeof(double));

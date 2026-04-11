@@ -10,14 +10,10 @@ real(8) F(Ic,Jc),Ga(Ic,Jc),Fx(Ic,Jc),Fy(Ic,Jc)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 integer scalar
-character(6) wallfunutype,wallfunktype
-logical(1) productlimit,sstlowre,sstcom,saprodlimit
+logical(1) productlimit,sstcom,saprodlimit
 logical(1) isU,isV,isT,isTn,isTk,isTe,isTw,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,isInOut
 
-wallfunutype='parvel'
-wallfunktype='loglaw'
 productlimit=.false.
-sstlowre=.false.
 sstcom=.false.
 saprodlimit=.false.
 Ym=11.225
@@ -42,8 +38,8 @@ isInOut = FstypeFlag==VINPOUT
 
 isFixed = TmptypeFlag==FIXED
 isFlux = TmptypeFlag==FLUX
-isParvel = wallfunutype=='parvel'
-isGenlaw = wallfunktype=='genlaw'
+isParvel = wallfunutype==PARVEL
+isGenlaw = wallfunktype==GENLAW
 
 !$OMP PARALLEL
 if(isU.or.isV) then

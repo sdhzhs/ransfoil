@@ -428,6 +428,10 @@ else if(Matair=='N') then
  MatairFlag=.false.
 end if
 
+wallfunutype=PARVEL
+wallfunktype=LOGLAW
+sstlowre=.false.
+
 end Subroutine ConvertToFlag
 
 Subroutine ReadMat
