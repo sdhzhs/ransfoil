@@ -117,9 +117,9 @@ preid = ILU
 !$OMP PARALLEL PRIVATE(alpha,beta,rho,omega,rho0,k,maxl,err)
 maxl=1000
 if(isP) then
- err=1e-8
+ err=1e-4
 else
- err=1e-10
+ err=1e-6
 end if
 
 Call Residual(aM,b,F,rms,Ic,Jc,Ib1,Ib2)
@@ -128,7 +128,7 @@ rmsi=rms
 p=0
 v=p
 aD=aM(1,:,:)
-!normb=sum(abs(b))
+normb=sum(abs(b))
 !$OMP END WORKSHARE
 if(preid==ILU) then
  Call DILU(aM,aD,Ic,Jc,Ib2)
@@ -209,11 +209,11 @@ DO k=1,maxl
  !!$OMP SINGLE
  !iter=k
  !!$OMP END SINGLE
- !if(normb==0) then
+ if(normb==0d+0) then
   if(sumrms/(Ic*Jc)<err) exit
- !else
- ! if(sumrms/normb<err) exit
- !end if
+ else
+  if(sumrms/normb<err) exit
+ end if
 end DO
 if(isInOut) then
  if(Ib1>1.and.(.not.isP)) then
