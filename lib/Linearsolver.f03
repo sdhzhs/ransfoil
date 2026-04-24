@@ -117,7 +117,7 @@ preid = ILU
 !$OMP PARALLEL PRIVATE(alpha,beta,rho,omega,rho0,k,maxl,err)
 maxl=1000
 if(isP) then
- err=1e-4
+ err=5e-4
 else
  err=1e-6
 end if
