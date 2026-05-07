@@ -113,11 +113,13 @@ logical(1) isP,isInOut
 isP = scalar==DPRES
 isInOut = bctype==VINPOUT
 preid = ILU
+normb=sum(abs(b))
+if(normb==0d+0) normb=Ic*Jc
 
 !$OMP PARALLEL PRIVATE(alpha,beta,rho,omega,rho0,k,maxl,err)
 maxl=1000
 if(isP) then
- err=1e-4
+ err=2e-4
 else
  err=1e-6
 end if
@@ -128,7 +130,6 @@ rmsi=rms
 p=0
 v=p
 aD=aM(1,:,:)
-normb=sum(abs(b))
 !$OMP END WORKSHARE
 if(preid==ILU) then
  Call DILU(aM,aD,Ic,Jc,Ib2)
@@ -209,11 +210,7 @@ DO k=1,maxl
  !!$OMP SINGLE
  !iter=k
  !!$OMP END SINGLE
- if(normb==0d+0) then
-  if(sumrms/(Ic*Jc)<err) exit
- else
-  if(sumrms/normb<err) exit
- end if
+ if(sumrms/normb<err) exit
 end DO
 if(isInOut) then
  if(Ib1>1.and.(.not.isP)) then
@@ -587,7 +584,6 @@ b(:,Jc)=omega*b(:,Jc)
 cond(1)=(npt==0)
 cond(2)=(nt>1.and.tid>0)
 !$OMP DO
-!!$OMP SINGLE
 DO j=1,Jc-1
  DO i=Is,Ie
   if(j>1) then
@@ -623,7 +619,6 @@ DO j=1,Jc-1
   end if
  end DO
 end DO
-!!$OMP END SINGLE
 !$OMP END DO
 
 !$OMP WORKSHARE
@@ -650,7 +645,6 @@ b(:,Jc)=omega*b(:,Jc)
 !$OMP END WORKSHARE
 
 !$OMP DO
-!!$OMP SINGLE
 DO j=Jc-1,1,-1
  DO i=Ie,Is,-1
   if(j==1.and.i<Ib1) then
@@ -682,6 +676,5 @@ DO j=Jc-1,1,-1
   end if
  end DO
 end DO
-!!$OMP END SINGLE
 !$OMP END DO
 end Subroutine Sorprecond
