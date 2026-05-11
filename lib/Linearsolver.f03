@@ -100,7 +100,7 @@ end Subroutine sor
 
 Subroutine CGSTAB(aM,b,F,Ic,Jc,Ib1,Ib2,scalar,bctype)
 implicit none
-integer maxl,k,Ic,Jc,Ib1,Ib2,iter,i
+integer maxl,k,Ic,Jc,Ib1,Ib2,Is,Ie,iter,i
 real(8) err,normb
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc)
 real(8) alpha,beta,rho,omega,rho0,sumrmsi,sumvrms,sumptz,sumpts,sumrms
@@ -113,15 +113,23 @@ logical(1) isP,isInOut
 isP = scalar==DPRES
 isInOut = bctype==VINPOUT
 preid = ILU
-normb=sum(abs(b))
+
+if(Ib1>1.and.Ib2<Ic) then
+ Is=2
+ Ie=Ic-1
+else
+ Is=1
+ Ie=Ic
+end if
+normb=sum(abs(b(Is:Ie,1:Jc-1)))
 if(normb==0d+0) normb=Ic*Jc
 
 !$OMP PARALLEL PRIVATE(alpha,beta,rho,omega,rho0,k,maxl,err)
 maxl=1000
 if(isP) then
- err=2e-4
+ err=1e-3
 else
- err=1e-6
+ err=1e-5
 end if
 
 Call Residual(aM,b,F,rms,Ic,Jc,Ib1,Ib2)
@@ -241,7 +249,7 @@ contains
 Subroutine SSorpcond(vt,vt0)
 !$ use omp_lib
 implicit none
-integer i,j,nt,tid,npt,rpt,Is,Ie
+integer i,j,nt,tid,npt,rpt
 real(8) vt(Ic,Jc),vt0(Ic,Jc)
 real(8) omega
 logical(1) cond(4)
@@ -250,13 +258,6 @@ if(preid==SSOR.and.isP) then
  omega=1.5
 else
  omega=1.0
-end if
-if(Ib1>1.and.Ib2<Ic) then
- Is=2
- Ie=Ic-1
-else
- Is=1
- Ie=Ic
 end if
 
 nt=1
