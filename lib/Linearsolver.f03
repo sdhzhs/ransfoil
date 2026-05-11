@@ -100,7 +100,7 @@ end Subroutine sor
 
 Subroutine CGSTAB(aM,b,F,Ic,Jc,Ib1,Ib2,scalar,bctype)
 implicit none
-integer maxl,k,Ic,Jc,Ib1,Ib2,iter,i
+integer maxl,k,Ic,Jc,Ib1,Ib2,Is,Ie,iter,i
 real(8) err,normb
 real(8) aM(5,Ic,Jc),b(Ic,Jc),F(Ic,Jc)
 real(8) alpha,beta,rho,omega,rho0,sumrmsi,sumvrms,sumptz,sumpts,sumrms
@@ -114,12 +114,22 @@ isP = scalar==DPRES
 isInOut = bctype==VINPOUT
 preid = ILU
 
+if(Ib1>1.and.Ib2<Ic) then
+ Is=2
+ Ie=Ic-1
+else
+ Is=1
+ Ie=Ic
+end if
+normb=sum(abs(b(Is:Ie,1:Jc-1)))
+if(normb==0d+0) normb=Ic*Jc
+
 !$OMP PARALLEL PRIVATE(alpha,beta,rho,omega,rho0,k,maxl,err)
 maxl=1000
 if(isP) then
- err=5e-4
+ err=1e-3
 else
- err=1e-6
+ err=1e-5
 end if
 
 Call Residual(aM,b,F,rms,Ic,Jc,Ib1,Ib2)
@@ -128,7 +138,6 @@ rmsi=rms
 p=0
 v=p
 aD=aM(1,:,:)
-normb=sum(abs(b))
 !$OMP END WORKSHARE
 if(preid==ILU) then
  Call DILU(aM,aD,Ic,Jc,Ib2)
@@ -209,11 +218,7 @@ DO k=1,maxl
  !!$OMP SINGLE
  !iter=k
  !!$OMP END SINGLE
- if(normb==0d+0) then
-  if(sumrms/(Ic*Jc)<err) exit
- else
-  if(sumrms/normb<err) exit
- end if
+ if(sumrms/normb<err) exit
 end DO
 if(isInOut) then
  if(Ib1>1.and.(.not.isP)) then
@@ -244,7 +249,7 @@ contains
 Subroutine SSorpcond(vt,vt0)
 !$ use omp_lib
 implicit none
-integer i,j,nt,tid,npt,rpt,Is,Ie
+integer i,j,nt,tid,npt,rpt
 real(8) vt(Ic,Jc),vt0(Ic,Jc)
 real(8) omega
 logical(1) cond(4)
@@ -253,13 +258,6 @@ if(preid==SSOR.and.isP) then
  omega=1.5
 else
  omega=1.0
-end if
-if(Ib1>1.and.Ib2<Ic) then
- Is=2
- Ie=Ic-1
-else
- Is=1
- Ie=Ic
 end if
 
 nt=1
@@ -587,7 +585,6 @@ b(:,Jc)=omega*b(:,Jc)
 cond(1)=(npt==0)
 cond(2)=(nt>1.and.tid>0)
 !$OMP DO
-!!$OMP SINGLE
 DO j=1,Jc-1
  DO i=Is,Ie
   if(j>1) then
@@ -623,7 +620,6 @@ DO j=1,Jc-1
   end if
  end DO
 end DO
-!!$OMP END SINGLE
 !$OMP END DO
 
 !$OMP WORKSHARE
@@ -650,7 +646,6 @@ b(:,Jc)=omega*b(:,Jc)
 !$OMP END WORKSHARE
 
 !$OMP DO
-!!$OMP SINGLE
 DO j=Jc-1,1,-1
  DO i=Ie,Is,-1
   if(j==1.and.i<Ib1) then
@@ -682,6 +677,5 @@ DO j=Jc-1,1,-1
   end if
  end DO
 end DO
-!!$OMP END SINGLE
 !$OMP END DO
 end Subroutine Sorprecond
