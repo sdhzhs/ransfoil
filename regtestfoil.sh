@@ -55,19 +55,20 @@ runComCase whitcomb_xyz_super whitcomb.xyz.super golden
 cd src
 gfcompile.sh
 ./caller.exe > output.txt
-if [ $? -eq 0 ]; then
-  echo "fortran call lib case: Pass"
-else
-  echo "fortran call lib case: Fail"
-fi
+#if [ $? -eq 0 ]; then
+#  echo "fortran call lib case: Pass"
+#else
+#  echo "fortran call lib case: Fail"
+#fi
 gccompile.sh
 ./caller.exe >> output.txt
-if [ $? -eq 0 ]; then
-  echo "c call lib case: Pass"
-else
-  echo "c call lib case: Fail"
-fi
 cd ..
+python comlibcall.py src/output.txt golden/output.txt >> src/output.txt
+if [ $? -eq 0 ]; then
+  echo "fortran/c call lib case: Pass"
+else
+  echo "fortran/c call lib case: Fail"
+fi
 
 echo "=========================================="
 echo "Normal Accuracy Regression Test Complete"
