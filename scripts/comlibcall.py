@@ -2,7 +2,7 @@
 """
 Compare two files with 'Scaling' markers.
 Extracts 3 data lines after each 'Scaling' marker and compares items.
-Usage: python comscaling.py <file1> <file2> [tolerance]
+Usage: python comlibcall.py <file1> <file2> [tolerance]
 """
 
 import sys
@@ -113,7 +113,7 @@ def compare_files(file1, file2, tolerance=1e-2):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python comscaling.py <file1> <file2> [tolerance]")
+        print("Usage: python comlibcall.py <file1> <file2> [tolerance]")
         print("  file1, file2: Files to compare")
         print("  tolerance: Relative error tolerance (default: 1e-2)")
         sys.exit(1)
