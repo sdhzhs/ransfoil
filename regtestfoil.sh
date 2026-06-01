@@ -2,7 +2,7 @@
 runIncomCase() {
  mkdir $1
  ransfoil --script test/ransfoil.config.$2 > $1/output.txt
- python comgolden.py $1 $3/$1 >> $1/output.txt
+ python scripts/comgolden.py $1 $3/$1 >> $1/output.txt
  if [ $? -eq 0 ]; then
    echo "$1 case: Pass"
  else
@@ -13,7 +13,7 @@ runIncomCase() {
 runMeshCase() {
  mkdir $1
  ransfoil --mesh test/ransfoil.config.$2 > $1/output.txt
- python comgolden.py $1 $3/$1 >> $1/output.txt
+ python scripts/comgolden.py $1 $3/$1 >> $1/output.txt
  if [ $? -eq 0 ]; then
    echo "$1 case: Pass"
  else
@@ -25,7 +25,7 @@ runComCase() {
  mkdir $1
  ransfoil --script test/ransfoil.config.$2.1 > $1/output.txt
  ransfoil --script test/ransfoil.config.$2.2 >> $1/output.txt
- python comgolden.py $1 $3/$1 >> $1/output.txt
+ python scripts/comgolden.py $1 $3/$1 >> $1/output.txt
  if [ $? -eq 0 ]; then
    echo "$1 case: Pass"
  else
@@ -63,7 +63,7 @@ gfcompile.sh
 gccompile.sh
 ./caller.exe >> output.txt
 cd ..
-python comlibcall.py src/output.txt golden/output.txt >> src/output.txt
+python scripts/comlibcall.py src/output.txt golden/output.txt >> src/output.txt
 if [ $? -eq 0 ]; then
   echo "fortran/c call lib case: Pass"
 else
