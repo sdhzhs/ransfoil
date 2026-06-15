@@ -10,8 +10,8 @@ if(solctrlFlag==SIMPLE) then
    !$OMP DO PRIVATE(i)
    DO j=1,Jc-1
      DO i=Is,Ie
-       U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/auP(i,j)
-       V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/auP(i,j)
+       U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/auM(1,i,j)
+       V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/auM(1,i,j)
      end DO
    end DO
    !$OMP END DO
@@ -19,8 +19,8 @@ else if(solctrlFlag==SIMPLEC) then
    !$OMP DO PRIVATE(i)
    DO j=1,Jc-1
      DO i=Is,Ie
-       U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
-       V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
+       U(i,j)=U(i,j)-Rau*dPx(i,j)*Jg(i,j)*dx*dy/(auM(1,i,j)-Rau*auM(2,i,j))
+       V(i,j)=V(i,j)-Rau*dPy(i,j)*Jg(i,j)*dx*dy/(auM(1,i,j)-Rau*auM(2,i,j))
      end DO
    end DO
    !$OMP END DO

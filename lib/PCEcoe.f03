@@ -21,11 +21,11 @@ if(isSimp) then
   !$OMP DO PRIVATE(i,Up,Vp)
   DO j=1,Jc-1
     DO i=Is,Ie
-     du(i,j)=Rau*a1(i,j)*Jg(i,j)*dy/auP(i,j)
-     dv(i,j)=Rau*y1(i,j)*Jg(i,j)*dx/auP(i,j)
-     dw(i,j)=Rau*b1(i,j)*Jg(i,j)/auP(i,j)
-     Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/auP(i,j)
-     Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/auP(i,j)
+     du(i,j)=Rau*a1(i,j)*Jg(i,j)*dy/auM(1,i,j)
+     dv(i,j)=Rau*y1(i,j)*Jg(i,j)*dx/auM(1,i,j)
+     dw(i,j)=Rau*b1(i,j)*Jg(i,j)/auM(1,i,j)
+     Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/auM(1,i,j)
+     Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/auM(1,i,j)
      Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
      Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
     end DO
@@ -35,11 +35,11 @@ else if(isSimpC) then
   !$OMP DO PRIVATE(i,Up,Vp)
   DO j=1,Jc-1
     DO i=Is,Ie
-     du(i,j)=Rau*a1(i,j)*Jg(i,j)*dy/(auP(i,j)-Rau*auNB(i,j))
-     dv(i,j)=Rau*y1(i,j)*Jg(i,j)*dx/(auP(i,j)-Rau*auNB(i,j))
-     dw(i,j)=Rau*b1(i,j)*Jg(i,j)/(auP(i,j)-Rau*auNB(i,j))
-     Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
-     Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auP(i,j)-Rau*auNB(i,j))
+     du(i,j)=Rau*a1(i,j)*Jg(i,j)*dy/(auM(1,i,j)-Rau*auM(2,i,j))
+     dv(i,j)=Rau*y1(i,j)*Jg(i,j)*dx/(auM(1,i,j)-Rau*auM(2,i,j))
+     dw(i,j)=Rau*b1(i,j)*Jg(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+     Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/(auM(1,i,j)-Rau*auM(2,i,j))
+     Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auM(1,i,j)-Rau*auM(2,i,j))
      Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
      Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
     end DO

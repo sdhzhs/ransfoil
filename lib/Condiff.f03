@@ -12,7 +12,7 @@ real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 integer scalar
 logical(1) productlimit,sstcom,saprodlimit
-logical(1) isU,isV,isT,isTn,isTk,isTe,isTw,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isFixed,isFlux,isWf,isLr,isParvel,isGenlaw,isInOut
+logical(1) isU,isV,isT,isTn,isTk,isTe,isTw,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isFixed,isFlux,isWf,isLr,isCoup,isParvel,isGenlaw,isInOut
 
 productlimit=.false.
 sstcom=.false.
@@ -35,6 +35,7 @@ isCom = ProctrlFlag==COM
 isIncom = ProctrlFlag==INCOM
 isWf = WalltreatFlag==WF
 isLr = WalltreatFlag==LR
+isCoup = solctrlFlag==COUP
 isInOut = FstypeFlag==VINPOUT
 
 isFixed = TmptypeFlag==FIXED
@@ -304,8 +305,7 @@ DO j=1,Jc-1
    if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
     aS=0
     aP=aW+aE+aS+aN
-    if(DF>0) aP=aP+DF
-    !aP=aP+DF
+    if((.not.isCoup).and.DF>0) aP=aP+DF
     if((isSa.and.isLr).or.(isSst.and.isLr).or.isLam.or.isInv) then
      if(isTn.and.ks(i)>0) then
       aP=aP+2*Ds(i,j)*Yp(i)/d(i,j)
@@ -361,8 +361,7 @@ DO j=1,Jc-1
    else
     aS=Ds(i,j)+max(Fs(i,j),0.0)
     aP=aW+aE+aS+aN
-    if(DF>0) aP=aP+DF
-    !aP=aP+DF
+    if((.not.isCoup).and.DF>0) aP=aP+DF
     if(isTk.and.isKe) aP=aP+rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
     if(isTe.and.isKe) aP=aP+C2e*rho(i,j)*Te(i,j)*Jg(i,j)*dx*dy/Tk(i,j)
     if(isTn.and.isLr.and.fw1(i,j)>0) aP=aP+rho(i,j)*Cw1*fw1(i,j)*Tn(i,j)/d(i,j)**2*Jg(i,j)*dx*dy
@@ -535,8 +534,8 @@ if(isInOut) then
 end if
 if(isU) then
  !$OMP WORKSHARE
- auP=aM(1,:,:)
- auNB=aM(2,:,:)+aM(3,:,:)+aM(4,:,:)+aM(5,:,:)
+ auM(1,:,:)=aM(1,:,:)
+ auM(2,:,:)=aM(2,:,:)+aM(3,:,:)+aM(4,:,:)+aM(5,:,:)
  !$OMP END WORKSHARE
 end if
 !$OMP END PARALLEL

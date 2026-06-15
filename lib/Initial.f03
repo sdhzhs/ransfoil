@@ -1,7 +1,7 @@
 Subroutine Initial
 use Aero2DCOM
 implicit none
-integer i,j,ioerr
+integer i,ioerr
 character(128) ioerrmsg
 real(8),external:: interpl
 real(8) Tni0
@@ -141,30 +141,7 @@ if(TurmodFlag==SA.and.WalltreatFlag==LR) then
  d=d+0.03*ksi
 end if
 Call Turvis
-Un=U*Yga-V*Xga
-Vn=V*Xgk-U*Ygk
-DO j=1,Jc-1
-  DO i=Is,Ie+1
-  if(i==1) then
-   Unk(i,j)=interpl(Un(i,j),Un(Ic,j),dk(i,j),dk(Ic,j))
-  else if(i==Ip) then
-   Unk(i,j)=interpl(Un(1,j),Un(i-1,j),dk(1,j),dk(i-1,j))
-  else
-   Unk(i,j)=interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
-  end if
-  end DO
-end DO
-DO j=1,Jc
-  DO i=Is,Ie
-  if(j==1.and.i>=Ib1.and.i<=Ib2) then
-   Vna(i,j)=0
-  else if(j==1) then
-   Vna(i,j)=interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
-  else
-   Vna(i,j)=interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1))
-  end if
-  end DO
-end DO
+Call FluxI
 U0=U
 V0=V
 T0=T
