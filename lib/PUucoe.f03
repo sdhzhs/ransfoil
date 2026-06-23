@@ -22,13 +22,22 @@ isWf = WalltreatFlag==WF
 isLr = WalltreatFlag==LR
 isParvel = wallfunutype==PARVEL
 
+!$OMP PARALLEL
+!$OMP WORKSHARE
 Fwall=0
 Ga=mu+mut
+!$OMP END WORKSHARE
 if(isU) then
+ !$OMP WORKSHARE
  F=U
+ !$OMP END WORKSHARE
 else if(isV) then
+ !$OMP WORKSHARE
  F=V
+ !$OMP END WORKSHARE
 end if
+
+!$OMP DO PRIVATE(i,Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle)
 DO j=1,Jc-1
   DO i=Is,Ie
    if(i==1) then
@@ -110,16 +119,24 @@ DO j=1,Jc-1
    bno(i,j)=Dnow*Faw-Dnoe*Fae+Dnos*Fks-Dnon*Fkn
   end DO
 end DO
+!$OMP END DO
+!$OMP WORKSHARE
 aM(1,:,:)=1
 aM(2,:,:)=0
 aM(3,:,:)=0
 aM(4,:,:)=0
 aM(5,:,:)=0
+!$OMP END WORKSHARE
 if(isU) then
+ !$OMP WORKSHARE
  aupM=0
+ !$OMP END WORKSHARE
 else if(isV) then
+ !$OMP WORKSHARE
  avpM=0
+ !$OMP END WORKSHARE
 end if
+!$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,DF)
 DO j=1,Jc-1
   DO i=Is,Ie
     Xgaw=(Xg(i,j+1)-Xg(i,j))/dy
@@ -181,8 +198,12 @@ DO j=1,Jc-1
     !if(DF>0) aM(1,i,j)=aM(1,i,j)+DF
   end DO
 end DO
+!$OMP END DO
 Call Defercorrect(F,Fwall,cor,Fw,Fe,Fs,Fn)
+!$OMP WORKSHARE
 b=F
+!$OMP END WORKSHARE
+!$OMP DO PRIVATE(i,DF)
 DO j=1,Jc-1
   DO i=Is,Ie
   if(isU) then
@@ -209,10 +230,17 @@ DO j=1,Jc-1
   !if(DF<0) b(i,j)=b(i,j)-DF*F(i,j)
   end DO
 end DO
+!$OMP END DO
 if(isU) then
- auM=aM
+ !$OMP WORKSHARE
+ auM(1:5,:,:)=aM
  bu=b
+ !$OMP END WORKSHARE
 else if(isV) then
+ !$OMP WORKSHARE
+ auM(6,:,:)=aM(1,:,:)
  bv=b
+ !$OMP END WORKSHARE
 end if
+!$OMP END PARALLEL
 end Subroutine pUucoe

@@ -10,12 +10,16 @@ logical(1) isCom
 
 isCom=ProctrlFlag==COM
 
+!$OMP PARALLEL
+!$OMP DO PRIVATE(i)
 DO j=1,Jc-1
   DO i=Is,Ie
    du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/auM(1,i,j)
    dv(i,j)=Rau*(Ygk(i,j)**2+Xgk(i,j)**2)*dx/auM(1,i,j)
   end DO
 end DO
+!$OMP END DO
+!$OMP DO PRIVATE(i)
 DO j=1,Jc-1
   DO i=Is,Ie+1
    if(i==1) then
@@ -31,6 +35,8 @@ DO j=1,Jc-1
    end if
   end DO
 end DO
+!$OMP END DO
+!$OMP DO PRIVATE(i)
 DO j=1,Jc
   DO i=Is,Ie
    if(j==1.and.(i>Ib2.or.i<Ib1)) then
@@ -44,11 +50,15 @@ DO j=1,Jc
    end if
   end DO
 end DO
+!$OMP END DO
+!$OMP WORKSHARE
 aM=0
 aM(1,:,:)=1
 b=P
 apuM=0
 apvM=0
+!$OMP END WORKSHARE
+!$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,we,ww,ws,wn,Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn)
 DO j=1,Jc-1
   DO i=Is,Ie
     Xgaw=(Xg(i,j+1)-Xg(i,j))/dy
@@ -157,7 +167,11 @@ DO j=1,Jc-1
     end if
   end DO
 end DO
+!$OMP END DO
+!$OMP WORKSHARE
 rms=0
+!$OMP END WORKSHARE
+!$OMP DO PRIVATE(i)
 DO j=1,Jc-1
   DO i=Is,Ie
     rms(i,j)=aM(5,i,j)*P(i,j+1)+b(i,j)-aM(1,i,j)*P(i,j)+apuM(5,i,j)*U(i,j+1)-apuM(1,i,j)*U(i,j)+apvM(5,i,j)*V(i,j+1)-&
@@ -181,5 +195,9 @@ DO j=1,Jc-1
     end if
   end DO
 end DO
+!$OMP END DO
+!$OMP WORKSHARE
 rmsm=sum(abs(rms))/(Ic*Jc)
+!$OMP END WORKSHARE
+!$OMP END PARALLEL
 end Subroutine pUpcoe

@@ -11,7 +11,8 @@ real(8) rtime0,rtime1,cputime,walltime
 logical(1) lconv,ldiv
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
-integer solid
+integer solid,pusolid
+integer(8) puA,pub,pux,solver_cp,precond_cp
 #endif
 #ifdef HYPRE_GPU
 !type(c_ptr) :: p_values
@@ -46,6 +47,10 @@ end if
 #ifdef HYPRE
   solid=3
   Call hypreinit(matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,solid)
+  if(solctrlFlag==COUP) then
+   pusolid=4
+   Call hyprecpinit(puA, pub, pux, solver_cp, precond_cp, pusolid)
+  end if
 #endif
 #ifdef HYPRE_GPU
   solid=3
@@ -65,7 +70,7 @@ DO s=1,maxs
    Call pUucoe(VELY)
    Call pUpcoe
 #if defined(HYPRE)
-   Call hyprecpsolve(4)
+   Call hyprecpsolve(puA, pub, pux, solver_cp, precond_cp, pusolid)
 #endif
    if(ProctrlFlag==COM) Call StabSol(PRES)
    Call Derivatives(PRES)
@@ -343,6 +348,7 @@ else if(libmod=='C') then
 end if
 #ifdef HYPRE
   Call hyprerelease(matA,vecb,vecx,solver,precond,solid)
+  if(solctrlFlag==COUP) Call hyprecprelease(puA, pub, pux, solver_cp, precond_cp, pusolid)
 #endif
 #ifdef HYPRE_GPU
   !Call hyprerelease_gpu(matA,vecb,vecx,solver,precond,p_values,solid)
@@ -540,7 +546,7 @@ Ygk(Ic,Jc),dk(Ic,Jc),da(Ic,Jc),Jg(Ic,Jc),a1(Ic,Jc),y1(Ic,Jc),b1(Ic,Jc),Un(Ic,Jc)
 duk(Ip,Jc),dva(Ic,Jp),Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),&
 muxy(Ic,Jc),muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc))
 if(solctrlFlag==COUP) then
- allocate(auM(5,Ic,Jc),aupM(5,Ic,Jc),avpM(5,Ic,Jc),apuM(5,Ic,Jc),apvM(5,Ic,Jc),bu(Ic,Jc),bv(Ic,Jc))
+ allocate(auM(6,Ic,Jc),aupM(5,Ic,Jc),avpM(5,Ic,Jc),apuM(5,Ic,Jc),apvM(5,Ic,Jc),bu(Ic,Jc),bv(Ic,Jc))
 else
  allocate(auM(2,Ic,Jc))
 end if
