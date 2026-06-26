@@ -19,10 +19,10 @@ if(isSimp) then
   !$OMP DO PRIVATE(i)
   DO j=1,Jc-1
     DO i=Is,Ie
-     du(i,j)=Rau*Vol(i,j)/auP(i,j)
-     dv(i,j)=Rau*Vol(i,j)/auP(i,j)
-     Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/auP(i,j)
-     Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/auP(i,j)
+     du(i,j)=Rau*Vol(i,j)/auM(1,i,j)
+     dv(i,j)=Rau*Vol(i,j)/auM(1,i,j)
+     Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/auM(1,i,j)
+     Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/auM(1,i,j)
     end DO
   end DO
   !$OMP END DO
@@ -30,10 +30,10 @@ else if(isSimpC) then
   !$OMP DO PRIVATE(i)
   DO j=1,Jc-1
     DO i=Is,Ie
-     du(i,j)=Rau*Vol(i,j)/(auP(i,j)-Rau*auNB(i,j))
-     dv(i,j)=Rau*Vol(i,j)/(auP(i,j)-Rau*auNB(i,j))
-     Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/(auP(i,j)-Rau*auNB(i,j))
-     Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/(auP(i,j)-Rau*auNB(i,j))
+     du(i,j)=Rau*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+     dv(i,j)=Rau*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+     Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+     Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
     end DO
   end DO
   !$OMP END DO

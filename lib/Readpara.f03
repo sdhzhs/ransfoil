@@ -181,7 +181,7 @@ else if(libmod=='I') then
   print *,'Select wall treatment method(wf/lr):'
   read *,Walltreat
  end if
- print *,'Select coupling algorithm(SIMPLE/SIMPLEC):'
+ print *,'Select coupling algorithm(SIMPLE/SIMPLEC/Coupled):'
  read *,solctrl
  print *,'Select discretization scheme(1upwind/2upwind/Fromm/Quick/tvd):'
  read *,Discret
@@ -344,6 +344,8 @@ if(solctrl=='SIMPLE') then
  solctrlFlag=SIMPLE
 else if(solctrl=='SIMPLEC') then
  solctrlFlag=SIMPLEC
+else if(solctrl=='Coupled') then
+ solctrlFlag=COUP
 end if
 
 if(Discret=='1upwind') then
@@ -428,6 +430,7 @@ else if(Matair=='N') then
  MatairFlag=.false.
 end if
 
+!wallfunutype=ORIVEL
 wallfunutype=PARVEL
 wallfunktype=LOGLAW
 sstlowre=.false.

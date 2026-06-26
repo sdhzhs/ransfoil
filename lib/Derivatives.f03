@@ -6,6 +6,9 @@ real(8) Fw,Fe,Fs,Fn,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Jgc
 real(8),external:: interpl
 real(8) F(Ic,Jc),Fwall(Ib1:Ib2),Fx(Ic,Jc),Fy(Ic,Jc)
 integer scalar
+logical(1) isCoup
+
+isCoup = solctrlFlag==COUP
 
 !$OMP PARALLEL
 if(scalar==VELX) then
@@ -103,23 +106,44 @@ DO j=1,Jc-1
   Xgkn=Yfa(i,j+1)
   Ygkn=-Xfa(i,j+1)
   Jgc=Vol(i,j)
-  if(i==1) then
-   Fw=interpl(F(Ic,j),F(i,j),dkw(i,j))
+  if(isCoup) then
+   if(i==1) then
+    Fw=interpl(F(Ic,j),F(i,j),5d-1)
+   else
+    Fw=interpl(F(i-1,j),F(i,j),5d-1)
+   end if
+   if(i==Ic) then
+    Fe=interpl(F(i,j),F(1,j),5d-1)
+   else
+    Fe=interpl(F(i,j),F(i+1,j),5d-1)
+   end if
+   Fn=interpl(F(i,j),F(i,j+1),5d-1)
+   if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
+    Fs=Fwall(i)
+   else if(j==1) then
+    Fs=interpl(F(Ic+1-i,j),F(i,j),5d-1)
+   else
+    Fs=interpl(F(i,j-1),F(i,j),5d-1)
+   end if
   else
-   Fw=interpl(F(i-1,j),F(i,j),dkw(i,j))
-  end if
-  if(i==Ic) then
-   Fe=interpl(F(i,j),F(1,j),dkw(i+1,j))
-  else
-   Fe=interpl(F(i,j),F(i+1,j),dkw(i+1,j))
-  end if
-  Fn=interpl(F(i,j),F(i,j+1),daw(i,j+1))
-  if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-   Fs=Fwall(i)
-  else if(j==1) then
-   Fs=interpl(F(Ic+1-i,j),F(i,j),daw(i,j))
-  else
-   Fs=interpl(F(i,j-1),F(i,j),daw(i,j))
+   if(i==1) then
+    Fw=interpl(F(Ic,j),F(i,j),dkw(i,j))
+   else
+    Fw=interpl(F(i-1,j),F(i,j),dkw(i,j))
+   end if
+   if(i==Ic) then
+    Fe=interpl(F(i,j),F(1,j),dkw(i+1,j))
+   else
+    Fe=interpl(F(i,j),F(i+1,j),dkw(i+1,j))
+   end if
+   Fn=interpl(F(i,j),F(i,j+1),daw(i,j+1))
+   if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
+    Fs=Fwall(i)
+   else if(j==1) then
+    Fs=interpl(F(Ic+1-i,j),F(i,j),daw(i,j))
+   else
+    Fs=interpl(F(i,j-1),F(i,j),daw(i,j))
+   end if
   end if
   Fx(i,j)=((Fe*Ygae-Fw*Ygaw)-(Fn*Ygkn-Fs*Ygks))/Jgc
   Fy(i,j)=(-(Fe*Xgae-Fw*Xgaw)+(Fn*Xgkn-Fs*Xgks))/Jgc

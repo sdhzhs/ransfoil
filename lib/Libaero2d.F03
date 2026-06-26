@@ -11,7 +11,8 @@ real(8) rtime0,rtime1,cputime,walltime
 logical(1) lconv,ldiv
 #ifdef HYPRE
 integer(8) matA,vecb,vecx,solver,precond
-integer solid
+integer solid,pusolid
+integer(8) puA,pub,pux,solver_cp,precond_cp
 #endif
 #ifdef HYPRE_GPU
 !type(c_ptr) :: p_values
@@ -46,6 +47,10 @@ end if
 #ifdef HYPRE
   solid=3
   Call hypreinit(matA,vecb,vecx,solver,precond,Ic,Jc,Ib1,Ib2,solid)
+  if(solctrlFlag==COUP) then
+   pusolid=4
+   Call hyprecpinit(puA, pub, pux, solver_cp, precond_cp, pusolid)
+  end if
 #endif
 #ifdef HYPRE_GPU
   solid=3
@@ -59,64 +64,77 @@ DO s=1,maxs
   Call Derivatives(MUY)
   Call Derivatives(MVX)
   Call Derivatives(MVY)
-  Call Wallfunc
-  Call Condiff(VELX)
-  Call ImplicitRelax(aM,b,U0,Rau,Ic,Jc,Ib1,Ib2,VELX)
+  if(solctrlFlag==COUP) then
+   Call Wallfunc
+   Call pUucoe(VELX)
+   Call pUucoe(VELY)
+   Call pUpcoe
 #if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,Ic,Jc,Ib1,solid,VELX,FstypeFlag)
+   Call hyprecpsolve(puA, pub, pux, solver_cp, precond_cp, pusolid)
+#endif
+   if(ProctrlFlag==COM) Call StabSol(PRES)
+   Call Derivatives(PRES)
+   Call FluxRC
+  else
+   Call Wallfunc
+   Call Condiff(VELX)
+   Call ImplicitRelax(aM,b,U0,Rau,Ic,Jc,Ib1,Ib2,VELX)
+#if defined(HYPRE)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,U,Ic,Jc,Ib1,solid,VELX,FstypeFlag)
 #elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,U,Ic,Jc,Ib1,Ib2,solid,VELX,FstypeFlag)
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,U,Ic,Jc,Ib1,solid,VELX,FstypeFlag)
+   Call hypresolve_gpu(aM,b,U,Ic,Jc,Ib1,Ib2,solid,VELX,FstypeFlag)
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,U,Ic,Jc,Ib1,solid,VELX,FstypeFlag)
 #else
-  if(LinsolFlag==SORGS) then
-   Call sor(aM,b,U,Ic,Jc,Ib1,Ib2,VELX,FstypeFlag)
-  else if(LinsolFlag==PBICG) then
-   Call CGSTAB(aM,b,U,Ic,Jc,Ib1,Ib2,VELX,FstypeFlag)
+   if(LinsolFlag==SORGS) then
+    Call sor(aM,b,U,Ic,Jc,Ib1,Ib2,VELX,FstypeFlag)
+   else if(LinsolFlag==PBICG) then
+    Call CGSTAB(aM,b,U,Ic,Jc,Ib1,Ib2,VELX,FstypeFlag)
+   end if
+#endif
+   Call Condiff(VELY)
+   Call ImplicitRelax(aM,b,V0,Rau,Ic,Jc,Ib1,Ib2,VELY)
+#if defined(HYPRE)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,Ic,Jc,Ib1,solid,VELY,FstypeFlag)
+#elif defined(HYPRE_GPU)
+   Call hypresolve_gpu(aM,b,V,Ic,Jc,Ib1,Ib2,solid,VELY,FstypeFlag)
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,V,Ic,Jc,Ib1,solid,VELY,FstypeFlag)
+#else
+   if(LinsolFlag==SORGS) then
+    Call sor(aM,b,V,Ic,Jc,Ib1,Ib2,VELY,FstypeFlag)
+   else if(LinsolFlag==PBICG) then
+    Call CGSTAB(aM,b,V,Ic,Jc,Ib1,Ib2,VELY,FstypeFlag)
+   end if
+#endif
+   Call PCEcoe
+#if defined(HYPRE)
+   Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,Ic,Jc,Ib1,solid,DPRES,FstypeFlag)
+#elif defined(HYPRE_GPU)
+   Call hypresolve_gpu(aM,b,dP,Ic,Jc,Ib1,Ib2,solid,DPRES,FstypeFlag)
+   !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,dP,Ic,Jc,Ib1,solid,DPRES,FstypeFlag)
+#else
+   !Call sor(aM,b,dP,Ic,Jc,Ib1,Ib2,DPRES,FstypeFlag)
+   Call CGSTAB(aM,b,dP,Ic,Jc,Ib1,Ib2,DPRES,FstypeFlag)
+#endif
+   if(ProctrlFlag==COM) Call StabSol(DPRES)
+   P=P+Rap*dP
+   Call Derivatives(DPRES)
+   Call Velcorrect
   end if
-#endif
-  Call Condiff(VELY)
-  Call ImplicitRelax(aM,b,V0,Rau,Ic,Jc,Ib1,Ib2,VELY)
-#if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,V,Ic,Jc,Ib1,solid,VELY,FstypeFlag)
-#elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,V,Ic,Jc,Ib1,Ib2,solid,VELY,FstypeFlag)
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,V,Ic,Jc,Ib1,solid,VELY,FstypeFlag)
-#else
-  if(LinsolFlag==SORGS) then
-   Call sor(aM,b,V,Ic,Jc,Ib1,Ib2,VELY,FstypeFlag)
-  else if(LinsolFlag==PBICG) then
-   Call CGSTAB(aM,b,V,Ic,Jc,Ib1,Ib2,VELY,FstypeFlag)
-  end if
-#endif
-  Call PCEcoe
-#if defined(HYPRE)
-  Call hypresolve(matA,vecb,vecx,solver,precond,aM,b,dP,Ic,Jc,Ib1,solid,DPRES,FstypeFlag)
-#elif defined(HYPRE_GPU)
-  Call hypresolve_gpu(aM,b,dP,Ic,Jc,Ib1,Ib2,solid,DPRES,FstypeFlag)
-  !Call hyprecompute_gpu(matA,vecb,vecx,solver,precond,p_values,aM,b,dP,Ic,Jc,Ib1,solid,DPRES,FstypeFlag)
-#else
-  !Call sor(aM,b,dP,Ic,Jc,Ib1,Ib2,DPRES,FstypeFlag)
-  Call CGSTAB(aM,b,dP,Ic,Jc,Ib1,Ib2,DPRES,FstypeFlag)
-#endif
   if(ProctrlFlag==COM) then
-   Call StabSol(DPRES)
-  end if
-  P=P+Rap*dP
-  Call Derivatives(DPRES)
-  Call Velcorrect
-  if(ProctrlFlag==COM) then
-   if(FstypeFlag==VINPOUT) then
-    rho(:,1:Jc-1)=rho(:,1:Jc-1)+Rap*dP(:,1:Jc-1)*Ma/(R*T(:,1:Jc-1))
-    where(Vna(:,Jc)>0.0) rho(:,Jc)=rho(:,Jc)+Rap*dP(:,Jc)*Ma/(R*T(:,Jc))
-   else 
-    rho=rho+Rap*dP*Ma/(R*T)
+   if(solctrlFlag/=COUP) then
+    if(FstypeFlag==VINPOUT) then
+     rho(:,1:Jc-1)=rho(:,1:Jc-1)+Rap*dP(:,1:Jc-1)*Ma/(R*T(:,1:Jc-1))
+     where(Vna(:,Jc)>0.0) rho(:,Jc)=rho(:,Jc)+Rap*dP(:,Jc)*Ma/(R*T(:,Jc))
+    else 
+     rho=rho+Rap*dP*Ma/(R*T)
+    end if
    end if
    Call Derivatives(DENS)
    Call Densityinterp
   end if
   Call Derivatives(VELX)
   Call Derivatives(VELY)
-  Call Derivatives(PRES)
+  if(solctrlFlag/=COUP) Call Derivatives(PRES)
   if(EnergyFlag) then
    Call Wallfunc
    Call Condiff(TEMP)
@@ -335,6 +353,7 @@ else if(libmod=='C') then
 end if
 #ifdef HYPRE
   Call hyprerelease(matA,vecb,vecx,solver,precond,solid)
+  if(solctrlFlag==COUP) Call hyprecprelease(puA, pub, pux, solver_cp, precond_cp, pusolid)
 #endif
 #ifdef HYPRE_GPU
   !Call hyprerelease_gpu(matA,vecb,vecx,solver,precond,p_values,solid)
@@ -506,6 +525,8 @@ integer scalar
 
 if(scalar==DPRES) then
  dP=min(max(dP,(1-Po-P)/Rap),(5e+10-Po-P)/Rap)
+else if(scalar==PRES) then
+ P=min(max(P,1-Po),5d+10-Po) 
 else if(scalar==TEMP) then
  T=max(min(5e+3,T),1.0)
 else if(scalar==TURBNU) then
@@ -525,10 +546,15 @@ use Aero2DCOM
 implicit none
 
 allocate(U0(Ic,Jc),V0(Ic,Jc),T0(Ic,Jc),U(Ic,Jc),V(Ic,Jc),T(Ic,Jc),rho(Ic,Jc),mu(Ic,Jc),P(Ic,Jc),dP(Ic,Jc),mut(Ic,Jc),&
-Pr(Ic,Jc),Pc(Ic,Jc),auP(Ic,Jc),auNB(Ic,Jc),aM(5,Ic,Jc),b(Ic,Jc),Xg(Ip,Jp),Yg(Ip,Jp),Xc(Ic,Jc),Yc(Ic,Jc),Xfa(Ic,Jp),Yfa(Ic,Jp),&
+Pr(Ic,Jc),Pc(Ic,Jc),aM(5,Ic,Jc),b(Ic,Jc),Xg(Ip,Jp),Yg(Ip,Jp),Xc(Ic,Jc),Yc(Ic,Jc),Xfa(Ic,Jp),Yfa(Ic,Jp),&
 Xfk(Ip,Jc),Yfk(Ip,Jc),dkw(Ip,Jc),daw(Ic,Jp),dkd(Ip,Jc),dad(Ic,Jp),dk(Ic,Jc),da(Ic,Jc),Vol(Ic,Jc),Unk(Ip,Jc),Vna(Ic,Jp),duk(Ip,Jc),dva(Ic,Jp),&
 Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),Tx(Ic,Jc),Ty(Ic,Jc),rhox(Ic,Jc),rhoy(Ic,Jc),muxx(Ic,Jc),&
 muxy(Ic,Jc),muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc))
+if(solctrlFlag==COUP) then
+ allocate(auM(6,Ic,Jc),aupM(5,Ic,Jc),avpM(5,Ic,Jc),apuM(5,Ic,Jc),apvM(5,Ic,Jc),bu(Ic,Jc),bv(Ic,Jc))
+else
+ allocate(auM(2,Ic,Jc))
+end if
 if(TurmodFlag==SA) then
  allocate(Tn0(Ic,Jc),Tn(Ic,Jc),Tnx(Ic,Jc),Tny(Ic,Jc))
 else if(TurmodFlag==KE) then
@@ -547,8 +573,9 @@ Subroutine Deallocarray
 use Aero2DCOM
 implicit none
 
-deallocate(U0,V0,T0,U,V,T,rho,mu,mut,P,dP,Pr,Pc,auP,auNB,aM,b,Xg,Yg,Xc,Yc,Xfa,Yfa,Xfk,Yfk,dkw,daw,Vol,dkd,dad,dk,da,&
+deallocate(U0,V0,T0,U,V,T,rho,mu,mut,P,dP,Pr,Pc,aM,auM,b,Xg,Yg,Xc,Yc,Xfa,Yfa,Xfk,Yfk,dkw,daw,Vol,dkd,dad,dk,da,&
 Unk,Vna,duk,dva,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,Tx,Ty,rhox,rhoy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,d)
+if(solctrlFlag==COUP) deallocate(aupM,avpM,apuM,apvM,bu,bv)
 if(TurmodFlag==SA) then
  deallocate(Tn0,Tn,Tnx,Tny)
 else if(TurmodFlag==KE) then
@@ -557,5 +584,6 @@ else if(TurmodFlag==SST) then
  deallocate(Tk0,Tw0,Tk,Tw,Tkx,Tky,Twx,Twy,sigmatk,sigmatw)
 end if
 deallocate(Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay)
+deallocate(Pnw,Unw,Vnw,Tnw,mutnw,hcvnw,Axnw,Aynw,Ypnw,Clrec,Cdrec,Cfrec,Cmrec,Xpcrec,Ypcrec)
 
 end Subroutine Deallocarray

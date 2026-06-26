@@ -7,7 +7,7 @@ Ep=9.793,Cks=0.5,Cb1=0.1355,Cb2=0.622,sigman=2.0/3,Cw2=0.3,Cw3=2.0,Cnu1=7.1,Cw1=
 Cu=0.09,sigmak=1.0,sigmae=1.3,sigmak1=1.176,sigmak2=1.0,sigmaw1=2.0,sigmaw2=1.168,alpha1=0.31,betai1=0.075,betai2=0.0828,&
 alphastarf=1.0,alpha0=1./9,betastarf=0.09,Rbeta=8.0,Rk=6.0,Rw=2.95,Zetastar=1.5,Mt0=0.25
 integer(C_INT),parameter::INV=0,LAM=1,SA=2,KE=3,SST=4,INCOM=0,COM=1,WF=0,LR=1,VELX=0,VELY=1,PRES=2,DPRES=3,TEMP=4,TURBNU=5,TURBK=6,TURBE=7,&
-TURBW=8,MUX=9,MUY=10,MVX=11,MVY=12,DENS=13,ALLFIX=0,VINPOUT=1,SIMPLE=0,SIMPLEC=1,FUP=0,SUP=1,QUICK=2,TVD=3,CDS=4,FROMM=5,SORGS=0,PBICG=1,&
+TURBW=8,MUX=9,MUY=10,MVX=11,MVY=12,DENS=13,ALLFIX=0,VINPOUT=1,SIMPLE=0,SIMPLEC=1,COUP=2,FUP=0,SUP=1,QUICK=2,TVD=3,CDS=4,FROMM=5,SORGS=0,PBICG=1,&
 FIXED=0,FLUX=1,CTYPE=0,OTYPE=1,INITBC=0,INITFILE=1,INITMEM=2,ORIVEL=0,PARVEL=1,LOGLAW=0,GENLAW=1
 
 save
@@ -19,9 +19,9 @@ character(8) Proctrl,Energy,visheat,Turmod,Walltreat,solctrl,Discret,denface,Ini
 character(64) filename(9),dir,matfile
 real(C_DOUBLE),bind(C)::fd,fb,eb,lfar,delta,Rau,Rap,Rae,Rat,Vfar,AoA,Ta,Tf,Qf,Po,ksi,Itur,tvr,c,Ui,Vi,rhoi,mui,Tki,Tei,Twi,Tni,&
 ca,ka,Vs,Re,Mach,rmsu,rmsv,rmst,rmsn,rmsk,rmse,rmsw,rmsm,Cl,Cd,Cf,Cm,Xpc,Ypc
-real(8),allocatable,target,dimension(:,:)::rho,mu,P,dP,U,V,T,Tn,Tk,Te,Tw,mut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,auP,auNB,b,Xg,Yg,Xc,Yc,Xfa,Yfa,Xfk,Yfk,dkw,daw,Vol,&
+real(8),allocatable,target,dimension(:,:)::rho,mu,P,dP,U,V,T,Tn,Tk,Te,Tw,mut,U0,V0,T0,Tn0,Tk0,Te0,Tw0,Pr,Pc,b,bu,bv,Xg,Yg,Xc,Yc,Xfa,Yfa,Xfk,Yfk,dkw,daw,Vol,&
 dk,da,dkd,dad,d,duk,dva,Unk,Vna,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,Tx,Ty,rhox,rhoy,Tnx,Tny,Tkx,Tky,Twx,Twy,Tex,Tey,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,sigmatk,sigmatw
-real(8),allocatable,target,dimension(:,:,:)::aM
+real(8),allocatable,target,dimension(:,:,:)::aM,auM,aupM,avpM,apuM,apvM
 real(8),allocatable,target,dimension(:)::Xwd,Ywd,Xwu,Ywu,Xwp,Ywp,Xwp0,Ywp0,Xw,Yw,Yp,DR,Sw,ks,Q,Yplus,Ystar,ustar,Uplus,Tplus,hcv,Ax,Ay
 real(8),allocatable,target,dimension(:)::Clrec,Cdrec,Cfrec,Cmrec,Xpcrec,Ypcrec
 real(8),allocatable,target,dimension(:,:)::Pnw,Unw,Vnw,Tnw,mutnw,hcvnw,Axnw,Aynw,Ypnw

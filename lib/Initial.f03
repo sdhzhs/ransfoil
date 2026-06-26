@@ -1,10 +1,10 @@
 Subroutine Initial
 use Aero2DCOM
 implicit none
-integer i,j,ioerr
+integer i,ioerr
 character(128) ioerrmsg
 real(8),external:: interpl
-real(8) Tni0,Uf,Vf
+real(8) Tni0
 Ui=Vfar*cos(AoA*Pi/180)
 Vi=Vfar*sin(AoA*Pi/180)
 if(MatairFlag) then
@@ -143,37 +143,8 @@ if(TurmodFlag==SA.and.WalltreatFlag==LR) then
  d=d+0.03*ksi
 end if
 Call Turvis
+Call FluxI
 
-DO j=1,Jc-1
-  DO i=Is,Ie+1
-  if(i==1) then
-   Uf=interpl(U(Ic,j),U(i,j),dkw(i,j))
-   Vf=interpl(V(Ic,j),V(i,j),dkw(i,j))
-  else if(i==Ip) then
-   Uf=interpl(U(i-1,j),U(1,j),dkw(i,j))
-   Vf=interpl(V(i-1,j),V(1,j),dkw(i,j))
-  else
-   Uf=interpl(U(i-1,j),U(i,j),dkw(i,j))
-   Vf=interpl(V(i-1,j),V(i,j),dkw(i,j))
-  end if
-  Unk(i,j)=Uf*Xfk(i,j)+Vf*Yfk(i,j)
-  end DO
-end DO
-DO j=1,Jc
-  DO i=Is,Ie
-  if(j==1.and.i>=Ib1.and.i<=Ib2) then
-   Uf=0
-   Vf=0
-  else if(j==1) then
-   Uf=interpl(U(Ic+1-i,j),U(i,j),daw(i,j))
-   Vf=interpl(V(Ic+1-i,j),V(i,j),daw(i,j))
-  else
-   Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
-   Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
-  end if
-  Vna(i,j)=Uf*Xfa(i,j)+Vf*Yfa(i,j)
-  end DO
-end DO
 U0=U
 V0=V
 T0=T
