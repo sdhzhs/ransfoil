@@ -15,7 +15,7 @@ wf
 Select coupling method(SIMPLE/SIMPLEC):
 Coupled
 Select discretization scheme(1upwind/2upwind/Quick/tvd):
-1upwind
+2upwind
 Select type of linear solver for convective-diffusion equations(sor/pbicg):
 sor
 Set boundary condition type of tempreture(fixed/flux):
@@ -25,13 +25,13 @@ N
 Initialize using stagnation values(Y/N)? (or Input a filename for initialization:)
 N
 Input maximum iteration steps:
-400
+1000
 Input minimum residual of iteration:
-1e-3
+1e-4
 Input relaxation factor of velocity:
-5e-1
+9e-1
 Input relaxation factor of pressure:
-5e-1
+1e-0
 Input relaxation factor of temperature:
 7e-1
 Input relaxation factor of turbulence:

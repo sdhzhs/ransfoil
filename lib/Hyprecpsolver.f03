@@ -33,7 +33,7 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGCreate(solver, ierr)
 else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
- Call HYPRE_BoomerAMGCreate(precond, ierr)
+ !Call HYPRE_BoomerAMGCreate(precond, ierr)
 else if(solid==5) then
  Call HYPRE_ParCSRBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
  Call HYPRE_EuclidCreate(MPI_COMM_WORLD, precond, ierr)
@@ -65,7 +65,7 @@ else if(solid==2) then
 else if(solid==3) then
  Call HYPRE_BoomerAMGDestroy(solver, ierr)
 else if(solid==4) then
- Call HYPRE_BoomerAMGDestroy(precond, ierr)
+ !Call HYPRE_BoomerAMGDestroy(precond, ierr)
  Call HYPRE_ParCSRBiCGSTABDestroy(solver, ierr)
 else if(solid==5) then
  Call HYPRE_EuclidDestroy(precond, ierr)
@@ -84,7 +84,7 @@ include 'HYPREf.h'
 
 integer :: solid
 integer :: i,j
-integer :: ierr,itmax,prlv,iter,precond_id
+integer :: ierr,itmax,prlv,iter,maxl,precond_id
 real(8) :: tol,res
 real(8) :: aR(Ic,Jc)
 real(8),allocatable,dimension(:) :: values
@@ -602,13 +602,7 @@ Call HYPRE_IJVectorGetObject(x_ij, parx, ierr)
 
 itmax = 1000
 prlv = 0
-if(Rap>8.1d-1) then
- tol = 1.0D-4
-else if(Rap>7.1d-1) then
- tol = 1.0D-6
-else
- tol = 1.0D-8
-end if
+tol = 1.0D-6
 
 if(solid==1) then
  Call HYPRE_ParCSRBiCGSTABSetTol(solver, tol, ierr)
@@ -627,11 +621,14 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetTol(solver, tol, ierr)
  Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
- Call HYPRE_BoomerAMGSetMaxLevels(solver, 2, ierr)
+
+ maxl = 2
+ Call HYPRE_BoomerAMGSetMaxLevels(solver, maxl, ierr)
  Call HYPRE_BoomerAMGSetNumFunctions(solver, 3, ierr)
  Call HYPRE_BoomerAMGSetNodal(solver, 1, ierr)
  Call HYPRE_BoomerAMGSetNumSweeps(solver, 3, ierr)
- Call HYPRE_BoomerAMGSetSmoothType(solver, 6, ierr)
+ Call HYPRE_BoomerAMGSetSmoothType(solver, 6, ierr) !Schwarz method as smoother
+ !Call HYPRE_BoomerAMGSetSmoothNumLvls(precond, maxl, ierr)
  Call HYPRE_BoomerAMGSetDomainType(solver, 1, ierr)
  Call HYPRE_BoomerAMGSetOverlap(solver, 0, ierr)
  !Call HYPRE_BoomerAMGSetCoarsenType(solver, 6, ierr)
@@ -643,17 +640,19 @@ else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABSetMaxIter(solver, itmax, ierr)
  
  precond_id = 2
- !Call HYPRE_BoomerAMGCreate(precond, ierr)
+ maxl = 5
+ Call HYPRE_BoomerAMGCreate(precond, ierr)
  Call HYPRE_BoomerAMGSetTol(precond, 0d+0, ierr)
  Call HYPRE_BoomerAMGSetPrintLevel(precond, 0, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(precond, 1, ierr)
- Call HYPRE_BoomerAMGSetMaxLevels(precond, 5, ierr)
+ Call HYPRE_BoomerAMGSetMaxLevels(precond, maxl, ierr)
  Call HYPRE_BoomerAMGSetNumFunctions(precond, 3, ierr)
  Call HYPRE_BoomerAMGSetNodal(precond, 1, ierr)
  Call HYPRE_BoomerAMGSetNumSweeps(precond, 3, ierr)
- Call HYPRE_BoomerAMGSetSmoothType(precond, 6, ierr)
- Call HYPRE_BoomerAMGSetDomainType(precond, 1, ierr)
- Call HYPRE_BoomerAMGSetOverlap(precond, 0, ierr)
+ Call HYPRE_BoomerAMGSetSmoothType(precond, 5, ierr) !ILU method as smoother
+ Call HYPRE_BoomerAMGSetSmoothNumLvls(precond, maxl, ierr)
+ !Call HYPRE_BoomerAMGSetDomainType(precond, 1, ierr)
+ !Call HYPRE_BoomerAMGSetOverlap(precond, 0, ierr)
  !Call HYPRE_BoomerAMGSetCoarsenType(precond, 6, ierr)
  
  Call HYPRE_ParCSRBiCGSTABSetPrecond(solver, precond_id, precond, ierr)
@@ -715,7 +714,7 @@ end if
 if(solid==3) then
  !Call HYPRE_BoomerAMGDestroy(solver, ierr)
 else if(solid==4) then
- !Call HYPRE_BoomerAMGDestroy(precond, ierr)
+ Call HYPRE_BoomerAMGDestroy(precond, ierr)
 end if
 
 end Subroutine hyprecpsolve

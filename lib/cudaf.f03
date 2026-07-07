@@ -1,7 +1,8 @@
 module cudaf
    ! Interface to CUDA Runtime API
 
-   use, intrinsic :: iso_c_binding, only: c_int
+   use, intrinsic :: iso_c_binding, only: c_int, c_size_t, c_ptr
+   use, intrinsic :: iso_fortran_env, only: int64
 
    implicit none
 
@@ -59,8 +60,6 @@ module cudaf
 
    integer function &
           device_malloc_managed(nbytes, dPtr) result(stat)
-      use, intrinsic :: iso_c_binding, only: c_size_t, c_ptr
-      use, intrinsic :: iso_fortran_env, only: int64
       integer(int64), intent(in) :: nbytes
       type(c_ptr), intent(inout) :: dPtr
       stat = cudaMallocManaged(dPtr, int(nbytes,c_size_t),&
@@ -70,8 +69,6 @@ module cudaf
    !
    integer function &
           device_malloc(nbytes, dPtr) result(stat)
-      use, intrinsic :: iso_c_binding, only: c_size_t, c_ptr
-      use, intrinsic :: iso_fortran_env, only: int64
       integer(int64), intent(in) :: nbytes
       type(c_ptr), intent(inout) :: dPtr
       stat = cudaMalloc(dPtr, int(nbytes,c_size_t))
@@ -80,8 +77,6 @@ module cudaf
    !
    integer function &
            copy_device_to_host(nbytes, dst, src) result(stat)
-      use, intrinsic :: iso_c_binding, only: c_size_t, c_ptr
-      use, intrinsic :: iso_fortran_env, only: int64
       integer(int64), intent(in) :: nbytes
       type(c_ptr), intent(inout) :: dst, src
       stat = cudaMemcpy(dst, src, int(nbytes,c_size_t),&
@@ -91,8 +86,6 @@ module cudaf
    !
    integer function &
            copy_host_to_device(nbytes, dst, src) result(stat)
-      use, intrinsic :: iso_c_binding, only: c_size_t, c_ptr
-      use, intrinsic :: iso_fortran_env, only: int64
       integer(int64), intent(in) :: nbytes
       type(c_ptr), intent(inout) :: dst, src
       stat = cudaMemcpy(dst, src, int(nbytes,c_size_t),&
@@ -102,7 +95,6 @@ module cudaf
    !
    integer function &
            device_free(dPtr) result(stat)
-      use, intrinsic :: iso_c_binding, only: c_ptr
       type(c_ptr), intent(inout) :: dPtr
       stat = cudaFree(dPtr)
    end function device_free
