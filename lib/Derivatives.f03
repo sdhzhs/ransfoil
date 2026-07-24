@@ -3,12 +3,8 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Fw,Fe,Fs,Fn,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Jgc
-real(8),external:: interpl
 real(8) F(Ic,Jc),Fwall(Ib1:Ib2),Fx(Ic,Jc),Fy(Ic,Jc)
 integer scalar
-logical(1) isCoup
-
-isCoup = solctrlFlag==COUP
 
 !$OMP PARALLEL
 if(scalar==VELX) then
@@ -90,44 +86,23 @@ DO j=1,Jc-1
   Xgkn=(Xg(i+1,j+1)-Xg(i,j+1))/dx
   Ygkn=(Yg(i+1,j+1)-Yg(i,j+1))/dx
   Jgc=Jg(i,j)
-  if(isCoup) then
-   if(i==1) then
-    Fw=interpl(F(i,j),F(Ic,j),dk(i,j),dk(i,j))
-   else
-    Fw=interpl(F(i,j),F(i-1,j),dk(i,j),dk(i,j))
-   end if
-   if(i==Ic) then
-    Fe=interpl(F(i,j),F(1,j),dk(i,j),dk(i,j))
-   else
-    Fe=interpl(F(i,j),F(i+1,j),dk(i,j),dk(i,j))
-   end if
-   Fn=interpl(F(i,j),F(i,j+1),da(i,j),da(i,j))
-   if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-    Fs=Fwall(i)
-   else if(j==1) then
-    Fs=interpl(F(i,j),F(Ic+1-i,j),da(i,j),da(i,j))
-   else
-    Fs=interpl(F(i,j),F(i,j-1),da(i,j),da(i,j))
-   end if
+  if(i==1) then
+   Fw=interpl(F(i,j),F(Ic,j),dk(i,j),dk(Ic,j))
   else
-   if(i==1) then
-    Fw=interpl(F(i,j),F(Ic,j),dk(i,j),dk(Ic,j))
-   else
-    Fw=interpl(F(i,j),F(i-1,j),dk(i,j),dk(i-1,j))
-   end if
-   if(i==Ic) then
-    Fe=interpl(F(i,j),F(1,j),dk(i,j),dk(1,j))
-   else
-    Fe=interpl(F(i,j),F(i+1,j),dk(i,j),dk(i+1,j))
-   end if
-   Fn=interpl(F(i,j),F(i,j+1),da(i,j),da(i,j+1))
-   if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
-    Fs=Fwall(i)
-   else if(j==1) then
-    Fs=interpl(F(i,j),F(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
-   else
-    Fs=interpl(F(i,j),F(i,j-1),da(i,j),da(i,j-1))
-   end if
+   Fw=interpl(F(i,j),F(i-1,j),dk(i,j),dk(i-1,j))
+  end if
+  if(i==Ic) then
+   Fe=interpl(F(i,j),F(1,j),dk(i,j),dk(1,j))
+  else
+   Fe=interpl(F(i,j),F(i+1,j),dk(i,j),dk(i+1,j))
+  end if
+  Fn=interpl(F(i,j),F(i,j+1),da(i,j),da(i,j+1))
+  if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
+   Fs=Fwall(i)
+  else if(j==1) then
+   Fs=interpl(F(i,j),F(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
+  else
+   Fs=interpl(F(i,j),F(i,j-1),da(i,j),da(i,j-1))
   end if
   Fx(i,j)=((Fe*Ygae-Fw*Ygaw)/dx-(Fn*Ygkn-Fs*Ygks)/dy)/Jgc
   Fy(i,j)=(-(Fe*Xgae-Fw*Xgaw)/dx+(Fn*Xgkn-Fs*Xgks)/dy)/Jgc

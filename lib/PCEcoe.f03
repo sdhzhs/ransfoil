@@ -4,7 +4,6 @@ implicit none
 integer i,j
 real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,cc,noc,Xf,Yf
 real(8) aP,aW,aE,aS,aN
-real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),dw(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
 logical(1) isSimp,isSimpC,isCom,isInOut
 

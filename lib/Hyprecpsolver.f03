@@ -628,7 +628,7 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetNodal(solver, 1, ierr)
  Call HYPRE_BoomerAMGSetNumSweeps(solver, 3, ierr)
  Call HYPRE_BoomerAMGSetSmoothType(solver, 6, ierr) !Schwarz method as smoother
- !Call HYPRE_BoomerAMGSetSmoothNumLvls(precond, maxl, ierr)
+ !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, maxl, ierr)
  Call HYPRE_BoomerAMGSetDomainType(solver, 1, ierr)
  Call HYPRE_BoomerAMGSetOverlap(solver, 0, ierr)
  !Call HYPRE_BoomerAMGSetCoarsenType(solver, 6, ierr)

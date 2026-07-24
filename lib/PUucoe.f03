@@ -2,8 +2,7 @@ Subroutine pUucoe(scalar)
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,DF
-real(8),external:: interpl
+real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,DF,dkc,dkw,dke,dac,das,dan
 real(8) F(Ic,Jc),Ga(Ic,Jc),Fwall(Ib1:Ib2)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 integer scalar
@@ -136,7 +135,7 @@ else if(isV) then
  avpM=0
  !$OMP END WORKSHARE
 end if
-!$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,DF)
+!$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,dkc,dkw,dke,dac,das,dan,DF)
 DO j=1,Jc-1
   DO i=Is,Ie
     Xgaw=(Xg(i,j+1)-Xg(i,j))/dy
@@ -152,14 +151,34 @@ DO j=1,Jc-1
     Fs(i,j)=dx*rhoa(i,j)*Vna(i,j)
     Fn(i,j)=dx*rhoa(i,j+1)*Vna(i,j+1)
     DF=Fe(i,j)-Fw(i,j)+Fn(i,j)-Fs(i,j)
+    dkc=dk(i,j)
+    if(i==1) then
+     dkw=dk(Ic,j)
+    else
+     dkw=dk(i-1,j)
+    end if
+    if(i==Ic) then
+     dke=dk(1,j)
+    else
+     dke=dk(i+1,j)
+    end if
+    dac=da(i,j)
+    dan=da(i,j+1)
+    if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
+     das=da(i,j)
+    else if(j==1) then
+     das=da(Ic+1-i,j)
+    else
+     das=da(i,j-1)
+    end if
     if(isU) then
-     aupM(2,i,j)=0.5*Ygaw*dy
-     aupM(3,i,j)=-0.5*Ygae*dy
-     aupM(5,i,j)=0.5*Ygkn*dx
+     aupM(2,i,j)=dkc*Ygaw*dy/(dkc+dkw)
+     aupM(3,i,j)=-dkc*Ygae*dy/(dkc+dke)
+     aupM(5,i,j)=dac*Ygkn*dx/(dac+dan)
     else if(isV) then
-     avpM(2,i,j)=-0.5*Xgaw*dy
-     avpM(3,i,j)=0.5*Xgae*dy
-     avpM(5,i,j)=-0.5*Xgkn*dx
+     avpM(2,i,j)=-dkc*Xgaw*dy/(dkc+dkw)
+     avpM(3,i,j)=dkc*Xgae*dy/(dkc+dke)
+     avpM(5,i,j)=-dac*Xgkn*dx/(dac+dan)
     end if
     aM(2,i,j)=Dw(i,j)+max(Fw(i,j),0.0)
     aM(3,i,j)=De(i,j)+max(-Fe(i,j),0.0)
@@ -167,10 +186,10 @@ DO j=1,Jc-1
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      if(isU) then
       aupM(4,i,j)=0
-      aupM(1,i,j)=-(aupM(2,i,j)+aupM(3,i,j)+aupM(4,i,j)+aupM(5,i,j)-Ygks*dx)
+      aupM(1,i,j)=-(dkw*Ygaw*dy/(dkc+dkw)-dke*Ygae*dy/(dkc+dke)+dan*Ygkn*dx/(dac+dan)-Ygks*dx)
      else if(isV) then
       avpM(4,i,j)=0
-      avpM(1,i,j)=-(avpM(2,i,j)+avpM(3,i,j)+avpM(4,i,j)+avpM(5,i,j)+Xgks*dx)
+      avpM(1,i,j)=-(-dkw*Xgaw*dy/(dkc+dkw)+dke*Xgae*dy/(dkc+dke)-dan*Xgkn*dx/(dac+dan)+Xgks*dx)
      end if
      aM(4,i,j)=0
      aM(1,i,j)=aM(2,i,j)+aM(3,i,j)+aM(4,i,j)+aM(5,i,j)
@@ -186,11 +205,11 @@ DO j=1,Jc-1
      end if
     else
      if(isU) then
-      aupM(4,i,j)=-0.5*Ygks*dx
-      aupM(1,i,j)=-(aupM(2,i,j)+aupM(3,i,j)+aupM(4,i,j)+aupM(5,i,j))
+      aupM(4,i,j)=-dac*Ygks*dx/(dac+das)
+      aupM(1,i,j)=-(dkw*Ygaw*dy/(dkc+dkw)-dke*Ygae*dy/(dkc+dke)-das*Ygks*dx/(dac+das)+dan*Ygkn*dx/(dac+dan))
      else if(isV) then
-      avpM(4,i,j)=0.5*Xgks*dx
-      avpM(1,i,j)=-(avpM(2,i,j)+avpM(3,i,j)+avpM(4,i,j)+avpM(5,i,j))
+      avpM(4,i,j)=dac*Xgks*dx/(dac+das)
+      avpM(1,i,j)=-(-dkw*Xgaw*dy/(dkc+dkw)+dke*Xgae*dy/(dkc+dke)+das*Xgks*dx/(dac+das)-dan*Xgkn*dx/(dac+dan))
      end if
      aM(4,i,j)=Ds(i,j)+max(Fs(i,j),0.0)
      aM(1,i,j)=aM(2,i,j)+aM(3,i,j)+aM(4,i,j)+aM(5,i,j)
