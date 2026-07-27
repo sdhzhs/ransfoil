@@ -140,4 +140,14 @@ type(C_PTR),bind(C)::cXg,cYg,cXc,cYc,crho,cmu,cP,cVx,cVy,cT,cTn,cTk,cTe,cTw,cmut
 ! variables of control parameters. 
 ! ========================================================================================
 
+contains
+
+real(8) function interpl(phi0,phi1,weight)
+implicit none
+real(8) phi0,phi1,weight
+
+interpl=weight*phi0+(1-weight)*phi1
+
+end function interpl
+
 end Module Aero2DCOM

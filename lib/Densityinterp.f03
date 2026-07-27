@@ -4,7 +4,6 @@ implicit none
 integer i,j
 real(8) rhoc,rhow,rhoe,rhos,rhon,rhoww,rhoss,dkc,dkcc,dkcw,dkce,dkcww,dac,dacc,dacs,dacn,dacss
 real(8) wk,wa,rwp,rwm,rsp,rsm,Psiwp,Psiwm,Psisp,Psism,Xfc,Yfc,Xc0,Yc0,Xc1,Yc1,Gxupc0,Gxupc1,Gyupc0,Gyupc1
-real(8),external:: interpl
 logical(1) isCom,isIncom,isCenter,isUp,is2ndUp,isQuick,isTvd,isFromm
 
 isCom = ProctrlFlag==COM

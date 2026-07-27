@@ -2,9 +2,8 @@ Subroutine pUpcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Sf,Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn
+real(8) Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Sf,Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn,dkcw,dkce,dacs,dacn
 real(8) ww,we,ws,wn
-real(8),external::interpl
 real(8) du(Ic,Jc),dv(Ic,Jc),rms(Ic,Jc)
 logical(1) isCom
 
@@ -23,15 +22,15 @@ end DO
 DO j=1,Jc-1
   DO i=Is,Ie+1
    if(i==1) then
-    duk(i,j)=interpl(du(Ic,j),du(i,j),5d-1)
+    duk(i,j)=interpl(du(Ic,j),du(i,j),dkw(i,j))
    else if(Is>1.and.i==2) then
-    duk(i,j)=interpl(0.0,du(i,j),5d-1)
+    duk(i,j)=interpl(0.0,du(i,j),dkw(i,j))
    else if(Is>1.and.i==Ic) then
-    duk(i,j)=interpl(du(i-1,j),0.0,5d-1)
+    duk(i,j)=interpl(du(i-1,j),0.0,dkw(i,j))
    else if(i==Ip) then
-    duk(i,j)=interpl(du(i-1,j),du(1,j),5d-1) 
+    duk(i,j)=interpl(du(i-1,j),du(1,j),dkw(i,j))
    else
-    duk(i,j)=interpl(du(i-1,j),du(i,j),5d-1)
+    duk(i,j)=interpl(du(i-1,j),du(i,j),dkw(i,j))
    end if
   end DO
 end DO
@@ -40,13 +39,13 @@ end DO
 DO j=1,Jc
   DO i=Is,Ie
    if(j==1.and.(i>Ib2.or.i<Ib1)) then
-    dva(i,j)=interpl(dv(i,j),dv(Ic+1-i,j),5d-1)
+    dva(i,j)=interpl(dv(Ic+1-i,j),dv(i,j),daw(i,j))
    else if(j==1) then
     dva(i,j)=0
    else if(j==Jc) then
-    dva(i,j)=interpl(dv(i,j-1),0.0,5d-1)
+    dva(i,j)=interpl(dv(i,j-1),0.0,daw(i,j))
    else
-    dva(i,j)=interpl(dv(i,j-1),dv(i,j),5d-1)
+    dva(i,j)=interpl(dv(i,j-1),dv(i,j),daw(i,j))
    end if
   end DO
 end DO
@@ -58,7 +57,8 @@ b=P
 apuM=0
 apvM=0
 !$OMP END WORKSHARE
-!$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,we,ww,ws,wn,Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn)
+!$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,we,ww,ws,wn,dkcw,dkce,dacs,dacn,&
+!$OMP Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn)
 DO j=1,Jc-1
   DO i=Is,Ie
     Xgaw=-Yfk(i,j)
@@ -102,50 +102,56 @@ DO j=1,Jc-1
       aM(1,i,j)=aM(1,i,j)+((0.5d0+we)*Unk(i+1,j)-(0.5d0-ww)*Unk(i,j)+&
       (0.5d0+wn)*Vna(i,j+1)-(0.5d0-ws)*Vna(i,j))/(R*T(i,j)/Ma)
     end if
-    apuM(3,i,j)=-0.5*rhok(i+1,j)*Ygae
-    apuM(2,i,j)=0.5*rhok(i,j)*Ygaw
-    apuM(5,i,j)=0.5*rhoa(i,j+1)*Ygkn
+    dkcw=dkw(i,j)
+    dkce=dkw(i+1,j)
+    dacs=daw(i,j)
+    dacn=daw(i,j+1)
+    apuM(3,i,j)=-(1-dkce)*rhok(i+1,j)*Ygae
+    apuM(2,i,j)=dkcw*rhok(i,j)*Ygaw
+    apuM(5,i,j)=(1-dacn)*rhoa(i,j+1)*Ygkn
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      apuM(4,i,j)=0
+     apuM(1,i,j)=-(-dkce*rhok(i+1,j)*Ygae+(1-dkcw)*rhok(i,j)*Ygaw+dacn*rhoa(i,j+1)*Ygkn)
     else
-     apuM(4,i,j)=-0.5*rhoa(i,j)*Ygks
+     apuM(4,i,j)=-dacs*rhoa(i,j)*Ygks
+     apuM(1,i,j)=-(-dkce*rhok(i+1,j)*Ygae+(1-dkcw)*rhok(i,j)*Ygaw+dacn*rhoa(i,j+1)*Ygkn-(1-dacs)*rhoa(i,j)*Ygks)
     end if
-    apuM(1,i,j)=-(apuM(3,i,j)+apuM(2,i,j)+apuM(5,i,j)+apuM(4,i,j))
-    apvM(3,i,j)=0.5*rhok(i+1,j)*Xgae
-    apvM(2,i,j)=-0.5*rhok(i,j)*Xgaw
-    apvM(5,i,j)=-0.5*rhoa(i,j+1)*Xgkn
+    apvM(3,i,j)=(1-dkce)*rhok(i+1,j)*Xgae
+    apvM(2,i,j)=-dkcw*rhok(i,j)*Xgaw
+    apvM(5,i,j)=-(1-dacn)*rhoa(i,j+1)*Xgkn
     if(j==1.and.(i>=Ib1.and.i<=Ib2)) then
      apvM(4,i,j)=0
+     apvM(1,i,j)=-(dkce*rhok(i+1,j)*Xgae-(1-dkcw)*rhok(i,j)*Xgaw-dacn*rhoa(i,j+1)*Xgkn)
     else
-     apvM(4,i,j)=0.5*rhoa(i,j)*Xgks
+     apvM(4,i,j)=dacs*rhoa(i,j)*Xgks
+     apvM(1,i,j)=-(dkce*rhok(i+1,j)*Xgae-(1-dkcw)*rhok(i,j)*Xgaw-dacn*rhoa(i,j+1)*Xgkn+(1-dacs)*rhoa(i,j)*Xgks)
     end if
-    apvM(1,i,j)=-(apvM(3,i,j)+apvM(2,i,j)+apvM(5,i,j)+apvM(4,i,j))
     if(i==1) then
-     Pxw=0.5*(Vol(i,j)*Px(i,j)/auM(1,i,j)+Vol(Ic,j)*Px(Ic,j)/auM(1,Ic,j))
-     Pyw=0.5*(Vol(i,j)*Py(i,j)/auM(1,i,j)+Vol(Ic,j)*Py(Ic,j)/auM(1,Ic,j))
+     Pxw=interpl(Vol(Ic,j)*Px(Ic,j)/auM(1,Ic,j),Vol(i,j)*Px(i,j)/auM(1,i,j),dkcw)
+     Pyw=interpl(Vol(Ic,j)*Py(Ic,j)/auM(1,Ic,j),Vol(i,j)*Py(i,j)/auM(1,i,j),dkcw)
     else
-     Pxw=0.5*(Vol(i,j)*Px(i,j)/auM(1,i,j)+Vol(i-1,j)*Px(i-1,j)/auM(1,i-1,j))
-     Pyw=0.5*(Vol(i,j)*Py(i,j)/auM(1,i,j)+Vol(i-1,j)*Py(i-1,j)/auM(1,i-1,j))
+     Pxw=interpl(Vol(i-1,j)*Px(i-1,j)/auM(1,i-1,j),Vol(i,j)*Px(i,j)/auM(1,i,j),dkcw)
+     Pyw=interpl(Vol(i-1,j)*Py(i-1,j)/auM(1,i-1,j),Vol(i,j)*Py(i,j)/auM(1,i,j),dkcw)
     end if
     if(i==Ic) then
-     Pxe=0.5*(Vol(i,j)*Px(i,j)/auM(1,i,j)+Vol(1,j)*Px(1,j)/auM(1,1,j))
-     Pye=0.5*(Vol(i,j)*Py(i,j)/auM(1,i,j)+Vol(1,j)*Py(1,j)/auM(1,1,j))
+     Pxe=interpl(Vol(i,j)*Px(i,j)/auM(1,i,j),Vol(1,j)*Px(1,j)/auM(1,1,j),dkce)
+     Pye=interpl(Vol(i,j)*Py(i,j)/auM(1,i,j),Vol(1,j)*Py(1,j)/auM(1,1,j),dkce)
     else
-     Pxe=0.5*(Vol(i,j)*Px(i,j)/auM(1,i,j)+Vol(i+1,j)*Px(i+1,j)/auM(1,i+1,j))
-     Pye=0.5*(Vol(i,j)*Py(i,j)/auM(1,i,j)+Vol(i+1,j)*Py(i+1,j)/auM(1,i+1,j))
+     Pxe=interpl(Vol(i,j)*Px(i,j)/auM(1,i,j),Vol(i+1,j)*Px(i+1,j)/auM(1,i+1,j),dkce)
+     Pye=interpl(Vol(i,j)*Py(i,j)/auM(1,i,j),Vol(i+1,j)*Py(i+1,j)/auM(1,i+1,j),dkce)
     end if
     if(j==1.and.(i>Ib2.or.i<Ib1)) then
-     Pxs=0.5*(Vol(i,j)*Px(i,j)/auM(1,i,j)+Vol(Ic+1-i,j)*Px(Ic+1-i,j)/auM(1,Ic+1-i,j))
-     Pys=0.5*(Vol(i,j)*Py(i,j)/auM(1,i,j)+Vol(Ic+1-i,j)*Py(Ic+1-i,j)/auM(1,Ic+1-i,j))
+     Pxs=interpl(Vol(Ic+1-i,j)*Px(Ic+1-i,j)/auM(1,Ic+1-i,j),Vol(i,j)*Px(i,j)/auM(1,i,j),dacs)
+     Pys=interpl(Vol(Ic+1-i,j)*Py(Ic+1-i,j)/auM(1,Ic+1-i,j),Vol(i,j)*Py(i,j)/auM(1,i,j),dacs)
     else if(j==1) then
      Pxs=0
      Pys=0
     else
-     Pxs=0.5*(Vol(i,j)*Px(i,j)/auM(1,i,j)+Vol(i,j-1)*Px(i,j-1)/auM(1,i,j-1))
-     Pys=0.5*(Vol(i,j)*Py(i,j)/auM(1,i,j)+Vol(i,j-1)*Py(i,j-1)/auM(1,i,j-1))
+     Pxs=interpl(Vol(i,j-1)*Px(i,j-1)/auM(1,i,j-1),Vol(i,j)*Px(i,j)/auM(1,i,j),dacs)
+     Pys=interpl(Vol(i,j-1)*Py(i,j-1)/auM(1,i,j-1),Vol(i,j)*Py(i,j)/auM(1,i,j),dacs)
     end if
-    Pxn=0.5*(Vol(i,j)*Px(i,j)/auM(1,i,j)+Vol(i,j+1)*Px(i,j+1)/auM(1,i,j+1))
-    Pyn=0.5*(Vol(i,j)*Py(i,j)/auM(1,i,j)+Vol(i,j+1)*Py(i,j+1)/auM(1,i,j+1))
+    Pxn=interpl(Vol(i,j)*Px(i,j)/auM(1,i,j),Vol(i,j+1)*Px(i,j+1)/auM(1,i,j+1),dacn)
+    Pyn=interpl(Vol(i,j)*Py(i,j)/auM(1,i,j),Vol(i,j+1)*Py(i,j+1)/auM(1,i,j+1),dacn)
     b(i,j)=Rau*(rhok(i,j)*Ygaw*Pxw-rhok(i,j)*Xgaw*Pyw-rhok(i+1,j)*Ygae*Pxe+rhok(i+1,j)*Xgae*Pye+rhoa(i,j)*Xgks*Pys-&
     rhoa(i,j)*Ygks*Pxs-rhoa(i,j+1)*Xgkn*Pyn+rhoa(i,j+1)*Ygkn*Pxn)
     if(isCom) then

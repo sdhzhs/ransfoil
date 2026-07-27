@@ -35,11 +35,3 @@ else if(order=='spline') then
  end if
 end if
 end Subroutine interp1
-
-real(8) function interpl(phi0,phi1,weight)
-implicit none
-real(8) phi0,phi1,weight
-
-interpl=weight*phi0+(1-weight)*phi1
-
-end function interpl

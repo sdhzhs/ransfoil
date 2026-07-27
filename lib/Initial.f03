@@ -3,7 +3,6 @@ use Aero2DCOM
 implicit none
 integer i,ioerr
 character(128) ioerrmsg
-real(8),external:: interpl
 real(8) Tni0
 Ui=Vfar*cos(AoA*Pi/180)
 Vi=Vfar*sin(AoA*Pi/180)
