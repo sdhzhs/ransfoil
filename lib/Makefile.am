@@ -28,4 +28,8 @@ endif
 if PROF
 FCFLAGS += -g -pg
 endif
+if LTO
+FCFLAGS += -flto=auto
+libaero2d_la_LDFLAGS += -flto=auto
+endif
 nodist_include_HEADERS = aero2dcom.mod

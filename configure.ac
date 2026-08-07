@@ -33,6 +33,8 @@ AC_ARG_ENABLE([debug], [AS_HELP_STRING([--enable-debug],[enable debug option])],
 AM_CONDITIONAL([DEBUG], [test "x${debug}" = xyes])
 AC_ARG_ENABLE([profile], [AS_HELP_STRING([--enable-profile],[enable profile option])], [profile=${enableval}], [profile=no])
 AM_CONDITIONAL([PROF], [test "x${profile}" = xyes])
+AC_ARG_ENABLE([lto], [AS_HELP_STRING([--enable-lto],[enable linking time optimization])], [lto=${enableval}], [lto=no])
+AM_CONDITIONAL([LTO], [test "x${lto}" = xyes])
 AC_CONFIG_FILES([Makefile lib/Makefile src/Makefile cases/Makefile doc/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile \
 scripts/transonic/Makefile scripts/whitcomb1/Makefile test/Makefile])
 AC_OUTPUT

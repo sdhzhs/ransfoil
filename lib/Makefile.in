@@ -100,6 +100,8 @@ host_triplet = @host@
 @LINKOMP_TRUE@am__append_9 = -lgomp
 @DEBUG_TRUE@am__append_10 = -g -O0 -fcheck=bounds -ffpe-trap=invalid,zero,overflow
 @PROF_TRUE@am__append_11 = -g -pg
+@LTO_TRUE@am__append_12 = -flto=auto
+@LTO_TRUE@am__append_13 = -flto=auto
 subdir = lib
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -278,7 +280,7 @@ FC = @FC@
 FCFLAGS = -Wall -ffree-line-length-none -fdefault-real-8 \
 	-fdefault-double-8 -J$(top_srcdir)/lib -O3 $(am__append_2) \
 	$(am__append_5) $(am__append_8) $(am__append_10) \
-	$(am__append_11)
+	$(am__append_11) $(am__append_12)
 FGREP = @FGREP@
 FILECMD = @FILECMD@
 GREP = @GREP@
@@ -384,7 +386,7 @@ libaero2d_la_SOURCES = COM.f03 BlockTDMA.f03 Cell2node.f03 Condiff.f03 \
 	Results.f03 RMS.f03 Turvis.f03 Velcorrect.f03 Wallfunc.f03 \
 	$(am__append_3) $(am__append_6)
 libaero2d_la_LDFLAGS = -release 2.2 $(am__append_1) $(am__append_4) \
-	$(am__append_7) $(am__append_9)
+	$(am__append_7) $(am__append_9) $(am__append_13)
 nodist_include_HEADERS = aero2dcom.mod
 all: all-am
 

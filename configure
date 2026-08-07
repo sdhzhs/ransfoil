@@ -663,6 +663,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+LTO_FALSE
+LTO_TRUE
 PROF_FALSE
 PROF_TRUE
 DEBUG_FALSE
@@ -817,6 +819,7 @@ with_hyprelib_dir
 enable_openmp
 enable_debug
 enable_profile
+enable_lto
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1473,6 +1476,7 @@ Optional Features:
   --enable-openmp         enable openmp parallelization
   --enable-debug          enable debug option
   --enable-profile        enable profile option
+  --enable-lto            enable linking time optimization
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -16209,6 +16213,22 @@ else
   PROF_FALSE=
 fi
 
+# Check whether --enable-lto was given.
+if test ${enable_lto+y}
+then :
+  enableval=$enable_lto; lto=${enableval}
+else $as_nop
+  lto=no
+fi
+
+ if test "x${lto}" = xyes; then
+  LTO_TRUE=
+  LTO_FALSE='#'
+else
+  LTO_TRUE='#'
+  LTO_FALSE=
+fi
+
 ac_config_files="$ac_config_files Makefile lib/Makefile src/Makefile cases/Makefile doc/Makefile scripts/Makefile scripts/subsonic/Makefile scripts/supersonic/Makefile scripts/transonic/Makefile scripts/whitcomb1/Makefile test/Makefile"
 
 cat >confcache <<\_ACEOF
@@ -16370,6 +16390,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${PROF_TRUE}" && test -z "${PROF_FALSE}"; then
   as_fn_error $? "conditional \"PROF\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${LTO_TRUE}" && test -z "${LTO_FALSE}"; then
+  as_fn_error $? "conditional \"LTO\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
