@@ -2,7 +2,8 @@ Subroutine Condiff(scalar)
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Sf,Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin,Dampk,Ymax,Ym
+real(8) Sf,Gxf,Gyf,dncx,dncy,Tfx,Tfy
+real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin,Dampk,Ymax,Ym
 real(8) aP,aW,aE,aS,aN,DF
 real(8) Fwall(Ib1:Ib2)
 real(8) F(Ic,Jc),Ga(Ic,Jc),Fx(Ic,Jc),Fy(Ic,Jc)
@@ -212,7 +213,7 @@ else if(isTe) then
  C3e=tanh(abs(V/U))
  !$OMP END WORKSHARE
 end if
-!$OMP DO PRIVATE(Sf,i)
+!$OMP DO PRIVATE(Sf,Gxf,Gyf,dncx,dncy,Tfx,Tfy,i)
 DO j=1,Jc-1
  DO i=Is,Ie
   Sf=sqrt(Xfk(i,j)**2+Yfk(i,j)**2)
@@ -238,6 +239,64 @@ DO j=1,Jc-1
    Ds(i,j)=Sf*interpl(Ga(i,j-1),Ga(i,j),daw(i,j))/dad(i,j)
   end if
   bno(i,j)=0.0
+  Sf=sqrt(Xfk(i,j)**2+Yfk(i,j)**2)
+  if(i==1) then
+   Gxf=interpl(Ga(Ic,j)*Fx(Ic,j),Ga(i,j)*Fx(i,j),dkw(i,j))
+   Gyf=interpl(Ga(Ic,j)*Fy(Ic,j),Ga(i,j)*Fy(i,j),dkw(i,j))
+   dncx=Xc(Ic,j)-Xc(i,j)
+   dncy=Yc(Ic,j)-Yc(i,j)
+  else
+   Gxf=interpl(Ga(i-1,j)*Fx(i-1,j),Ga(i,j)*Fx(i,j),dkw(i,j))
+   Gyf=interpl(Ga(i-1,j)*Fy(i-1,j),Ga(i,j)*Fy(i,j),dkw(i,j))
+   dncx=Xc(i-1,j)-Xc(i,j)
+   dncy=Yc(i-1,j)-Yc(i,j)
+  end if
+  Tfx=-Xfk(i,j)-Sf**2*dncx/(-dncx*Xfk(i,j)-dncy*Yfk(i,j))
+  Tfy=-Yfk(i,j)-Sf**2*dncy/(-dncx*Xfk(i,j)-dncy*Yfk(i,j))
+  bno(i,j)=bno(i,j)+Gxf*Tfx+Gyf*Tfy
+  Sf=sqrt(Xfk(i+1,j)**2+Yfk(i+1,j)**2)
+  if(i==Ic) then
+   Gxf=interpl(Ga(i,j)*Fx(i,j),Ga(1,j)*Fx(1,j),dkw(i+1,j))
+   Gyf=interpl(Ga(i,j)*Fy(i,j),Ga(1,j)*Fy(1,j),dkw(i+1,j))
+   dncx=Xc(1,j)-Xc(i,j)
+   dncy=Yc(1,j)-Yc(i,j)
+  else
+   Gxf=interpl(Ga(i,j)*Fx(i,j),Ga(i+1,j)*Fx(i+1,j),dkw(i+1,j))
+   Gyf=interpl(Ga(i,j)*Fy(i,j),Ga(i+1,j)*Fy(i+1,j),dkw(i+1,j))
+   dncx=Xc(i+1,j)-Xc(i,j)
+   dncy=Yc(i+1,j)-Yc(i,j)
+  end if
+  Tfx=Xfk(i+1,j)-Sf**2*dncx/(dncx*Xfk(i+1,j)+dncy*Yfk(i+1,j))
+  Tfy=Yfk(i+1,j)-Sf**2*dncy/(dncx*Xfk(i+1,j)+dncy*Yfk(i+1,j))
+  bno(i,j)=bno(i,j)+Gxf*Tfx+Gyf*Tfy
+  Sf=sqrt(Xfa(i,j)**2+Yfa(i,j)**2)
+  if(j==1.and.(i<Ib1.or.i>Ib2)) then
+   Gxf=interpl(Ga(Ic+1-i,j)*Fx(Ic+1-i,j),Ga(i,j)*Fx(i,j),daw(i,j))
+   Gyf=interpl(Ga(Ic+1-i,j)*Fy(Ic+1-i,j),Ga(i,j)*Fy(i,j),daw(i,j))
+   dncx=Xc(Ic+1-i,j)-Xc(i,j)
+   dncy=Yc(Ic+1-i,j)-Yc(i,j)
+  else if(j==1) then
+   Gxf=Ga(i,j)*Fx(i,j)
+   Gyf=Ga(i,j)*Fy(i,j)
+   dncx=Xw(i)-Xc(i,j)
+   dncy=Yw(i)-Yc(i,j) 
+  else
+   Gxf=interpl(Ga(i,j-1)*Fx(i,j-1),Ga(i,j)*Fx(i,j),daw(i,j))
+   Gyf=interpl(Ga(i,j-1)*Fy(i,j-1),Ga(i,j)*Fy(i,j),daw(i,j))
+   dncx=Xc(i,j-1)-Xc(i,j)
+   dncy=Yc(i,j-1)-Yc(i,j)
+  end if
+  Tfx=-Xfa(i,j)-Sf**2*dncx/(-dncx*Xfa(i,j)-dncy*Yfa(i,j))
+  Tfy=-Yfa(i,j)-Sf**2*dncy/(-dncx*Xfa(i,j)-dncy*Yfa(i,j))
+  bno(i,j)=bno(i,j)+Gxf*Tfx+Gyf*Tfy
+  Sf=sqrt(Xfa(i,j+1)**2+Yfa(i,j+1)**2)
+  Gxf=interpl(Ga(i,j)*Fx(i,j),Ga(i,j+1)*Fx(i,j+1),daw(i,j+1))
+  Gyf=interpl(Ga(i,j)*Fy(i,j),Ga(i,j+1)*Fy(i,j+1),daw(i,j+1))
+  dncx=Xc(i,j+1)-Xc(i,j)
+  dncy=Yc(i,j+1)-Yc(i,j)
+  Tfx=Xfa(i,j+1)-Sf**2*dncx/(dncx*Xfa(i,j+1)+dncy*Yfa(i,j+1))
+  Tfy=Yfa(i,j+1)-Sf**2*dncy/(dncx*Xfa(i,j+1)+dncy*Yfa(i,j+1))
+  bno(i,j)=bno(i,j)+Gxf*Tfx+Gyf*Tfy
  end DO
 end DO
 !$OMP END DO

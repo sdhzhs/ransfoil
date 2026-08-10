@@ -2,11 +2,12 @@ Subroutine PCEcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Sf,Uf,Vf,Unpk,Vnpa,ww,we,ws,wn,cor,cc
+real(8) Sf,Uf,Vf,Unpk,Vnpa,ww,we,ws,wn,cor,cc,noc,dncx,dncy,Tfx,Tfy,Pno
 real(8) aP,aW,aE,aS,aN
 real(8) du(Ic,Jc),dv(Ic,Jc),Up(Ic,Jc),Vp(Ic,Jc)
 logical(1) isSimp,isSimpC,isCom,isInOut
 cc=1.d+0
+noc=1.d+0
 
 isSimp=solctrlFlag==SIMPLE
 isSimpC=solctrlFlag==SIMPLEC
@@ -37,7 +38,7 @@ else if(isSimpC) then
   end DO
   !$OMP END DO
 end if
-!$OMP DO PRIVATE(i,Sf,Uf,Vf,Unpk,cor)
+!$OMP DO PRIVATE(i,Sf,Uf,Vf,Unpk,cor,dncx,dncy,Tfx,Tfy,Pno)
 DO j=1,Jc-1
  DO i=Is,Ie+1
   if(i==1) then
@@ -79,22 +80,43 @@ DO j=1,Jc-1
    Uf=interpl(U(Ic,j),U(i,j),dkw(i,j))
    Vf=interpl(V(Ic,j),V(i,j),dkw(i,j))
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))*Sf/dkd(i,j)+cc*cor
+   Uf=interpl(Px(Ic,j),Px(i,j),dkw(i,j))
+   Vf=interpl(Py(Ic,j),Py(i,j),dkw(i,j))
+   dncx=Xc(Ic,j)-Xc(i,j)
+   dncy=Yc(Ic,j)-Yc(i,j)
+   Tfx=-(Xfk(i,j)-Sf**2*dncx/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   Tfy=-(Yfk(i,j)-Sf**2*dncy/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
+   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))*Sf/dkd(i,j)+cc*cor+noc*Pno
   else if(i==Ip) then
    Uf=interpl(U(i-1,j),U(1,j),dkw(i,j))
    Vf=interpl(V(i-1,j),V(1,j),dkw(i,j))
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))*Sf/dkd(i,j)+cc*cor
+   Uf=interpl(Px(i-1,j),Px(1,j),dkw(i,j))
+   Vf=interpl(Py(i-1,j),Py(1,j),dkw(i,j))
+   dncx=Xc(i-1,j)-Xc(1,j)
+   dncy=Yc(i-1,j)-Yc(1,j)
+   Tfx=-(Xfk(i,j)-Sf**2*dncx/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   Tfy=-(Yfk(i,j)-Sf**2*dncy/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))*Sf/dkd(i,j)+cc*cor+noc*Pno
   else
    Uf=interpl(U(i-1,j),U(i,j),dkw(i,j))
    Vf=interpl(V(i-1,j),V(i,j),dkw(i,j))
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)+cc*cor
+   Uf=interpl(Px(i-1,j),Px(i,j),dkw(i,j))
+   Vf=interpl(Py(i-1,j),Py(i,j),dkw(i,j))
+   dncx=Xc(i-1,j)-Xc(i,j)
+   dncy=Yc(i-1,j)-Yc(i,j)
+   Tfx=-(Xfk(i,j)-Sf**2*dncx/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   Tfy=-(Yfk(i,j)-Sf**2*dncy/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)+cc*cor+noc*Pno
   end if
  end DO
 end DO
 !$OMP END DO
-!$OMP DO PRIVATE(i,Sf,Uf,Vf,Vnpa,cor)
+!$OMP DO PRIVATE(i,Sf,Uf,Vf,Vnpa,cor,dncx,dncy,Tfx,Tfy,Pno)
 DO j=1,Jc
  DO i=Is,Ie
   if(j==1.and.(i>Ib2.or.i<Ib1)) then
@@ -132,7 +154,14 @@ DO j=1,Jc
    Uf=interpl(U(Ic+1-i,j),U(i,j),daw(i,j))
    Vf=interpl(V(Ic+1-i,j),V(i,j),daw(i,j))
    cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)+cc*cor
+   Uf=interpl(Px(Ic+1-i,j),Px(i,j),daw(i,j))
+   Vf=interpl(Py(Ic+1-i,j),Py(i,j),daw(i,j))
+   dncx=Xc(Ic+1-i,j)-Xc(i,j)
+   dncy=Yc(Ic+1-i,j)-Yc(i,j)
+   Tfx=-(Xfa(i,j)-Sf**2*dncx/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
+   Tfy=-(Yfa(i,j)-Sf**2*dncy/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
+   Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy)
+   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)+cc*cor+noc*Pno
   else if(j==1) then
    Vna(i,j)=0
   else if(j==Jc) then
@@ -142,13 +171,27 @@ DO j=1,Jc
     Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
     Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
     cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
-    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor
+    Uf=interpl(Px(i,j-1),Px(i,j),daw(i,j))
+    Vf=interpl(Py(i,j-1),Py(i,j),daw(i,j))
+    dncx=Xc(i,j-1)-Xc(i,j)
+    dncy=Yc(i,j-1)-Yc(i,j)
+    Tfx=-(Xfa(i,j)-Sf**2*dncx/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
+    Tfy=-(Yfa(i,j)-Sf**2*dncy/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
+    Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy)
+    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor+noc*Pno
    end if
   else
    Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
    Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
    cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor
+   Uf=interpl(Px(i,j-1),Px(i,j),daw(i,j))
+   Vf=interpl(Py(i,j-1),Py(i,j),daw(i,j))
+   dncx=Xc(i,j-1)-Xc(i,j)
+   dncy=Yc(i,j-1)-Yc(i,j)
+   Tfx=-(Xfa(i,j)-Sf**2*dncx/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
+   Tfy=-(Yfa(i,j)-Sf**2*dncy/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
+   Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy)
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor+noc*Pno
   end if
  end DO
 end DO
