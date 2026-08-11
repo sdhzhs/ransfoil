@@ -92,6 +92,9 @@ host_triplet = @host@
 @DEBUG_TRUE@am__append_1 = -g -O0 -fcheck=bounds -ffpe-trap=invalid,zero,overflow
 @PROF_TRUE@am__append_2 = -g -pg
 bin_PROGRAMS = ransfoil$(EXEEXT)
+@BUILDSLL_TRUE@am__append_3 = -all-static
+@LTO_TRUE@am__append_4 = -flto=auto
+@LTO_TRUE@am__append_5 = -flto=auto
 EXTRA_PROGRAMS = libcallexp$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -251,7 +254,7 @@ ETAGS = @ETAGS@
 EXEEXT = @EXEEXT@
 FC = @FC@
 FCFLAGS = -Wall -ffree-line-length-none -O3 $(am__append_1) \
-	$(am__append_2)
+	$(am__append_2) $(am__append_4)
 FGREP = @FGREP@
 FILECMD = @FILECMD@
 GREP = @GREP@
@@ -350,7 +353,7 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
 ransfoil_SOURCES = console.f03
 ransfoil_LDADD = $(top_srcdir)/lib/libaero2d.la
-@BUILDSLL_TRUE@ransfoil_LDFLAGS = -all-static
+ransfoil_LDFLAGS = $(am__append_3) $(am__append_5)
 libcallexp_SOURCES = libcallexpf.f03 libcallexpc.c
 libcallexp_LDADD = $(top_srcdir)/lib/libaero2d.la
 dist_include_HEADERS = aero2dcom.h gfcompile.sh gccompile.sh 
