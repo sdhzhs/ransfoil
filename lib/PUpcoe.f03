@@ -3,11 +3,12 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn,dkc,dkw,dke,dac,das,dan
-real(8) ww,we,ws,wn
-real(8) du(Ic,Jc),dv(Ic,Jc),rms(Ic,Jc)
+real(8) ww,we,ws,wn,dwk,dwa,noc,Pak,Pka,Psw,Psc,Pwn,Pnc,Pse,Pec,Pwc
+real(8) du(Ic,Jc),dv(Ic,Jc),rms(Ic,Jc),Pkno(Ip,Jc),Pano(Ic,Jp)
 logical(1) isCom
 
 isCom=ProctrlFlag==COM
+noc=1.d+0
 
 !$OMP PARALLEL
 !$OMP DO PRIVATE(i)
@@ -15,38 +16,120 @@ DO j=1,Jc-1
   DO i=Is,Ie
    du(i,j)=Rau*(Yga(i,j)**2+Xga(i,j)**2)*dy/auM(1,i,j)
    dv(i,j)=Rau*(Ygk(i,j)**2+Xgk(i,j)**2)*dx/auM(1,i,j)
+   dwno(i,j)=Rau*b1(i,j)*Jg(i,j)/auM(1,i,j)
   end DO
 end DO
 !$OMP END DO
-!$OMP DO PRIVATE(i)
+!$OMP DO PRIVATE(i,dwk,Pak,Psw,Psc,Pwn,Pnc)
 DO j=1,Jc-1
   DO i=Is,Ie+1
    if(i==1) then
     duk(i,j)=interpl(du(i,j),du(Ic,j),dk(i,j),dk(i,j))
+    dwk=interpl(dwno(i,j)*dy,dwno(Ic,j)*dy,dk(i,j),dk(Ic,j))
    else if(Is>1.and.i==2) then
     duk(i,j)=interpl(du(i,j),0.0,dk(i,j),dk(i,j))
+    dwk=interpl(dwno(i,j)*dy,0.0,dk(i,j),dk(i-1,j))
    else if(Is>1.and.i==Ic) then
     duk(i,j)=interpl(0.0,du(i-1,j),dk(i,j),dk(i,j))
+    dwk=interpl(0.0,dwno(i-1,j)*dy,dk(i,j),dk(i-1,j))
    else if(i==Ip) then
-    duk(i,j)=interpl(du(1,j),du(i-1,j),dk(i-1,j),dk(i-1,j)) 
+    duk(i,j)=interpl(du(1,j),du(i-1,j),dk(i-1,j),dk(i-1,j))
+    dwk=interpl(dwno(1,j)*dy,dwno(i-1,j)*dy,dk(1,j),dk(i-1,j))
    else
     duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i,j))
+    dwk=interpl(dwno(i,j)*dy,dwno(i-1,j)*dy,dk(i,j),dk(i-1,j)) 
    end if
+   if(i==1) then
+    Pwn=P(Ic,j+1)
+    if(j==1) then
+     Psw=P(Ic,j)
+    else
+     Psw=P(Ic,j-1)
+    end if
+   else
+    Pwn=P(i-1,j+1)
+    if(j==1.and.(i<Ib1.or.i>Ib2+1)) then
+     Psw=P(Ic+2-i,j)
+    else if(j==1) then
+     Psw=P(i-1,j)
+    else
+     Psw=P(i-1,j-1)
+    end if
+   end if
+   if(i==Ip) then
+    Pnc=P(1,j+1)
+    if(j==1) then
+     Psc=P(1,j)
+    else
+     Psc=P(1,j-1)
+    end if
+   else
+    Pnc=P(i,j+1)
+    if(j==1.and.(i<Ib1.or.i>Ib2+1)) then
+     Psc=P(Ic+1-i,j)
+    else if(j==1) then
+     Psc=P(i,j)
+    else
+     Psc=P(i,j-1)
+    end if
+   end if
+   Pak=(Pwn+Pnc-Psw-Psc)/(4*dy)
+   Pkno(i,j)=noc*dwk*Pak
   end DO
 end DO
 !$OMP END DO
-!$OMP DO PRIVATE(i)
+!$OMP DO PRIVATE(i,dwa,Pka,Psw,Pse,Pec,Pwc)
 DO j=1,Jc
   DO i=Is,Ie
    if(j==1.and.(i>Ib2.or.i<Ib1)) then
     dva(i,j)=interpl(dv(i,j),dv(Ic+1-i,j),da(i,j),da(i,j))
+    dwa=interpl(dwno(i,j)*dx,dwno(Ic+1-i,j)*dx,da(i,j),da(Ic+1-i,j))
    else if(j==1) then
     dva(i,j)=0
+    dwa=0
    else if(j==Jc) then
     dva(i,j)=interpl(0.0,dv(i,j-1),da(i,j),da(i,j))
+    dwa=interpl(0.0,dwno(i,j-1)*dx,da(i,j),da(i,j-1))
    else
     dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j))
+    dwa=interpl(dwno(i,j)*dx,dwno(i,j-1)*dx,da(i,j),da(i,j-1))
    end if
+   if(i==1) then
+    Pwc=P(Ic,j)
+    if(j==1) then
+     Psw=P(Ic,j)
+    else
+     Psw=P(Ic,j-1)
+    end if
+   else
+    Pwc=P(i-1,j)
+    if(j==1.and.(i<Ib1.or.i>Ib2)) then
+     Psw=P(Ic+2-i,j)
+    else if(j==1) then
+     Psw=P(i-1,j)
+    else
+     Psw=P(i-1,j-1)
+    end if
+   end if
+   if(i==Ic) then
+    Pec=P(1,j)
+    if(j==1) then
+     Pse=P(1,j)
+    else
+     Pse=P(1,j-1)
+    end if
+   else
+    Pec=P(i+1,j)
+    if(j==1.and.(i<Ib1.or.i>Ib2)) then
+     Pse=P(Ic-i,j)
+    else if(j==1) then
+     Pse=P(i+1,j)
+    else
+     Pse=P(i+1,j-1)
+    end if
+   end if
+   Pka=(Pse+Pec-Psw-Pwc)/(4*dx)
+   Pano(i,j)=noc*dwa*Pka
   end DO
 end DO
 !$OMP END DO
@@ -166,6 +249,7 @@ DO j=1,Jc-1
     Pyn=interpl(Jg(i,j)*Py(i,j)/auM(1,i,j),Jg(i,j+1)*Py(i,j+1)/auM(1,i,j+1),dac,dan)
     b(i,j)=dx*dy*Rau*(rhok(i,j)*Ygaw*Pxw-rhok(i,j)*Xgaw*Pyw-rhok(i+1,j)*Ygae*Pxe+rhok(i+1,j)*Xgae*Pye+rhoa(i,j)*Xgks*Pys-&
     rhoa(i,j)*Ygks*Pxs-rhoa(i,j+1)*Xgkn*Pyn+rhoa(i,j+1)*Ygkn*Pxn)
+    b(i,j)=b(i,j)+rhok(i,j)*Pkno(i,j)*dy-rhok(i+1,j)*Pkno(i+1,j)*dy+rhoa(i,j)*Pano(i,j)*dx-rhoa(i,j+1)*Pano(i,j+1)*dx
     if(isCom) then
       if(i==Ic) then
         Pe=(0.5d0+we)*P(i,j)/(R*T(i,j)/Ma)+(0.5d0-we)*P(1,j)/(R*T(1,j)/Ma)

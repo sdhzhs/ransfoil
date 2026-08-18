@@ -4,7 +4,7 @@ implicit none
 integer i,j
 real(8) Up,Vp,Unpk,Vnpa,ww,we,ws,wn,dwk,dwa,Pak,Pka,cor,cc,noc,Xf,Yf
 real(8) aP,aW,aE,aS,aN
-real(8) du(Ic,Jc),dv(Ic,Jc),dw(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
+real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc)
 logical(1) isSimp,isSimpC,isCom,isInOut
 
 noc=1.d+0
@@ -22,7 +22,7 @@ if(isSimp) then
     DO i=Is,Ie
      du(i,j)=Rau*a1(i,j)*Jg(i,j)*dy/auM(1,i,j)
      dv(i,j)=Rau*y1(i,j)*Jg(i,j)*dx/auM(1,i,j)
-     dw(i,j)=Rau*b1(i,j)*Jg(i,j)/auM(1,i,j)
+     dwno(i,j)=Rau*b1(i,j)*Jg(i,j)/auM(1,i,j)
      Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/auM(1,i,j)
      Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/auM(1,i,j)
      Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
@@ -36,7 +36,7 @@ else if(isSimpC) then
     DO i=Is,Ie
      du(i,j)=Rau*a1(i,j)*Jg(i,j)*dy/(auM(1,i,j)-Rau*auM(2,i,j))
      dv(i,j)=Rau*y1(i,j)*Jg(i,j)*dx/(auM(1,i,j)-Rau*auM(2,i,j))
-     dw(i,j)=Rau*b1(i,j)*Jg(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+     dwno(i,j)=Rau*b1(i,j)*Jg(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
      Up=U(i,j)+Rau*Px(i,j)*Jg(i,j)*dx*dy/(auM(1,i,j)-Rau*auM(2,i,j))
      Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auM(1,i,j)-Rau*auM(2,i,j))
      Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
@@ -50,35 +50,35 @@ DO j=1,Jc-1
  DO i=Is,Ie+1
   if(i==1) then
    duk(i,j)=interpl(du(i,j),du(Ic,j),dk(i,j),dk(Ic,j))
-   dwk=interpl(dw(i,j)*dy,dw(Ic,j)*dy,dk(i,j),dk(Ic,j))
+   dwk=interpl(dwno(i,j)*dy,dwno(Ic,j)*dy,dk(i,j),dk(Ic,j))
    Unpk=interpl(Unp(i,j),Unp(Ic,j),dk(i,j),dk(Ic,j))
   else if(Is>1.and.i==2) then
    if(isInOut) then
     duk(i,j)=interpl(du(i,j),du(i,j),dk(i,j),dk(i-1,j))
-    dwk=interpl(dw(i,j)*dy,dw(i,j)*dy,dk(i,j),dk(i-1,j))
+    dwk=interpl(dwno(i,j)*dy,dwno(i,j)*dy,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i,j),Unp(i,j),dk(i,j),dk(i-1,j))
    else
     duk(i,j)=interpl(du(i,j),0.0,dk(i,j),dk(i-1,j))
-    dwk=interpl(dw(i,j)*dy,0.0,dk(i,j),dk(i-1,j))
+    dwk=interpl(dwno(i,j)*dy,0.0,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
    end if
   else if(Is>1.and.i==Ic) then
    if(isInOut) then
     duk(i,j)=interpl(du(i-1,j),du(i-1,j),dk(i,j),dk(i-1,j))
-    dwk=interpl(dw(i-1,j)*dy,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
+    dwk=interpl(dwno(i-1,j)*dy,dwno(i-1,j)*dy,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i-1,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
    else
     duk(i,j)=interpl(0.0,du(i-1,j),dk(i,j),dk(i-1,j))
-    dwk=interpl(0.0,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
+    dwk=interpl(0.0,dwno(i-1,j)*dy,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i-1,j),Un(i,j),dk(i-1,j),dk(i,j))
    end if
   else if(i==Ip) then
    duk(i,j)=interpl(du(1,j),du(i-1,j),dk(1,j),dk(i-1,j))
-   dwk=interpl(dw(1,j)*dy,dw(i-1,j)*dy,dk(1,j),dk(i-1,j))
+   dwk=interpl(dwno(1,j)*dy,dwno(i-1,j)*dy,dk(1,j),dk(i-1,j))
    Unpk=interpl(Unp(1,j),Unp(i-1,j),dk(1,j),dk(i-1,j))
   else
    duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i-1,j))
-   dwk=interpl(dw(i,j)*dy,dw(i-1,j)*dy,dk(i,j),dk(i-1,j))
+   dwk=interpl(dwno(i,j)*dy,dwno(i-1,j)*dy,dk(i,j),dk(i-1,j))
    Unpk=interpl(Unp(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
   end if
   if(j==1.and.(i<Ib1.or.i>Ib2+1)) then
@@ -118,7 +118,7 @@ DO j=1,Jc
  DO i=Is,Ie
   if(j==1.and.(i>Ib2.or.i<Ib1)) then
    dva(i,j)=interpl(dv(i,j),dv(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
-   dwa=interpl(dw(i,j)*dx,dw(Ic+1-i,j)*dx,da(i,j),da(Ic+1-i,j))
+   dwa=interpl(dwno(i,j)*dx,dwno(Ic+1-i,j)*dx,da(i,j),da(Ic+1-i,j))
    Pka=(P(Ic-i,j)+P(i+1,j)-P(Ic+2-i,j)-P(i-1,j))/(4*dx)
    Vnpa=interpl(Vnp(i,j),-Vnp(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j)))
@@ -144,20 +144,20 @@ DO j=1,Jc
      cor=0.0
     else
      dva(i,j)=interpl(dv(i,j-1),dv(i,j-1),da(i,j),da(i,j-1))
-     dwa=interpl(dw(i,j-1)*dx,dw(i,j-1)*dx,da(i,j),da(i,j-1))
+     dwa=interpl(dwno(i,j-1)*dx,dwno(i,j-1)*dx,da(i,j),da(i,j-1))
      Vnpa=interpl(Vnp(i,j-1),Vnp(i,j-1),da(i,j),da(i,j-1))
      cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
     end if
    else
     dva(i,j)=interpl(0.0,dv(i,j-1),da(i,j),da(i,j-1))
-    dwa=interpl(0.0,dw(i,j-1)*dx,da(i,j),da(i,j-1))
+    dwa=interpl(0.0,dwno(i,j-1)*dx,da(i,j),da(i,j-1))
     Vnpa=interpl(Vnp(i,j-1),Vn(i,j),da(i,j-1),da(i,j))
     cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
    end if
    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cc*cor+noc*dwa*Pka
   else
    dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j-1))
-   dwa=interpl(dw(i,j)*dx,dw(i,j-1)*dx,da(i,j),da(i,j-1))
+   dwa=interpl(dwno(i,j)*dx,dwno(i,j-1)*dx,da(i,j),da(i,j-1))
    if(i==1) then
     Pka=(P(i+1,j-1)+P(i+1,j)-P(Ic,j-1)-P(Ic,j))/(4*dx)
    else if(i==Ic) then
