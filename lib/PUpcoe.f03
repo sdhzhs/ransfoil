@@ -3,11 +3,12 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Sf,Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn,dkcw,dkce,dacs,dacn
-real(8) ww,we,ws,wn
+real(8) ww,we,ws,wn,noc,dncx,dncy,Tfx,Tfy,Pno
 real(8) du(Ic,Jc),dv(Ic,Jc),rms(Ic,Jc)
 logical(1) isCom
 
 isCom=ProctrlFlag==COM
+noc=1.d+0
 
 !$OMP PARALLEL
 !$OMP DO PRIVATE(i)
@@ -58,7 +59,7 @@ apuM=0
 apvM=0
 !$OMP END WORKSHARE
 !$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,we,ww,ws,wn,dkcw,dkce,dacs,dacn,&
-!$OMP Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn)
+!$OMP Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn,dncx,dncy,Tfx,Tfy,Pno)
 DO j=1,Jc-1
   DO i=Is,Ie
     Xgaw=-Yfk(i,j)
@@ -154,6 +155,74 @@ DO j=1,Jc-1
     Pyn=interpl(Vol(i,j)*Py(i,j)/auM(1,i,j),Vol(i,j+1)*Py(i,j+1)/auM(1,i,j+1),dacn)
     b(i,j)=Rau*(rhok(i,j)*Ygaw*Pxw-rhok(i,j)*Xgaw*Pyw-rhok(i+1,j)*Ygae*Pxe+rhok(i+1,j)*Xgae*Pye+rhoa(i,j)*Xgks*Pys-&
     rhoa(i,j)*Ygks*Pxs-rhoa(i,j+1)*Xgkn*Pyn+rhoa(i,j+1)*Ygkn*Pxn)
+    Sf=sqrt(Xfk(i,j)**2+Yfk(i,j)**2)
+    if(i==1) then
+     Pxw=interpl(Px(Ic,j),Px(i,j),dkcw)
+     Pyw=interpl(Py(Ic,j),Py(i,j),dkcw)
+     dncx=Xc(i,j)-Xc(Ic,j)
+     dncy=Yc(i,j)-Yc(Ic,j)
+     Tfx=-(Xfk(i,j)-Sf*dncx/dkd(i,j))
+     Tfy=-(Yfk(i,j)-Sf*dncy/dkd(i,j))
+     Pno=duk(i,j)*(Pxw*Tfx+Pyw*Tfy)
+    else
+     Pxw=interpl(Px(i-1,j),Px(i,j),dkcw)
+     Pyw=interpl(Py(i-1,j),Py(i,j),dkcw)
+     dncx=Xc(i,j)-Xc(i-1,j)
+     dncy=Yc(i,j)-Yc(i-1,j)
+     Tfx=-(Xfk(i,j)-Sf*dncx/dkd(i,j))
+     Tfy=-(Yfk(i,j)-Sf*dncy/dkd(i,j))
+     Pno=duk(i,j)*(Pxw*Tfx+Pyw*Tfy)
+    end if
+    b(i,j)=b(i,j)+rhok(i,j)*noc*Pno
+    Sf=sqrt(Xfk(i+1,j)**2+Yfk(i+1,j)**2)
+    if(i==Ic) then
+     Pxe=interpl(Px(i,j),Px(1,j),dkcw)
+     Pye=interpl(Py(i,j),Py(1,j),dkcw)
+     dncx=Xc(1,j)-Xc(i,j)
+     dncy=Yc(1,j)-Yc(i,j)
+     Tfx=-(Xfk(i+1,j)-Sf*dncx/dkd(i+1,j))
+     Tfy=-(Yfk(i+1,j)-Sf*dncy/dkd(i+1,j))
+     Pno=duk(i+1,j)*(Pxe*Tfx+Pye*Tfy)
+    else
+     Pxe=interpl(Px(i,j),Px(i+1,j),dkcw)
+     Pye=interpl(Py(i,j),Py(i+1,j),dkcw)
+     dncx=Xc(i+1,j)-Xc(i,j)
+     dncy=Yc(i+1,j)-Yc(i,j)
+     Tfx=-(Xfk(i+1,j)-Sf*dncx/dkd(i+1,j))
+     Tfy=-(Yfk(i+1,j)-Sf*dncy/dkd(i+1,j))
+     Pno=duk(i+1,j)*(Pxe*Tfx+Pye*Tfy)
+    end if
+    b(i,j)=b(i,j)-rhok(i+1,j)*noc*Pno
+    Sf=sqrt(Xfa(i,j)**2+Yfa(i,j)**2)
+    if(j==1.and.(i>Ib2.or.i<Ib1)) then
+     Pxs=interpl(Px(Ic+1-i,j),Px(i,j),dacs)
+     Pys=interpl(Py(Ic+1-i,j),Py(i,j),dacs)
+     dncx=Xc(i,j)-Xc(Ic+1-i,j)
+     dncy=Yc(i,j)-Yc(Ic+1-i,j)
+     Tfx=-(Xfa(i,j)-Sf*dncx/dad(i,j))
+     Tfy=-(Yfa(i,j)-Sf*dncy/dad(i,j))
+     Pno=dva(i,j)*(Pxs*Tfx+Pys*Tfy)
+    else if(j==1) then
+     Pno=0
+    else
+     Pxs=interpl(Px(i,j-1),Px(i,j),dacs)
+     Pys=interpl(Py(i,j-1),Py(i,j),dacs)
+     dncx=Xc(i,j)-Xc(i,j-1)
+     dncy=Yc(i,j)-Yc(i,j-1)
+     Tfx=-(Xfa(i,j)-Sf*dncx/dad(i,j))
+     Tfy=-(Yfa(i,j)-Sf*dncy/dad(i,j))
+     Pno=dva(i,j)*(Pxs*Tfx+Pys*Tfy)
+    end if
+    b(i,j)=b(i,j)+rhoa(i,j)*noc*Pno
+    Sf=sqrt(Xfa(i,j+1)**2+Yfa(i,j+1)**2)
+    Pxn=interpl(Px(i,j),Px(i,j+1),dacn)
+    Pyn=interpl(Py(i,j),Py(i,j+1),dacn)
+    dncx=Xc(i,j+1)-Xc(i,j)
+    dncy=Yc(i,j+1)-Yc(i,j)
+    Tfx=-(Xfa(i,j+1)-Sf*dncx/dad(i,j+1))
+    Tfy=-(Yfa(i,j+1)-Sf*dncy/dad(i,j+1))
+    Pno=dva(i,j+1)*(Pxn*Tfx+Pyn*Tfy)
+    b(i,j)=b(i,j)-rhoa(i,j+1)*noc*Pno
     if(isCom) then
       if(i==Ic) then
         Pe=(0.5d0+we)*P(i,j)/(R*T(i,j)/Ma)+(0.5d0-we)*P(1,j)/(R*T(1,j)/Ma)

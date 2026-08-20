@@ -40,8 +40,10 @@ Subroutine FluxRC
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Uf,Vf,Sf,Unpk,Vnpa
+real(8) Uf,Vf,Sf,Unpk,Vnpa,noc,dncx,dncy,Tfx,Tfy,Pno
 real(8) Up(Ic,Jc),Vp(Ic,Jc)
+
+noc=1.d+0
 
 DO j=1,Jc-1
   DO i=Is,Ie
@@ -71,11 +73,32 @@ DO j=1,Jc-1
   Sf=sqrt(Xfk(i,j)**2+Yfk(i,j)**2)
   Unpk=Uf*Xfk(i,j)+Vf*Yfk(i,j)
   if(i==1) then
-   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))*Sf/dkd(i,j)
+   Uf=interpl(Px(Ic,j),Px(i,j),dkw(i,j))
+   Vf=interpl(Py(Ic,j),Py(i,j),dkw(i,j))
+   dncx=Xc(i,j)-Xc(Ic,j)
+   dncy=Yc(i,j)-Yc(Ic,j)
+   Tfx=-(Xfk(i,j)-Sf*dncx/dkd(i,j))
+   Tfy=-(Yfk(i,j)-Sf*dncy/dkd(i,j))
+   Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
+   Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))*Sf/dkd(i,j)+noc*Pno
   else if(i==Ip) then
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))*Sf/dkd(i,j)
+   Uf=interpl(Px(i-1,j),Px(1,j),dkw(i,j))
+   Vf=interpl(Py(i-1,j),Py(1,j),dkw(i,j))
+   dncx=Xc(1,j)-Xc(i-1,j)
+   dncy=Yc(1,j)-Yc(i-1,j)
+   Tfx=-(Xfk(i,j)-Sf*dncx/dkd(i,j))
+   Tfy=-(Yfk(i,j)-Sf*dncy/dkd(i,j))
+   Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))*Sf/dkd(i,j)+noc*Pno
   else
-   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)
+   Uf=interpl(Px(i-1,j),Px(i,j),dkw(i,j))
+   Vf=interpl(Py(i-1,j),Py(i,j),dkw(i,j))
+   dncx=Xc(i,j)-Xc(i-1,j)
+   dncy=Yc(i,j)-Yc(i-1,j)
+   Tfx=-(Xfk(i,j)-Sf*dncx/dkd(i,j))
+   Tfy=-(Yfk(i,j)-Sf*dncy/dkd(i,j))
+   Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
+   Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)+noc*Pno
   end if
  end DO
 end DO
@@ -98,13 +121,25 @@ DO j=1,Jc
   Sf=sqrt(Xfa(i,j)**2+Yfa(i,j)**2)
   Vnpa=Uf*Xfa(i,j)+Vf*Yfa(i,j)
   if(j==1.and.(i>Ib2.or.i<Ib1)) then
-   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)
+   Uf=interpl(Px(Ic+1-i,j),Px(i,j),daw(i,j))
+   Vf=interpl(Py(Ic+1-i,j),Py(i,j),daw(i,j))
+   dncx=Xc(i,j)-Xc(Ic+1-i,j)
+   dncy=Yc(i,j)-Yc(Ic+1-i,j)
+   Tfx=-(Xfa(i,j)-Sf*dncx/dad(i,j))
+   Tfy=-(Yfa(i,j)-Sf*dncy/dad(i,j))
+   Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy)
+   Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)+noc*Pno
   else if(j==1) then
    Vna(i,j)=0
-  else if(j==Jc) then
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)
   else
-   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)
+   Uf=interpl(Px(i,j-1),Px(i,j),daw(i,j))
+   Vf=interpl(Py(i,j-1),Py(i,j),daw(i,j))
+   dncx=Xc(i,j)-Xc(i,j-1)
+   dncy=Yc(i,j)-Yc(i,j-1)
+   Tfx=-(Xfa(i,j)-Sf*dncx/dad(i,j))
+   Tfy=-(Yfa(i,j)-Sf*dncy/dad(i,j))
+   Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy) 
+   Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+noc*Pno
   end if
  end DO
 end DO

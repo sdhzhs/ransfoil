@@ -82,10 +82,10 @@ DO j=1,Jc-1
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
    Uf=interpl(Px(Ic,j),Px(i,j),dkw(i,j))
    Vf=interpl(Py(Ic,j),Py(i,j),dkw(i,j))
-   dncx=Xc(Ic,j)-Xc(i,j)
-   dncy=Yc(Ic,j)-Yc(i,j)
-   Tfx=-(Xfk(i,j)-Sf**2*dncx/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
-   Tfy=-(Yfk(i,j)-Sf**2*dncy/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   dncx=Xc(i,j)-Xc(Ic,j)
+   dncy=Yc(i,j)-Yc(Ic,j)
+   Tfx=-(Xfk(i,j)-Sf*dncx/dkd(i,j))
+   Tfy=-(Yfk(i,j)-Sf*dncy/dkd(i,j))
    Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
    Unk(i,j)=Unpk+duk(i,j)*(P(Ic,j)-P(i,j))*Sf/dkd(i,j)+cc*cor+noc*Pno
   else if(i==Ip) then
@@ -94,10 +94,10 @@ DO j=1,Jc-1
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
    Uf=interpl(Px(i-1,j),Px(1,j),dkw(i,j))
    Vf=interpl(Py(i-1,j),Py(1,j),dkw(i,j))
-   dncx=Xc(i-1,j)-Xc(1,j)
-   dncy=Yc(i-1,j)-Yc(1,j)
-   Tfx=-(Xfk(i,j)-Sf**2*dncx/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
-   Tfy=-(Yfk(i,j)-Sf**2*dncy/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   dncx=Xc(1,j)-Xc(i-1,j)
+   dncy=Yc(1,j)-Yc(i-1,j)
+   Tfx=-(Xfk(i,j)-Sf*dncx/dkd(i,j))
+   Tfy=-(Yfk(i,j)-Sf*dncy/dkd(i,j))
    Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
    Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(1,j))*Sf/dkd(i,j)+cc*cor+noc*Pno
   else
@@ -106,10 +106,10 @@ DO j=1,Jc-1
    cor=(1-Rau)*(Unk(i,j)-(Uf*Xfk(i,j)+Vf*Yfk(i,j)))
    Uf=interpl(Px(i-1,j),Px(i,j),dkw(i,j))
    Vf=interpl(Py(i-1,j),Py(i,j),dkw(i,j))
-   dncx=Xc(i-1,j)-Xc(i,j)
-   dncy=Yc(i-1,j)-Yc(i,j)
-   Tfx=-(Xfk(i,j)-Sf**2*dncx/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
-   Tfy=-(Yfk(i,j)-Sf**2*dncy/(dncx*Xfk(i,j)+dncy*Yfk(i,j)))
+   dncx=Xc(i,j)-Xc(i-1,j)
+   dncy=Yc(i,j)-Yc(i-1,j)
+   Tfx=-(Xfk(i,j)-Sf*dncx/dkd(i,j))
+   Tfy=-(Yfk(i,j)-Sf*dncy/dkd(i,j))
    Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
    Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)+cc*cor+noc*Pno
   end if
@@ -156,40 +156,26 @@ DO j=1,Jc
    cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
    Uf=interpl(Px(Ic+1-i,j),Px(i,j),daw(i,j))
    Vf=interpl(Py(Ic+1-i,j),Py(i,j),daw(i,j))
-   dncx=Xc(Ic+1-i,j)-Xc(i,j)
-   dncy=Yc(Ic+1-i,j)-Yc(i,j)
-   Tfx=-(Xfa(i,j)-Sf**2*dncx/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
-   Tfy=-(Yfa(i,j)-Sf**2*dncy/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
+   dncx=Xc(i,j)-Xc(Ic+1-i,j)
+   dncy=Yc(i,j)-Yc(Ic+1-i,j)
+   Tfx=-(Xfa(i,j)-Sf*dncx/dad(i,j))
+   Tfy=-(Yfa(i,j)-Sf*dncy/dad(i,j))
    Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy)
    Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))*Sf/dad(i,j)+cc*cor+noc*Pno
   else if(j==1) then
    Vna(i,j)=0
-  else if(j==Jc) then
-   if(isInOut.and.Vna(i,Jc)<0.0) then
-    Vna(i,j)=Vnpa
-   else
-    Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
-    Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
-    cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
-    Uf=interpl(Px(i,j-1),Px(i,j),daw(i,j))
-    Vf=interpl(Py(i,j-1),Py(i,j),daw(i,j))
-    dncx=Xc(i,j-1)-Xc(i,j)
-    dncy=Yc(i,j-1)-Yc(i,j)
-    Tfx=-(Xfa(i,j)-Sf**2*dncx/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
-    Tfy=-(Yfa(i,j)-Sf**2*dncy/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
-    Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy)
-    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor+noc*Pno
-   end if
+  else if(isInOut.and.Vna(i,Jc)<0.0.and.j==Jc) then
+   Vna(i,j)=Vnpa
   else
    Uf=interpl(U(i,j-1),U(i,j),daw(i,j))
    Vf=interpl(V(i,j-1),V(i,j),daw(i,j))
    cor=(1-Rau)*(Vna(i,j)-(Uf*Xfa(i,j)+Vf*Yfa(i,j)))
    Uf=interpl(Px(i,j-1),Px(i,j),daw(i,j))
    Vf=interpl(Py(i,j-1),Py(i,j),daw(i,j))
-   dncx=Xc(i,j-1)-Xc(i,j)
-   dncy=Yc(i,j-1)-Yc(i,j)
-   Tfx=-(Xfa(i,j)-Sf**2*dncx/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
-   Tfy=-(Yfa(i,j)-Sf**2*dncy/(dncx*Xfa(i,j)+dncy*Yfa(i,j)))
+   dncx=Xc(i,j)-Xc(i,j-1)
+   dncy=Yc(i,j)-Yc(i,j-1)
+   Tfx=-(Xfa(i,j)-Sf*dncx/dad(i,j))
+   Tfy=-(Yfa(i,j)-Sf*dncy/dad(i,j))
    Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy)
    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor+noc*Pno
   end if

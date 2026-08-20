@@ -251,8 +251,8 @@ DO j=1,Jc-1
    dncx=Xc(i-1,j)-Xc(i,j)
    dncy=Yc(i-1,j)-Yc(i,j)
   end if
-  Tfx=-Xfk(i,j)-Sf**2*dncx/(-dncx*Xfk(i,j)-dncy*Yfk(i,j))
-  Tfy=-Yfk(i,j)-Sf**2*dncy/(-dncx*Xfk(i,j)-dncy*Yfk(i,j))
+  Tfx=-Xfk(i,j)-Sf*dncx/dkd(i,j)
+  Tfy=-Yfk(i,j)-Sf*dncy/dkd(i,j)
   bno(i,j)=bno(i,j)+Gxf*Tfx+Gyf*Tfy
   Sf=sqrt(Xfk(i+1,j)**2+Yfk(i+1,j)**2)
   if(i==Ic) then
@@ -266,8 +266,8 @@ DO j=1,Jc-1
    dncx=Xc(i+1,j)-Xc(i,j)
    dncy=Yc(i+1,j)-Yc(i,j)
   end if
-  Tfx=Xfk(i+1,j)-Sf**2*dncx/(dncx*Xfk(i+1,j)+dncy*Yfk(i+1,j))
-  Tfy=Yfk(i+1,j)-Sf**2*dncy/(dncx*Xfk(i+1,j)+dncy*Yfk(i+1,j))
+  Tfx=Xfk(i+1,j)-Sf*dncx/dkd(i+1,j)
+  Tfy=Yfk(i+1,j)-Sf*dncy/dkd(i+1,j)
   bno(i,j)=bno(i,j)+Gxf*Tfx+Gyf*Tfy
   Sf=sqrt(Xfa(i,j)**2+Yfa(i,j)**2)
   if(j==1.and.(i<Ib1.or.i>Ib2)) then
@@ -286,16 +286,16 @@ DO j=1,Jc-1
    dncx=Xc(i,j-1)-Xc(i,j)
    dncy=Yc(i,j-1)-Yc(i,j)
   end if
-  Tfx=-Xfa(i,j)-Sf**2*dncx/(-dncx*Xfa(i,j)-dncy*Yfa(i,j))
-  Tfy=-Yfa(i,j)-Sf**2*dncy/(-dncx*Xfa(i,j)-dncy*Yfa(i,j))
+  Tfx=-Xfa(i,j)-Sf*dncx/dad(i,j)
+  Tfy=-Yfa(i,j)-Sf*dncy/dad(i,j)
   bno(i,j)=bno(i,j)+Gxf*Tfx+Gyf*Tfy
   Sf=sqrt(Xfa(i,j+1)**2+Yfa(i,j+1)**2)
   Gxf=interpl(Ga(i,j)*Fx(i,j),Ga(i,j+1)*Fx(i,j+1),daw(i,j+1))
   Gyf=interpl(Ga(i,j)*Fy(i,j),Ga(i,j+1)*Fy(i,j+1),daw(i,j+1))
   dncx=Xc(i,j+1)-Xc(i,j)
   dncy=Yc(i,j+1)-Yc(i,j)
-  Tfx=Xfa(i,j+1)-Sf**2*dncx/(dncx*Xfa(i,j+1)+dncy*Yfa(i,j+1))
-  Tfy=Yfa(i,j+1)-Sf**2*dncy/(dncx*Xfa(i,j+1)+dncy*Yfa(i,j+1))
+  Tfx=Xfa(i,j+1)-Sf*dncx/dad(i,j+1)
+  Tfy=Yfa(i,j+1)-Sf*dncy/dad(i,j+1)
   bno(i,j)=bno(i,j)+Gxf*Tfx+Gyf*Tfy
  end DO
 end DO
