@@ -58,7 +58,7 @@ b=P
 apuM=0
 apvM=0
 !$OMP END WORKSHARE
-!$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,we,ww,ws,wn,dkcw,dkce,dacs,dacn,&
+!$OMP DO PRIVATE(i,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,we,ww,ws,wn,dkcw,dkce,dacs,dacn,Sf,&
 !$OMP Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn,dncx,dncy,Tfx,Tfy,Pno)
 DO j=1,Jc-1
   DO i=Is,Ie
@@ -176,16 +176,16 @@ DO j=1,Jc-1
     b(i,j)=b(i,j)+rhok(i,j)*noc*Pno
     Sf=sqrt(Xfk(i+1,j)**2+Yfk(i+1,j)**2)
     if(i==Ic) then
-     Pxe=interpl(Px(i,j),Px(1,j),dkcw)
-     Pye=interpl(Py(i,j),Py(1,j),dkcw)
+     Pxe=interpl(Px(i,j),Px(1,j),dkce)
+     Pye=interpl(Py(i,j),Py(1,j),dkce)
      dncx=Xc(1,j)-Xc(i,j)
      dncy=Yc(1,j)-Yc(i,j)
      Tfx=-(Xfk(i+1,j)-Sf*dncx/dkd(i+1,j))
      Tfy=-(Yfk(i+1,j)-Sf*dncy/dkd(i+1,j))
      Pno=duk(i+1,j)*(Pxe*Tfx+Pye*Tfy)
     else
-     Pxe=interpl(Px(i,j),Px(i+1,j),dkcw)
-     Pye=interpl(Py(i,j),Py(i+1,j),dkcw)
+     Pxe=interpl(Px(i,j),Px(i+1,j),dkce)
+     Pye=interpl(Py(i,j),Py(i+1,j),dkce)
      dncx=Xc(i+1,j)-Xc(i,j)
      dncy=Yc(i+1,j)-Yc(i,j)
      Tfx=-(Xfk(i+1,j)-Sf*dncx/dkd(i+1,j))
