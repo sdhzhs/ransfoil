@@ -622,16 +622,16 @@ else if(solid==3) then
  Call HYPRE_BoomerAMGSetPrintLevel(solver, prlv, ierr)
  Call HYPRE_BoomerAMGSetMaxIter(solver, itmax, ierr)
 
- maxl = 2
+ maxl = 10
  Call HYPRE_BoomerAMGSetMaxLevels(solver, maxl, ierr)
  Call HYPRE_BoomerAMGSetNumFunctions(solver, 3, ierr)
  Call HYPRE_BoomerAMGSetNodal(solver, 1, ierr)
- Call HYPRE_BoomerAMGSetNumSweeps(solver, 3, ierr)
- Call HYPRE_BoomerAMGSetSmoothType(solver, 6, ierr) !Schwarz method as smoother
- !Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, maxl, ierr)
- Call HYPRE_BoomerAMGSetDomainType(solver, 1, ierr)
- Call HYPRE_BoomerAMGSetOverlap(solver, 0, ierr)
- !Call HYPRE_BoomerAMGSetCoarsenType(solver, 6, ierr)
+ Call HYPRE_BoomerAMGSetSmoothType(solver, 5, ierr) !5, ILU method as smoother, 6, Schwarz method as smoother
+ Call HYPRE_BoomerAMGSetSmoothNumLvls(solver, maxl, ierr)
+ !Call HYPRE_BoomerAMGSetSmoothNumSwps(solver, 2, ierr)
+ !Call HYPRE_BoomerAMGSetDomainType(solver, 1, ierr)
+ !Call HYPRE_BoomerAMGSetOverlap(solver, 0, ierr)
+ !Call HYPRE_BoomerAMGSetCoarsenType(solver, 8, ierr)
  Call HYPRE_BoomerAMGSetup(solver, parA, parb, parx, ierr)
  Call HYPRE_BoomerAMGSolve(solver, parA, parb, parx, ierr)
 else if(solid==4) then
@@ -640,7 +640,7 @@ else if(solid==4) then
  Call HYPRE_ParCSRBiCGSTABSetMaxIter(solver, itmax, ierr)
  
  precond_id = 2
- maxl = 5
+ maxl = 10
  Call HYPRE_BoomerAMGCreate(precond, ierr)
  Call HYPRE_BoomerAMGSetTol(precond, 0d+0, ierr)
  Call HYPRE_BoomerAMGSetPrintLevel(precond, 0, ierr)
@@ -648,12 +648,12 @@ else if(solid==4) then
  Call HYPRE_BoomerAMGSetMaxLevels(precond, maxl, ierr)
  Call HYPRE_BoomerAMGSetNumFunctions(precond, 3, ierr)
  Call HYPRE_BoomerAMGSetNodal(precond, 1, ierr)
- Call HYPRE_BoomerAMGSetNumSweeps(precond, 3, ierr)
- Call HYPRE_BoomerAMGSetSmoothType(precond, 5, ierr) !ILU method as smoother
+ Call HYPRE_BoomerAMGSetSmoothType(precond, 5, ierr) !5, ILU method as smoother
  Call HYPRE_BoomerAMGSetSmoothNumLvls(precond, maxl, ierr)
+ !Call HYPRE_BoomerAMGSetSmoothNumSwps(precond, 2, ierr)
  !Call HYPRE_BoomerAMGSetDomainType(precond, 1, ierr)
  !Call HYPRE_BoomerAMGSetOverlap(precond, 0, ierr)
- !Call HYPRE_BoomerAMGSetCoarsenType(precond, 6, ierr)
+ !Call HYPRE_BoomerAMGSetCoarsenType(precond, 8, ierr)
  
  Call HYPRE_ParCSRBiCGSTABSetPrecond(solver, precond_id, precond, ierr)
  Call HYPRE_ParCSRBiCGSTABSetup(solver, parA, parb, parx, ierr)
