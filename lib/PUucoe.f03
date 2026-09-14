@@ -3,10 +3,10 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Dnow,Dnoe,Dnos,Dnon,Faw,Fae,Fks,Fkn,Fwallw,Fwalle,Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,DF,dkc,dkw,dke,dac,das,dan
-real(8) F(Ic,Jc),Ga(Ic,Jc),Fwall(Ib1:Ib2)
+real(8) F(Ic,Jc),F0(Ic,Jc),Ga(Ic,Jc),Fwall(Ib1:Ib2)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 integer scalar
-logical(1) isU,isV,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isWf,isLr,isParvel
+logical(1) isU,isV,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isWf,isLr,isPseudo,isParvel
 
 isU = scalar==VELX
 isV = scalar==VELY
@@ -19,6 +19,7 @@ isCom = ProctrlFlag==COM
 isIncom = ProctrlFlag==INCOM
 isWf = WalltreatFlag==WF
 isLr = WalltreatFlag==LR
+isPseudo = EvolveFlag==PSEUDO
 isParvel = wallfunutype==PARVEL
 
 !$OMP PARALLEL
@@ -29,10 +30,12 @@ Ga=mu+mut
 if(isU) then
  !$OMP WORKSHARE
  F=U
+ F0=U0
  !$OMP END WORKSHARE
 else if(isV) then
  !$OMP WORKSHARE
  F=V
+ F0=V0
  !$OMP END WORKSHARE
 end if
 
@@ -250,6 +253,16 @@ DO j=1,Jc-1
   end DO
 end DO
 !$OMP END DO
+if(isPseudo) then
+ !$OMP DO PRIVATE(i)
+ DO j=1,Jc-1
+   DO i=Is,Ie
+    aM(1,i,j)=aM(1,i,j)+rho(i,j)*Jg(i,j)*dx*dy/deltat
+    b(i,j)=b(i,j)+rho0(i,j)*F0(i,j)*Jg(i,j)*dx*dy/deltat
+   end DO
+ end DO
+ !$OMP END DO
+end if
 if(isU) then
  !$OMP WORKSHARE
  auM(1:5,:,:)=aM

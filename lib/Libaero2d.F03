@@ -300,6 +300,7 @@ DO s=1,maxs
    Tk0=Tk
    Tw0=Tw
   end if
+  if(EvolveFlag==PSEUDO) rho0=rho
 end DO
 Call DATE_AND_TIME(VALUES=time1)
 Call CPU_TIME(rtime1)
@@ -541,10 +542,11 @@ use Aero2DCOM
 implicit none
 
 allocate(U0(Ic,Jc),V0(Ic,Jc),T0(Ic,Jc),U(Ic,Jc),V(Ic,Jc),T(Ic,Jc),rho(Ic,Jc),mu(Ic,Jc),P(Ic,Jc),dP(Ic,Jc),mut(Ic,Jc),&
-Pr(Ic,Jc),Pc(Ic,Jc),aM(5,Ic,Jc),b(Ic,Jc),Xg(Ip,Jp),Yg(Ip,Jp),Xc(Ic,Jc),Yc(Ic,Jc),Xga(Ic,Jc),Xgk(Ic,Jc),Yga(Ic,Jc),&
-Ygk(Ic,Jc),dk(Ic,Jc),da(Ic,Jc),Jg(Ic,Jc),a1(Ic,Jc),y1(Ic,Jc),b1(Ic,Jc),Un(Ic,Jc),Vn(Ic,Jc),Unk(Ip,Jc),Vna(Ic,Jp),&
-dwno(Ic,Jc),duk(Ip,Jc),dva(Ic,Jp),Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),&
-muxy(Ic,Jc),muyx(Ic,Jc),mvxy(Ic,Jc),mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc))
+Pr(Ic,Jc),Pc(Ic,Jc),aM(5,Ic,Jc),b(Ic,Jc),Xg(Ip,Jp),Yg(Ip,Jp),Xc(Ic,Jc),Yc(Ic,Jc),Xga(Ic,Jc),Xgk(Ic,Jc),Yga(Ic,Jc),Ygk(Ic,Jc),&
+dk(Ic,Jc),da(Ic,Jc),Jg(Ic,Jc),a1(Ic,Jc),y1(Ic,Jc),b1(Ic,Jc),Un(Ic,Jc),Vn(Ic,Jc),Unk(Ip,Jc),Vna(Ic,Jp),dwno(Ic,Jc),duk(Ip,Jc),dva(Ic,Jp),&
+Ux(Ic,Jc),Uy(Ic,Jc),Vx(Ic,Jc),Vy(Ic,Jc),Px(Ic,Jc),Py(Ic,Jc),dPx(Ic,Jc),dPy(Ic,Jc),muxx(Ic,Jc),muxy(Ic,Jc),muyx(Ic,Jc),mvxy(Ic,Jc),&
+mvyx(Ic,Jc),mvyy(Ic,Jc),rhok(Ip,Jc),rhoa(Ic,Jp),d(Ic,Jc))
+if(EvolveFlag==PSEUDO) allocate(rho0(Ic,Jc))  
 if(solctrlFlag==COUP) then
  allocate(auM(6,Ic,Jc),aupM(5,Ic,Jc),avpM(5,Ic,Jc),apuM(5,Ic,Jc),apvM(5,Ic,Jc),bu(Ic,Jc),bv(Ic,Jc))
 else
@@ -570,6 +572,7 @@ implicit none
 
 deallocate(U0,V0,T0,U,V,T,rho,mu,mut,P,dP,Pr,Pc,aM,auM,b,Xg,Yg,Xc,Yc,Xga,Xgk,Yga,Ygk,dk,da,Jg,a1,y1,b1,&
 Un,Vn,Unk,Vna,dwno,duk,dva,Ux,Uy,Vx,Vy,Px,Py,dPx,dPy,muxx,muxy,muyx,mvxy,mvyx,mvyy,rhok,rhoa,d)
+if(EvolveFlag==PSEUDO) deallocate(rho0)
 if(solctrlFlag==COUP) deallocate(aupM,avpM,apuM,apvM,bu,bv)
 if(TurmodFlag==SA) then
  deallocate(Tn0,Tn,Tnx,Tny)
