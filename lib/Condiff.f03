@@ -6,12 +6,13 @@ real(8) Sf,Gxf,Gyf,dncx,dncy,Tfx,Tfy
 real(8) Xi,fnu1,fnu2,Sv,rm,gm,Ret,Dwplus,phi1,F1,betaistar,Fmt,alphaf,betai,Tmin,Dampk,Ymax,Ym
 real(8) aP,aW,aE,aS,aN,DF
 real(8) Fwall(Ib1:Ib2)
-real(8) F(Ic,Jc),Ga(Ic,Jc),Fx(Ic,Jc),Fy(Ic,Jc)
+real(8) F(Ic,Jc),F0(Ic,Jc),Ga(Ic,Jc),Fx(Ic,Jc),Fy(Ic,Jc)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 real(8) St(Ic,Jc),Sm(Ic,Jc),fw1(Ic,Jc),alphastar(Ic,Jc),betastar(Ic,Jc),alpha(Ic,Jc),beta(Ic,Jc),Dwt(Ic,Jc),C3e(Ic,Jc)
 integer scalar
 logical(1) productlimit,sstcom,saprodlimit
-logical(1) isU,isV,isT,isTn,isTk,isTe,isTw,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isFixed,isFlux,isWf,isLr,isCoup,isParvel,isGenlaw,isInOut
+logical(1) isU,isV,isT,isTn,isTk,isTe,isTw,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isFixed,isFlux,isWf,isLr,isCoup,&
+isPseudo,isParvel,isGenlaw,isInOut
 
 productlimit=.false.
 sstcom=.false.
@@ -35,6 +36,7 @@ isIncom = ProctrlFlag==INCOM
 isWf = WalltreatFlag==WF
 isLr = WalltreatFlag==LR
 isCoup = solctrlFlag==COUP
+isPseudo = EvolveFlag==PSEUDO
 isInOut = FstypeFlag==VINPOUT
 
 isFixed = TmptypeFlag==FIXED
@@ -53,12 +55,14 @@ if(isU.or.isV) then
   F=U
   Fx=Ux
   Fy=Uy
+  F0=U0
   !$OMP END WORKSHARE
  else if(isV) then
   !$OMP WORKSHARE
   F=V
   Fx=Vx
   Fy=Vy
+  F0=V0
   !$OMP END WORKSHARE
  end if
 else if(isT) then
@@ -66,6 +70,7 @@ else if(isT) then
  F=T
  Fx=Tx
  Fy=Ty
+ F0=T0
  Ga=ka/ca+mut/Prt
  !$OMP END WORKSHARE
  if(isFixed) then
@@ -91,6 +96,7 @@ else if(isTn) then
  F=Tn
  Fx=Tnx
  Fy=Tny
+ F0=Tn0
  Fwall=1.5*Tn(Ib1:Ib2,1)-0.5*Tn(Ib1:Ib2,2)
  !Fwall=0
  Ga=(mu+rho*Tn)/sigman
@@ -100,6 +106,7 @@ else if(isTk.and.isKe) then
  F=Tk
  Fx=Tkx
  Fy=Tky
+ F0=Tk0
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
  Ga=mu+mut/sigmak
  !$OMP END WORKSHARE
@@ -108,6 +115,7 @@ else if(isTk.and.isSst) then
  F=Tk
  Fx=Tkx
  Fy=Tky
+ F0=Tk0
  Fwall=1.5*Tk(Ib1:Ib2,1)-0.5*Tk(Ib1:Ib2,2)
  !Fwall=Tk(Ib1:Ib2,1)
  !Fwall=0
@@ -118,6 +126,7 @@ else if(isTe) then
  F=Te
  Fx=Tex
  Fy=Tey
+ F0=Te0
  Fwall=1.5*Te(Ib1:Ib2,1)-0.5*Te(Ib1:Ib2,2)
  Ga=mu+mut/sigmae
  !$OMP END WORKSHARE
@@ -126,6 +135,7 @@ else if(isTw) then
  F=Tw
  Fx=Twx 
  Fy=Twy
+ F0=Tw0
  Fwall=1.5*Tw(Ib1:Ib2,1)-0.5*Tw(Ib1:Ib2,2)
  !Fwall=Tw(Ib1:Ib2,1)
  Ga=mu+mut/sigmatw
@@ -546,6 +556,16 @@ DO j=1,Jc-1
   end DO
 end DO
 !$OMP END DO
+if(isPseudo) then
+ !$OMP DO PRIVATE(i)
+ DO j=1,Jc-1
+   DO i=Is,Ie
+    aM(1,i,j)=aM(1,i,j)+rho(i,j)*Vol(i,j)/deltat
+    b(i,j)=b(i,j)+rho0(i,j)*F0(i,j)*Vol(i,j)/deltat
+   end DO
+ end DO
+ !$OMP END DO
+end if
 if(isInOut) then
  !$OMP WORKSHARE
  b(:,Jc)=Vna(:,Jc)

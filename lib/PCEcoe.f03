@@ -2,16 +2,17 @@ Subroutine PCEcoe
 use Aero2DCOM
 implicit none
 integer i,j
-real(8) Sf,Uf,Vf,Unpk,Vnpa,ww,we,ws,wn,cor,cc,noc,dncx,dncy,Tfx,Tfy,Pno
+real(8) Sf,Uf,Vf,Unpk,Vnpa,Unk0,Vna0,Uf0,Vf0,Unf0,Vnf0,df0,ww,we,ws,wn,cor,cc,noc,dncx,dncy,Tfx,Tfy,Pno
 real(8) aP,aW,aE,aS,aN
-real(8) du(Ic,Jc),dv(Ic,Jc),Up(Ic,Jc),Vp(Ic,Jc)
-logical(1) isSimp,isSimpC,isCom,isInOut
+real(8) du(Ic,Jc),dv(Ic,Jc),Up(Ic,Jc),Vp(Ic,Jc),d0(Ic,Jc),Up0(Ic,Jc),Vp0(Ic,Jc)
+logical(1) isSimp,isSimpC,isCom,isPseudo,isInOut
 cc=1.d+0
 noc=1.d+0
 
 isSimp=solctrlFlag==SIMPLE
 isSimpC=solctrlFlag==SIMPLEC
 isCom=ProctrlFlag==COM
+isPseudo=EvolveFlag==PSEUDO
 isInOut=FstypeFlag==VINPOUT
 
 !$OMP PARALLEL
@@ -23,6 +24,11 @@ if(isSimp) then
      dv(i,j)=Rau*Vol(i,j)/auM(1,i,j)
      Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/auM(1,i,j)
      Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/auM(1,i,j)
+     if(isPseudo) then
+      Up0(i,j)=Rau*rho0(i,j)*U0(i,j)*Vol(i,j)/deltat/auM(1,i,j)
+      Vp0(i,j)=Rau*rho0(i,j)*V0(i,j)*Vol(i,j)/deltat/auM(1,i,j)
+      d0(i,j)=Rau*rho0(i,j)*Vol(i,j)/deltat/auM(1,i,j)
+     end if
     end DO
   end DO
   !$OMP END DO
@@ -34,6 +40,11 @@ else if(isSimpC) then
      dv(i,j)=Rau*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
      Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
      Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+     if(isPseudo) then
+      Up0(i,j)=Rau*rho0(i,j)*U0(i,j)*Vol(i,j)/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
+      Vp0(i,j)=Rau*rho0(i,j)*V0(i,j)*Vol(i,j)/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
+      d0(i,j)=Rau*rho0(i,j)*Vol(i,j)/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
+     end if
     end DO
   end DO
   !$OMP END DO
@@ -45,37 +56,74 @@ DO j=1,Jc-1
    duk(i,j)=interpl(du(Ic,j),du(i,j),dkw(i,j))
    Uf=interpl(Up(Ic,j),Up(i,j),dkw(i,j))
    Vf=interpl(Vp(Ic,j),Vp(i,j),dkw(i,j))
+   if(isPseudo) then
+    df0=interpl(d0(Ic,j),d0(i,j),dkw(i,j))
+    Uf0=interpl(Up0(Ic,j),Up0(i,j),dkw(i,j))
+    Vf0=interpl(Vp0(Ic,j),Vp0(i,j),dkw(i,j))
+   end if
   else if(Is>1.and.i==2) then
    if(isInOut) then
     duk(i,j)=interpl(du(i,j),du(i,j),dkw(i,j))
     Uf=interpl(Up(i,j),Up(i,j),dkw(i,j))
     Vf=interpl(Vp(i,j),Vp(i,j),dkw(i,j))
+    if(isPseudo) then
+     df0=interpl(d0(i,j),d0(i,j),dkw(i,j))
+     Uf0=interpl(Up0(i,j),Up0(i,j),dkw(i,j))
+     Vf0=interpl(Vp0(i,j),Vp0(i,j),dkw(i,j))
+    end if
    else
     duk(i,j)=interpl(0.0,du(i,j),dkw(i,j))
     Uf=interpl(U(i-1,j),Up(i,j),dkw(i,j))
     Vf=interpl(V(i-1,j),Vp(i,j),dkw(i,j))
+    if(isPseudo) then
+     df0=interpl(0.0,d0(i,j),dkw(i,j))
+     Uf0=interpl(0.0,Up0(i,j),dkw(i,j))
+     Vf0=interpl(0.0,Vp0(i,j),dkw(i,j))
+    end if
    end if
   else if(Is>1.and.i==Ic) then
    if(isInOut) then
     duk(i,j)=interpl(du(i-1,j),du(i-1,j),dkw(i,j))
     Uf=interpl(Up(i-1,j),Up(i-1,j),dkw(i,j))
     Vf=interpl(Vp(i-1,j),Vp(i-1,j),dkw(i,j))
+    if(isPseudo) then
+     df0=interpl(d0(i-1,j),d0(i-1,j),dkw(i,j))
+     Uf0=interpl(Up0(i-1,j),Up0(i-1,j),dkw(i,j))
+     Vf0=interpl(Vp0(i-1,j),Vp0(i-1,j),dkw(i,j))
+    end if
    else
     duk(i,j)=interpl(du(i-1,j),0.0,dkw(i,j))
     Uf=interpl(Up(i-1,j),U(i,j),dkw(i,j))
     Vf=interpl(Vp(i-1,j),V(i,j),dkw(i,j))
+    if(isPseudo) then
+     df0=interpl(d0(i-1,j),0.0,dkw(i,j))
+     Uf0=interpl(Up0(i-1,j),0.0,dkw(i,j))
+     Vf0=interpl(Vp0(i-1,j),0.0,dkw(i,j))
+    end if
    end if
   else if(i==Ip) then
    duk(i,j)=interpl(du(i-1,j),du(1,j),dkw(i,j))
    Uf=interpl(Up(i-1,j),Up(1,j),dkw(i,j))
    Vf=interpl(Vp(i-1,j),Vp(1,j),dkw(i,j))
+   if(isPseudo) then
+    df0=interpl(d0(i-1,j),d0(1,j),dkw(i,j))
+    Uf0=interpl(Up0(i-1,j),Up0(1,j),dkw(i,j))
+    Vf0=interpl(Vp0(i-1,j),Vp0(1,j),dkw(i,j))
+   end if
   else
    duk(i,j)=interpl(du(i-1,j),du(i,j),dkw(i,j))
    Uf=interpl(Up(i-1,j),Up(i,j),dkw(i,j))
    Vf=interpl(Vp(i-1,j),Vp(i,j),dkw(i,j))
+   if(isPseudo) then
+    df0=interpl(d0(i-1,j),d0(i,j),dkw(i,j))
+    Uf0=interpl(Up0(i-1,j),Up0(i,j),dkw(i,j))
+    Vf0=interpl(Vp0(i-1,j),Vp0(i,j),dkw(i,j))
+   end if
   end if
   Sf=sqrt(Xfk(i,j)**2+Yfk(i,j)**2)
   Unpk=Uf*Xfk(i,j)+Vf*Yfk(i,j)
+  Unf0=Uf0*Xfk(i,j)+Vf0*Yfk(i,j)
+  Unk0=Unk(i,j)
   if(i==1) then
    Uf=interpl(U(Ic,j),U(i,j),dkw(i,j))
    Vf=interpl(V(Ic,j),V(i,j),dkw(i,j))
@@ -113,43 +161,76 @@ DO j=1,Jc-1
    Pno=duk(i,j)*(Uf*Tfx+Vf*Tfy)
    Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))*Sf/dkd(i,j)+cc*cor+noc*Pno
   end if
+  if(isPseudo) Unk(i,j)=Unk(i,j)-Unf0+df0*Unk0
  end DO
 end DO
 !$OMP END DO
 !$OMP DO PRIVATE(i,Sf,Uf,Vf,Vnpa,cor,dncx,dncy,Tfx,Tfy,Pno)
 DO j=1,Jc
  DO i=Is,Ie
+  Vna0=Vna(i,j)
   if(j==1.and.(i>Ib2.or.i<Ib1)) then
    dva(i,j)=interpl(dv(Ic+1-i,j),dv(i,j),daw(i,j))
    Uf=interpl(Up(Ic+1-i,j),Up(i,j),daw(i,j))
    Vf=interpl(Vp(Ic+1-i,j),Vp(i,j),daw(i,j))
+   if(isPseudo) then
+    df0=interpl(d0(Ic+1-i,j),d0(i,j),daw(i,j))
+    Uf0=interpl(Up0(Ic+1-i,j),Up0(i,j),daw(i,j))
+    Vf0=interpl(Vp0(Ic+1-i,j),Vp0(i,j),daw(i,j))
+   end if
   else if(j==1) then
    dva(i,j)=0
    Uf=0
    Vf=0
+   if(isPseudo) then
+    df0=0
+    Uf0=0
+    Vf0=0
+   end if
   else if(j==Jc) then
    if(isInOut) then
     if(Vna(i,Jc)<0.0) then
      dva(i,j)=0.0
      Uf=interpl(U(i,j),U(i,j),daw(i,j))
      Vf=interpl(V(i,j),V(i,j),daw(i,j))
+     if(isPseudo) then
+      df0=0
+      Uf0=0
+      Vf0=0
+     end if
     else
      dva(i,j)=interpl(dv(i,j-1),dv(i,j-1),daw(i,j))
      Uf=interpl(Up(i,j-1),Up(i,j-1),daw(i,j))
      Vf=interpl(Vp(i,j-1),Vp(i,j-1),daw(i,j))
+     if(isPseudo) then
+      df0=interpl(d0(i,j-1),d0(i,j-1),daw(i,j))
+      Uf0=interpl(Up0(i,j-1),Up0(i,j-1),daw(i,j))
+      Vf0=interpl(Vp0(i,j-1),Vp0(i,j-1),daw(i,j))
+     end if
     end if
    else
     dva(i,j)=interpl(dv(i,j-1),0.0,daw(i,j))
     Uf=interpl(Up(i,j-1),U(i,j),daw(i,j))
     Vf=interpl(Vp(i,j-1),V(i,j),daw(i,j))
+    if(isPseudo) then
+     df0=interpl(d0(i,j-1),0.0,daw(i,j))
+     Uf0=interpl(Up0(i,j-1),0.0,daw(i,j))
+     Vf0=interpl(Vp0(i,j-1),0.0,daw(i,j))
+    end if
    end if
   else
    dva(i,j)=interpl(dv(i,j-1),dv(i,j),daw(i,j))
    Uf=interpl(Up(i,j-1),Up(i,j),daw(i,j))
    Vf=interpl(Vp(i,j-1),Vp(i,j),daw(i,j))
+   if(isPseudo) then
+    df0=interpl(d0(i,j-1),d0(i,j),daw(i,j))
+    Uf0=interpl(Up0(i,j-1),Up0(i,j),daw(i,j))
+    Vf0=interpl(Vp0(i,j-1),Vp0(i,j),daw(i,j))
+   end if
   end if
   Sf=sqrt(Xfa(i,j)**2+Yfa(i,j)**2)
   Vnpa=Uf*Xfa(i,j)+Vf*Yfa(i,j)
+  Vnf0=Uf0*Xfa(i,j)+Vf0*Yfa(i,j)
   if(j==1.and.(i>Ib2.or.i<Ib1)) then
    Uf=interpl(U(Ic+1-i,j),U(i,j),daw(i,j))
    Vf=interpl(V(Ic+1-i,j),V(i,j),daw(i,j))
@@ -179,6 +260,7 @@ DO j=1,Jc
    Pno=dva(i,j)*(Uf*Tfx+Vf*Tfy)
    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))*Sf/dad(i,j)+cc*cor+noc*Pno
   end if
+  if(isPseudo) Vna(i,j)=Vna(i,j)-Vnf0+df0*Vna0
  end DO
 end DO
 !$OMP END DO

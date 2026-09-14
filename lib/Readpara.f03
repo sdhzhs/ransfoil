@@ -136,7 +136,7 @@ if(libmod=='S'.or.libmod=='M') then
   if(is_iostat_end(stat)) then
    lfar=10
   else
-   read (10,*,IOSTAT=stat,IOMSG=ioerrmsg) lfar
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) lfar
    if(stat>0) STOP 'far to chord ratio: '//ioerrmsg
   end if
   read(10,*,IOSTAT=stat) ch
@@ -160,6 +160,17 @@ if(libmod=='S'.or.libmod=='M') then
   if(Matair=='N') then
    read(10,*) ch
    read(10,*) matfile
+  end if
+  read(10,*,IOSTAT=stat) ch
+  if(is_iostat_end(stat).or.stat>0) then
+   Evolve='steady'
+  else
+   read(10,*) Evolve
+  end if
+  if(Evolve/='steady') then
+   read(10,*) ch
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) deltat
+   if(stat>0) STOP 'global time step: '//ioerrmsg
   end if
  close(10)
 else if(libmod=='I') then
@@ -300,6 +311,13 @@ else if(libmod=='I') then
   print *,'Input a name of material properties file:'
   read *,matfile
  end if
+ print *,'Set nonlinear iteration method(steady/pseudo):'
+ read *,Evolve
+ if(Evolve/='steady') then
+  print *,'Input global time step for pseudo-transient iteration(s):'
+  read(*,*,IOSTAT=stat,IOMSG=ioerrmsg) deltat
+  if(stat>0) STOP ioerrmsg
+ end if
 end if
 print *,'Read control parameters completed!'
 
@@ -428,6 +446,14 @@ if(Matair=='Y') then
  MatairFlag=.true.
 else if(Matair=='N') then
  MatairFlag=.false.
+end if
+
+if(Evolve=='steady') then
+ EvolveFlag=STEADY
+else if(Evolve=='pseudo') then
+ EvolveFlag=PSEUDO
+else if(Evolve=='unsteady') then
+ EvolveFlag=UNSTEADY
 end if
 
 !wallfunutype=ORIVEL

@@ -632,6 +632,8 @@ else if(solid==3) then
  !Call HYPRE_BoomerAMGSetDomainType(solver, 1, ierr)
  !Call HYPRE_BoomerAMGSetOverlap(solver, 0, ierr)
  !Call HYPRE_BoomerAMGSetCoarsenType(solver, 8, ierr)
+ !Call HYPRE_BoomerAMGSetAggNumLevels(solver, maxl, ierr)
+ !Call HYPRE_BoomerAMGSetAggInterpType(solver, 5, ierr)
  Call HYPRE_BoomerAMGSetup(solver, parA, parb, parx, ierr)
  Call HYPRE_BoomerAMGSolve(solver, parA, parb, parx, ierr)
 else if(solid==4) then
@@ -654,6 +656,8 @@ else if(solid==4) then
  !Call HYPRE_BoomerAMGSetDomainType(precond, 1, ierr)
  !Call HYPRE_BoomerAMGSetOverlap(precond, 0, ierr)
  !Call HYPRE_BoomerAMGSetCoarsenType(precond, 8, ierr)
+ !Call HYPRE_BoomerAMGSetAggNumLevels(precond, maxl, ierr)
+ !Call HYPRE_BoomerAMGSetAggInterpType(precond, 5, ierr)
  
  Call HYPRE_ParCSRBiCGSTABSetPrecond(solver, precond_id, precond, ierr)
  Call HYPRE_ParCSRBiCGSTABSetup(solver, parA, parb, parx, ierr)
