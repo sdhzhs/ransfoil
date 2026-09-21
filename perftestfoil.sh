@@ -68,6 +68,7 @@ runIncomCase naca0012_mat_xyz 0012.mat.xyz "$1"
 runIncomCase naca0012_far_cpt 0012.farboundist.cpt "$1"
 runIncomCase naca0012_freebc_cpt 0012.freebc.cpt "$1"
 runComCase whitcomb_xyz_super whitcomb.xyz.super "$1"
+runIncomCase naca0012_pseudo_xyz 0012.pseudo.xyz "$1"
 
 echo "=========================================="
 echo "Performance Regression Test Complete"

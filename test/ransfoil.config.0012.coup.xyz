@@ -12,7 +12,7 @@ Select turbulence model(inv/lam/sa/ke/sst):
 sa
 Select wall treatment method(wf/lr):
 wf
-Select coupling method(SIMPLE/SIMPLEC):
+Select coupling method(SIMPLE/SIMPLEC/Coupled):
 Coupled
 Select discretization scheme(1upwind/2upwind/Quick/tvd):
 2upwind
@@ -29,7 +29,7 @@ Input maximum iteration steps:
 Input minimum residual of iteration:
 1e-4
 Input relaxation factor of velocity:
-9e-1
+8e-1
 Input relaxation factor of pressure:
 1e-0
 Input relaxation factor of temperature:
