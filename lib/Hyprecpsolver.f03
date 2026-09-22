@@ -40,6 +40,9 @@ else if(solid==5) then
 else if(solid==6) then
  Call HYPRE_ParCSRGMRESCreate(MPI_COMM_WORLD, solver, ierr)
  Call HYPRE_EuclidCreate(MPI_COMM_WORLD, precond, ierr)
+else if(solid==7) then
+ Call HYPRE_ParCSRBiCGSTABCreate(MPI_COMM_WORLD, solver, ierr)
+ Call HYPRE_ILUCreate(precond, ierr)
 end if
 
 end Subroutine hyprecpinit
@@ -70,9 +73,12 @@ else if(solid==4) then
 else if(solid==5) then
  Call HYPRE_EuclidDestroy(precond, ierr)
  Call HYPRE_ParCSRBiCGSTABDestroy(solver, ierr)
- else if(solid==6) then
+else if(solid==6) then
  Call HYPRE_EuclidDestroy(precond, ierr)
  Call HYPRE_ParCSRGMRESDestroy(solver, ierr)
+else if(solid==7) then
+ Call HYPRE_ILUDestroy(precond, ierr)
+ Call HYPRE_ParCSRBiCGSTABDestroy(solver, ierr)
 end if
 
 end Subroutine hyprecprelease
@@ -687,6 +693,22 @@ else if(solid==6) then
  Call HYPRE_ParCSRGMRESSetPrecond(solver, precond_id, precond, ierr)
  Call HYPRE_ParCSRGMRESSetup(solver, parA, parb, parx, ierr)
  Call HYPRE_ParCSRGMRESSolve(solver, parA, parb, parx, ierr)
+else if(solid==7) then
+ Call HYPRE_ParCSRBiCGSTABSetTol(solver, tol, ierr)
+ Call HYPRE_ParCSRBiCGSTABSetPrintLev(solver, prlv, ierr)
+ Call HYPRE_ParCSRBiCGSTABSetMaxIter(solver, itmax, ierr)
+ 
+ precond_id = 6
+ Call HYPRE_ILUSetMaxIter(precond, 1, ierr)
+ Call HYPRE_ILUSetTol(precond, 0d+0, ierr)
+ Call HYPRE_ILUSetPrintLevel(precond, 0, ierr)
+ Call HYPRE_ILUSetLocalReordering(precond, 0, ierr) !0: none, 1: RCM
+ Call HYPRE_ILUSetType(precond, 0, ierr) 
+ !Call HYPRE_ILUSetLevelOfFill(precond, 0, ierr)
+ 
+ Call HYPRE_ParCSRBiCGSTABSetPrecond(solver, precond_id, precond, ierr)
+ Call HYPRE_ParCSRBiCGSTABSetup(solver, parA, parb, parx, ierr)
+ Call HYPRE_ParCSRBiCGSTABSolve(solver, parA, parb, parx, ierr)
 end if
 
 DO j=1,Jc
