@@ -5,7 +5,7 @@ integer i,j
 real(8) Up,Vp,Unpk,Vnpa,Unk0,Vna0,Unf0,Vnf0,ww,we,ws,wn,dwk,dwa,df0,Pak,Pka,cor,cc,noc,Xf,Yf
 real(8) aP,aW,aE,aS,aN
 real(8) du(Ic,Jc),dv(Ic,Jc),Unp(Ic,Jc),Vnp(Ic,Jc),d0(Ic,Jc),Un0(Ic,Jc),Vn0(Ic,Jc)
-logical(1) isSimp,isSimpC,isCom,isPseudo,isInOut
+logical(1) isSimp,isSimpC,isCom,isPseudo,usePseudoRC,isInOut
 
 noc=1.d+0
 cc=1.d+0
@@ -15,6 +15,7 @@ isSimpC=solctrlFlag==SIMPLEC
 isCom=ProctrlFlag==COM
 isPseudo=EvolveFlag==PSEUDO
 isInOut=FstypeFlag==VINPOUT
+usePseudoRC=.false.
 
 !$OMP PARALLEL
 if(isSimp) then
@@ -28,7 +29,7 @@ if(isSimp) then
      Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/auM(1,i,j)
      Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
      Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
-     if(isPseudo) then
+     if(usePseudoRC) then
       Up=Rau*rho0(i,j)*U0(i,j)*Jg(i,j)*dx*dy/deltat/auM(1,i,j)
       Vp=Rau*rho0(i,j)*V0(i,j)*Jg(i,j)*dx*dy/deltat/auM(1,i,j)
       Un0(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
@@ -49,7 +50,7 @@ else if(isSimpC) then
      Vp=V(i,j)+Rau*Py(i,j)*Jg(i,j)*dx*dy/(auM(1,i,j)-Rau*auM(2,i,j))
      Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
      Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
-     if(isPseudo) then
+     if(usePseudoRC) then
       Up=Rau*rho0(i,j)*U0(i,j)*Jg(i,j)*dx*dy/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
       Vp=Rau*rho0(i,j)*V0(i,j)*Jg(i,j)*dx*dy/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
       Un0(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
@@ -67,7 +68,7 @@ DO j=1,Jc-1
    duk(i,j)=interpl(du(i,j),du(Ic,j),dk(i,j),dk(Ic,j))
    dwk=interpl(dwno(i,j)*dy,dwno(Ic,j)*dy,dk(i,j),dk(Ic,j))
    Unpk=interpl(Unp(i,j),Unp(Ic,j),dk(i,j),dk(Ic,j))
-   if(isPseudo) then
+   if(usePseudoRC) then
     df0=interpl(d0(i,j),d0(Ic,j),dk(i,j),dk(Ic,j))
     Unf0=interpl(Un0(i,j),Un0(Ic,j),dk(i,j),dk(Ic,j))
    end if
@@ -76,7 +77,7 @@ DO j=1,Jc-1
     duk(i,j)=interpl(du(i,j),du(i,j),dk(i,j),dk(i-1,j))
     dwk=interpl(dwno(i,j)*dy,dwno(i,j)*dy,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i,j),Unp(i,j),dk(i,j),dk(i-1,j))
-    if(isPseudo) then
+    if(usePseudoRC) then
      df0=interpl(d0(i,j),d0(i,j),dk(i,j),dk(i-1,j))
      Unf0=interpl(Un0(i,j),Un0(i,j),dk(i,j),dk(i-1,j))
     end if
@@ -84,7 +85,7 @@ DO j=1,Jc-1
     duk(i,j)=interpl(du(i,j),0.0,dk(i,j),dk(i-1,j))
     dwk=interpl(dwno(i,j)*dy,0.0,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i,j),Un(i-1,j),dk(i,j),dk(i-1,j))
-    if(isPseudo) then
+    if(usePseudoRC) then
      df0=interpl(d0(i,j),0.0,dk(i,j),dk(i-1,j))
      Unf0=interpl(Un0(i,j),0.0,dk(i,j),dk(i-1,j))
     end if
@@ -94,7 +95,7 @@ DO j=1,Jc-1
     duk(i,j)=interpl(du(i-1,j),du(i-1,j),dk(i,j),dk(i-1,j))
     dwk=interpl(dwno(i-1,j)*dy,dwno(i-1,j)*dy,dk(i,j),dk(i-1,j))
     Unpk=interpl(Unp(i-1,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
-    if(isPseudo) then
+    if(usePseudoRC) then
      df0=interpl(d0(i-1,j),d0(i-1,j),dk(i,j),dk(i-1,j))
      Unf0=interpl(Un0(i-1,j),Un0(i-1,j),dk(i,j),dk(i-1,j))
     end if
@@ -102,7 +103,7 @@ DO j=1,Jc-1
     duk(i,j)=interpl(0.0,du(i-1,j),dk(i,j),dk(i-1,j))
     dwk=interpl(0.0,dwno(i-1,j)*dy,dk(i,j),dk(i-1,j))
     Unpk=interpl(Un(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
-    if(isPseudo) then
+    if(usePseudoRC) then
      df0=interpl(0.0,d0(i-1,j),dk(i,j),dk(i-1,j))
      Unf0=interpl(0.0,Un0(i-1,j),dk(i,j),dk(i-1,j))
     end if
@@ -111,7 +112,7 @@ DO j=1,Jc-1
    duk(i,j)=interpl(du(1,j),du(i-1,j),dk(1,j),dk(i-1,j))
    dwk=interpl(dwno(1,j)*dy,dwno(i-1,j)*dy,dk(1,j),dk(i-1,j))
    Unpk=interpl(Unp(1,j),Unp(i-1,j),dk(1,j),dk(i-1,j))
-   if(isPseudo) then
+   if(usePseudoRC) then
     df0=interpl(d0(1,j),d0(i-1,j),dk(1,j),dk(i-1,j))
     Unf0=interpl(Un0(1,j),Un0(i-1,j),dk(1,j),dk(i-1,j))
    end if
@@ -119,7 +120,7 @@ DO j=1,Jc-1
    duk(i,j)=interpl(du(i,j),du(i-1,j),dk(i,j),dk(i-1,j))
    dwk=interpl(dwno(i,j)*dy,dwno(i-1,j)*dy,dk(i,j),dk(i-1,j))
    Unpk=interpl(Unp(i,j),Unp(i-1,j),dk(i,j),dk(i-1,j))
-   if(isPseudo) then
+   if(usePseudoRC) then
     df0=interpl(d0(i,j),d0(i-1,j),dk(i,j),dk(i-1,j))
     Unf0=interpl(Un0(i,j),Un0(i-1,j),dk(i,j),dk(i-1,j))
    end if
@@ -154,7 +155,7 @@ DO j=1,Jc-1
    cor=(1-Rau)*(Unk(i,j)-interpl(Un(i,j),Un(i-1,j),dk(i,j),dk(i-1,j)))
    Unk(i,j)=Unpk+duk(i,j)*(P(i-1,j)-P(i,j))+cc*cor+noc*dwk*Pak
   end if
-  if(isPseudo) Unk(i,j)=Unk(i,j)-Unf0+df0*Unk0
+  if(usePseudoRC) Unk(i,j)=Unk(i,j)-Unf0+df0*Unk0
  end DO
 end DO
 !$OMP END DO
@@ -169,7 +170,7 @@ DO j=1,Jc
    Vnpa=interpl(Vnp(i,j),-Vnp(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),-Vn(Ic+1-i,j),da(i,j),da(Ic+1-i,j)))
    Vna(i,j)=Vnpa+dva(i,j)*(P(Ic+1-i,j)-P(i,j))+cc*cor+noc*dwa*Pka
-   if(isPseudo) then
+   if(usePseudoRC) then
     df0=interpl(d0(i,j),d0(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
     Vnf0=interpl(Vn0(i,j),-Vn0(Ic+1-i,j),da(i,j),da(Ic+1-i,j))
     Vna(i,j)=Vna(i,j)-Vnf0+df0*Vna0
@@ -193,7 +194,7 @@ DO j=1,Jc
      Yf=interpl(Ygk(i,j-1),Ygk(i,j),da(i,j-1),da(i,j))
      Vnpa=V(i,j)*Xf-U(i,j)*Yf
      cor=0.0
-     if(isPseudo) then
+     if(usePseudoRC) then
       df0=0.0
       Vnf0=0.0
      end if
@@ -202,7 +203,7 @@ DO j=1,Jc
      dwa=interpl(dwno(i,j-1)*dx,dwno(i,j-1)*dx,da(i,j),da(i,j-1))
      Vnpa=interpl(Vnp(i,j-1),Vnp(i,j-1),da(i,j),da(i,j-1))
      cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-     if(isPseudo) then
+     if(usePseudoRC) then
       df0=interpl(d0(i,j-1),d0(i,j-1),da(i,j),da(i,j-1))
       Vnf0=interpl(Vn0(i,j-1),Vn0(i,j-1),da(i,j),da(i,j-1))
      end if
@@ -212,13 +213,13 @@ DO j=1,Jc
     dwa=interpl(0.0,dwno(i,j-1)*dx,da(i,j),da(i,j-1))
     Vnpa=interpl(Vn(i,j),Vnp(i,j-1),da(i,j),da(i,j-1))
     cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
-    if(isPseudo) then
+    if(usePseudoRC) then
      df0=interpl(0.0,d0(i,j-1),da(i,j),da(i,j-1))
      Vnf0=interpl(0.0,Vn0(i,j-1),da(i,j),da(i,j-1))
     end if
    end if
    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cc*cor+noc*dwa*Pka
-   if(isPseudo) Vna(i,j)=Vna(i,j)-Vnf0+df0*Vna0
+   if(usePseudoRC) Vna(i,j)=Vna(i,j)-Vnf0+df0*Vna0
   else
    dva(i,j)=interpl(dv(i,j),dv(i,j-1),da(i,j),da(i,j-1))
    dwa=interpl(dwno(i,j)*dx,dwno(i,j-1)*dx,da(i,j),da(i,j-1))
@@ -232,7 +233,7 @@ DO j=1,Jc
    Vnpa=interpl(Vnp(i,j),Vnp(i,j-1),da(i,j),da(i,j-1))
    cor=(1-Rau)*(Vna(i,j)-interpl(Vn(i,j),Vn(i,j-1),da(i,j),da(i,j-1)))
    Vna(i,j)=Vnpa+dva(i,j)*(P(i,j-1)-P(i,j))+cc*cor+noc*dwa*Pka
-   if(isPseudo) then
+   if(usePseudoRC) then
     df0=interpl(d0(i,j),d0(i,j-1),da(i,j),da(i,j-1))
     Vnf0=interpl(Vn0(i,j),Vn0(i,j-1),da(i,j),da(i,j-1))
     Vna(i,j)=Vna(i,j)-Vnf0+df0*Vna0
@@ -275,6 +276,7 @@ DO j=1,Jc-1
      aN=aN+Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
      aP=aP-Rap*(0.5+wn)*Vna(i,j+1)*dx/(R*T(i,j)/Ma)
     end if
+    if(isPseudo) aP=aP+Rap*Jg(i,j)*dx*dy/deltat/(R*T(i,j)/Ma)
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW

@@ -27,6 +27,8 @@ cp $1/naca0012_freebc_cpt/Aeroreport.dat golden/naca0012_freebc_cpt/
 cp $1/naca0012_freebc_cpt/Wallsol.dat golden/naca0012_freebc_cpt/
 cp $1/whitcomb_xyz_super/Aeroreport.dat golden/whitcomb_xyz_super
 cp $1/whitcomb_xyz_super/Wallsol.dat golden/whitcomb_xyz_super
+cp $1/naca0012_pseudo_xyz/Aeroreport.dat golden/naca0012_pseudo_xyz/
+cp $1/naca0012_pseudo_xyz/Wallsol.dat golden/naca0012_pseudo_xyz/
 cp $1/src/output.txt golden
 
 echo "Regolden completed."
