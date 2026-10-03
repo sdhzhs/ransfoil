@@ -5,9 +5,10 @@ integer i,j
 real(8) Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,Sf,Pxw,Pxe,Pxs,Pxn,Pyw,Pye,Pys,Pyn,Pw,Pe,Ps,Pn,dkcw,dkce,dacs,dacn
 real(8) ww,we,ws,wn,noc,dncx,dncy,Tfx,Tfy,Pno
 real(8) du(Ic,Jc),dv(Ic,Jc),rms(Ic,Jc)
-logical(1) isCom
+logical(1) isCom,isPseudo
 
 isCom=ProctrlFlag==COM
+isPseudo=EvolveFlag==PSEUDO
 noc=1.d+0
 
 !$OMP PARALLEL
@@ -102,6 +103,7 @@ DO j=1,Jc-1
       end if
       aM(1,i,j)=aM(1,i,j)+((0.5d0+we)*Unk(i+1,j)-(0.5d0-ww)*Unk(i,j)+&
       (0.5d0+wn)*Vna(i,j+1)-(0.5d0-ws)*Vna(i,j))/(R*T(i,j)/Ma)
+      if(isPseudo) aM(1,i,j)=aM(1,i,j)+Vol(i,j)/deltat/(R*T(i,j)/Ma)
     end if
     dkcw=dkw(i,j)
     dkce=dkw(i+1,j)
@@ -243,6 +245,7 @@ DO j=1,Jc-1
         Ps=(0.5d0-ws)*P(i,j)/(R*T(i,j)/Ma)+(0.5d0+ws)*P(i,j-1)/(R*T(i,j-1)/Ma)
       end if
       b(i,j)=b(i,j)+Pe*Unk(i+1,j)-Pw*Unk(i,j)+Pn*Vna(i,j+1)-Ps*Vna(i,j)
+      if(isPseudo) b(i,j)=b(i,j)+P(i,j)*Vol(i,j)/deltat/(R*T(i,j)/Ma)
     end if
   end DO
 end DO

@@ -306,6 +306,7 @@ DO j=1,Jc-1
      aN=aN+Rap*(0.5-wn)*Vna(i,j+1)/(R*T(i,j+1)/Ma)
      aP=aP-Rap*(0.5+wn)*Vna(i,j+1)/(R*T(i,j)/Ma)
     end if
+    if(isPseudo) aP=aP+Rap*Vol(i,j)/deltat/(R*T(i,j)/Ma)
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW
