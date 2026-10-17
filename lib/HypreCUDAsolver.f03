@@ -1,10 +1,19 @@
 Subroutine hypreinit_gpu(A,b,x,solver,precond,p_values,Ic,Jc,Ib1,Ib2,solid)
 use, intrinsic :: iso_c_binding
 use, intrinsic :: iso_fortran_env, only: int64
-use cudaf
+!use cudaf
 
 implicit none
 include 'HYPREf.h'
+
+! Interface to HYPRE C function
+interface
+  type(c_ptr) function hypreMAlloc(size, loc) bind(C, name="hypre_MAlloc")
+  import :: c_ptr, c_int, c_size_t
+  integer(c_size_t), value :: size
+  integer(c_int), value :: loc
+  end function hypreMAlloc
+end interface
 
 integer      i,Ic,Jc,Ib1,Ib2
 integer      solid
@@ -24,11 +33,6 @@ integer,parameter::HYPRE_SSTRUCT_VARIABLE_CELL = 0
 
 type(c_ptr) :: p_values
 
-integer :: stat
-
-!stat = device_malloc_managed(int(40*Ic*Jc, int64), p_values)
-stat = device_malloc(int(40*Ic*Jc, int64), p_values)
-
 ndims = 2
 nparts = 1
 nvars = 1
@@ -42,6 +46,10 @@ Call HYPRE_Initialize(ierr)
 Call HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE,ierr)
 Call HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE,ierr)
 Call HYPRE_SetSpGemmUseVendor(0,ierr)
+
+!stat = device_malloc_managed(int(40*Ic*Jc, int64), p_values)
+!stat = device_malloc(int(40*Ic*Jc, int64), p_values)
+p_values = hypreMAlloc(int(40*Ic*Jc, int64), HYPRE_MEMORY_DEVICE)
 
 Call HYPRE_SStructGridCreate(MPI_COMM_WORLD,ndims,nparts,grid,ierr)
  ilower(1) = 1
@@ -145,10 +153,19 @@ end Subroutine hypreinit_gpu
 
 Subroutine hyprerelease_gpu(A,b,x,solver,precond,p_values,solid)
 use, intrinsic :: iso_c_binding
-use cudaf
+!use cudaf
 
 implicit none
 include 'HYPREf.h'
+
+! Interface to HYPRE C function
+interface
+  subroutine hypreFree(ptr, loc) bind(C, name="hypre_Free")
+  import :: c_ptr, c_int
+  type(c_ptr), value :: ptr
+  integer(c_int), value :: loc
+  end subroutine hypreFree
+end interface
 
 integer   solid
 integer   ierr
@@ -159,8 +176,6 @@ integer(8)  x
 integer(8)  solver,precond
 
 type(c_ptr) :: p_values
-
-integer :: stat
 
 if(solid==1) then
  Call HYPRE_SStructBiCGSTABDestroy(solver, ierr)
@@ -178,17 +193,28 @@ Call HYPRE_SStructVectorDestroy(x, ierr)
 
 Call HYPRE_Finalize(ierr)
 
-stat = device_free(p_values)
+!stat = device_free(p_values)
+Call hypreFree(p_values, HYPRE_MEMORY_DEVICE)
 
 end Subroutine hyprerelease_gpu
 
 Subroutine hyprecompute_gpu(A,b,x,solver,precond,p_values,aM,ba,F,Ic,Jc,Ib1,solid,scalar,bctype)
 use, intrinsic :: iso_c_binding
 use, intrinsic :: iso_fortran_env, only: int64
-use cudaf
+!use cudaf
 
 implicit none
 include 'HYPREf.h'
+
+! Interface to HYPRE C function
+interface
+  subroutine hypreMemcpy(dptr, sptr, size, dloc, sloc) bind(C, name="hypre_Memcpy")
+  import :: c_ptr, c_int, c_size_t
+  type(c_ptr), value :: dptr, sptr
+  integer(c_size_t), value :: size
+  integer(c_int), value :: dloc, sloc
+  end subroutine hypreMemcpy
+end interface
 
 integer      i,j,Ic,Jc,Ib1
 integer      solid,scalar,bctype
@@ -209,8 +235,6 @@ integer(8)  solver,precond
 
 real(8), pointer :: values(:)
 type(c_ptr) :: p_values, p_F, p_aM, p_ba
-
-integer :: stat
 
 isInOut = bctype==VINPOUT
 
@@ -236,7 +260,8 @@ if(isInOut) then
  end if
 end if
 
-stat = copy_host_to_device(int(Ic*Jc * 40, int64), p_values, p_aM)
+!stat = copy_host_to_device(int(Ic*Jc * 40, int64), p_values, p_aM)
+Call hypreMemcpy(p_values, p_aM, int(Ic*Jc * 40, int64), HYPRE_MEMORY_DEVICE, HYPRE_MEMORY_HOST)
 
 nentries = 5
 part = 0
@@ -255,11 +280,13 @@ Call HYPRE_SStructMatrixSetBoxValues(A,part,ilower,iupper,var,nentries,stencil_i
 Call HYPRE_SStructMatrixAssemble(A,ierr)
 Call HYPRE_SStructMatrixGetObject(A, parA, ierr)
 
-stat = copy_host_to_device(int(Ic*Jc * 8, int64), p_values, p_ba)
+!stat = copy_host_to_device(int(Ic*Jc * 8, int64), p_values, p_ba)
+Call hypreMemcpy(p_values, p_ba, int(Ic*Jc * 8, int64), HYPRE_MEMORY_DEVICE, HYPRE_MEMORY_HOST)
 
 Call HYPRE_SStructVectorSetBoxValues(b,part,ilower,iupper,var,values,ierr)
 
-stat = copy_host_to_device(int(Ic*Jc * 8, int64), p_values, p_F)
+!stat = copy_host_to_device(int(Ic*Jc * 8, int64), p_values, p_F)
+Call hypreMemcpy(p_values, p_F, int(Ic*Jc * 8, int64), HYPRE_MEMORY_DEVICE, HYPRE_MEMORY_HOST)
 
 Call HYPRE_SStructVectorSetBoxValues(x,part,ilower,iupper,var,values,ierr)
 
@@ -346,7 +373,8 @@ end if
 Call HYPRE_SStructVectorGather(x,ierr)
 Call HYPRE_SStructVectorGetBoxValues(x,part,ilower,iupper,var,values,ierr)
 
-stat = copy_device_to_host(int(Ic*Jc * 8, int64), p_F, p_values)
+!stat = copy_device_to_host(int(Ic*Jc * 8, int64), p_F, p_values)
+Call hypreMemcpy(p_F, p_values, int(Ic*Jc * 8, int64), HYPRE_MEMORY_HOST, HYPRE_MEMORY_DEVICE)
 
 if(isInOut) then
  if(Ib1>1.and.(.not.scalar==DPRES)) then
@@ -385,10 +413,32 @@ end Subroutine hyprecompute_gpu
 Subroutine hypresolve_gpu(aM,ba,F,Ic,Jc,Ib1,Ib2,solid,scalar,bctype)
 use, intrinsic :: iso_c_binding
 use, intrinsic :: iso_fortran_env, only: int64
-use cudaf
+!use cudaf
 
 implicit none
 include 'HYPREf.h'
+
+! Interface to HYPRE C function
+interface
+  type(c_ptr) function hypreMAlloc(size, loc) bind(C, name="hypre_MAlloc")
+  import :: c_ptr, c_int, c_size_t
+  integer(c_size_t), value :: size
+  integer(c_int), value :: loc
+  end function hypreMAlloc
+
+  subroutine hypreMemcpy(dptr, sptr, size, dloc, sloc) bind(C, name="hypre_Memcpy")
+  import :: c_ptr, c_int, c_size_t
+  type(c_ptr), value :: dptr, sptr
+  integer(c_size_t), value :: size
+  integer(c_int), value :: dloc, sloc
+  end subroutine hypreMemcpy
+
+  subroutine hypreFree(ptr, loc) bind(C, name="hypre_Free")
+  import :: c_ptr, c_int
+  type(c_ptr), value :: ptr
+  integer(c_int), value :: loc
+  end subroutine hypreFree
+end interface
 
 integer      i,j,Ic,Jc,Ib1,Ib2
 integer      solid,scalar,bctype
@@ -416,16 +466,7 @@ integer,parameter::HYPRE_SSTRUCT_VARIABLE_CELL = 0
 real(8), pointer :: values(:)
 type(c_ptr) :: p_values, p_F, p_aM, p_ba
 
-integer :: stat
-
 isInOut = bctype==VINPOUT
-
-!stat = device_malloc_managed(int(5*Ic*Jc * 8, int64), p_values)
-stat = device_malloc(int(5*Ic*Jc * 8, int64), p_values)
-Call c_f_pointer(p_values, values, [5*Ic*Jc])
-p_F = C_LOC(F)
-p_aM = C_LOC(aM)
-p_ba = C_LOC(ba)
 
 ndims = 2
 nparts = 1
@@ -440,6 +481,14 @@ Call HYPRE_Initialize(ierr)
 Call HYPRE_SetMemoryLocation(HYPRE_MEMORY_DEVICE,ierr)
 Call HYPRE_SetExecutionPolicy(HYPRE_EXEC_DEVICE,ierr)
 Call HYPRE_SetSpGemmUseVendor(0,ierr)
+
+!stat = device_malloc_managed(int(5*Ic*Jc * 8, int64), p_values)
+!stat = device_malloc(int(5*Ic*Jc * 8, int64), p_values)
+p_values = hypreMAlloc(int(40*Ic*Jc, int64), HYPRE_MEMORY_DEVICE)
+Call c_f_pointer(p_values, values, [5*Ic*Jc])
+p_F = C_LOC(F)
+p_aM = C_LOC(aM)
+p_ba = C_LOC(ba)
 
 Call HYPRE_SStructGridCreate(MPI_COMM_WORLD,ndims,nparts,grid,ierr)
  ilower(1) = 1
@@ -552,18 +601,21 @@ if(isInOut) then
  end if
 end if
 
-stat = copy_host_to_device(int(Ic*Jc * 40, int64), p_values, p_aM)
+!stat = copy_host_to_device(int(Ic*Jc * 40, int64), p_values, p_aM)
+Call hypreMemcpy(p_values, p_aM, int(Ic*Jc * 40, int64), HYPRE_MEMORY_DEVICE, HYPRE_MEMORY_HOST)
 
 Call HYPRE_SStructMatrixSetBoxValues(A,part,ilower,iupper,var,nentries,stencil_indices,values,ierr)
 
 Call HYPRE_SStructMatrixAssemble(A,ierr)
 Call HYPRE_SStructMatrixGetObject(A, parA, ierr)
 
-stat = copy_host_to_device(int(Ic*Jc * 8, int64), p_values, p_ba)
+!stat = copy_host_to_device(int(Ic*Jc * 8, int64), p_values, p_ba)
+Call hypreMemcpy(p_values, p_ba, int(Ic*Jc * 8, int64), HYPRE_MEMORY_DEVICE, HYPRE_MEMORY_HOST)
 
 Call HYPRE_SStructVectorSetBoxValues(b,part,ilower,iupper,var,values,ierr)
 
-stat = copy_host_to_device(int(Ic*Jc * 8, int64), p_values, p_F)
+!stat = copy_host_to_device(int(Ic*Jc * 8, int64), p_values, p_F)
+Call hypreMemcpy(p_values, p_F, int(Ic*Jc * 8, int64), HYPRE_MEMORY_DEVICE, HYPRE_MEMORY_HOST)
 
 Call HYPRE_SStructVectorSetBoxValues(x,part,ilower,iupper,var,values,ierr)
 
@@ -648,7 +700,8 @@ end if
 Call HYPRE_SStructVectorGather(x,ierr)
 Call HYPRE_SStructVectorGetBoxValues(x,part,ilower,iupper,var,values,ierr)
 
-stat = copy_device_to_host(int(Ic*Jc * 8, int64), p_F, p_values)
+!stat = copy_device_to_host(int(Ic*Jc * 8, int64), p_F, p_values)
+Call hypreMemcpy(p_F, p_values, int(Ic*Jc * 8, int64), HYPRE_MEMORY_HOST, HYPRE_MEMORY_DEVICE)
 
 if(isInOut) then
  if(Ib1>1.and.(.not.scalar==DPRES)) then
@@ -699,6 +752,7 @@ Call HYPRE_SStructVectorDestroy(x, ierr)
 
 Call HYPRE_Finalize(ierr)
 
-stat = device_free(p_values)
+!stat = device_free(p_values)
+Call hypreFree(p_values, HYPRE_MEMORY_DEVICE)
 
 end Subroutine hypresolve_gpu
