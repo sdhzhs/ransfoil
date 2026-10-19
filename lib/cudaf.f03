@@ -94,6 +94,24 @@ module cudaf
 
    !
    integer function &
+           copy_host_to_host(nbytes, dst, src) result(stat)
+      integer(int64), intent(in) :: nbytes
+      type(c_ptr), intent(inout) :: dst, src
+      stat = cudaMemcpy(dst, src, int(nbytes,c_size_t),&
+                               cudaMemcpyHostToHost)
+   end function copy_host_to_host
+
+   !
+   integer function &
+           copy_device_to_device(nbytes, dst, src) result(stat)
+      integer(int64), intent(in) :: nbytes
+      type(c_ptr), intent(inout) :: dst, src
+      stat = cudaMemcpy(dst, src, int(nbytes,c_size_t),&
+                               cudaMemcpyDeviceToDevice)
+   end function copy_device_to_device
+
+   !
+   integer function &
            device_free(dPtr) result(stat)
       type(c_ptr), intent(inout) :: dPtr
       stat = cudaFree(dPtr)
