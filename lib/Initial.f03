@@ -154,3 +154,50 @@ else if(TurmodFlag==SST) then
  Tw0=Tw
 end if
 end Subroutine Initial
+
+Subroutine Calctimestep_global
+use Aero2DCOM
+implicit none
+real(8) Xmin,Xmax,Ymin,Ymax,Vol
+real(8) L,Lvol,Lext,Uavr,Usavr,dtu,dtc
+
+Xmin=minval(Xg)
+Ymin=minval(Yg)
+Xmax=maxval(Xg)
+Ymax=maxval(Yg)
+Vol=sum(Jg)
+Lvol=sqrt(Vol)
+Lext=max(Xmax-Xmin,Ymax-Ymin)
+L=max(Lvol,Lext)
+Uavr=sum(sqrt(U**2+V**2))/(Ic*Jc)
+Usavr=sum(sqrt(gama*R*T/Ma))/(Ic*Jc)
+
+dtu=0.3*L/Uavr
+dtc=1d+5
+if(ProctrlFlag==COM.and.Mach>0.3) dtc=0.3*L/Usavr
+
+deltat=Co*1d-2*min(dtu,dtc)
+
+end Subroutine Calctimestep_global
+
+Subroutine Calctimestep_local
+use Aero2DCOM
+implicit none
+integer i,j
+real(8) epsi,dtc,dtd,gc
+
+epsi=1d-15
+gc=5d-1
+
+!deltat=Co*sqrt(Jg/(U**2+V**2))
+!if(ProctrlFlag==COM.and.Mach>0.3) deltat=min(deltat,Co*sqrt(Jg/(gama*R*T/Ma)))
+
+DO j=1,Jc
+ DO i=1,Ic
+  dtc=Jg(i,j)/(abs(Unk(i,j))+abs(Unk(i+1,j))+abs(Vna(i,j))+abs(Vna(i,j+1))+epsi)
+  dtd=gc*rho(i,j)*Jg(i,j)**2/((mu(i,j)+mut(i,j))*2*(dk(i,j)**2+da(i,j)**2))
+  deltat(i,j)=Co*dtc*dtd/(dtc+dtd)
+ end DO
+end DO 
+
+end Subroutine Calctimestep_local

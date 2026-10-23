@@ -70,5 +70,7 @@ Is the materials of fluid air(Y/N)?
 Y
 Set nonlinear iteration method(steady/pseudo):
 pseudo
-Input global time step for pseudo-transient iteration(s):
-5e-4
+Input Courant number for global/local pseudo-transient iteration:
+1
+Input type of time step method(global/local):
+global

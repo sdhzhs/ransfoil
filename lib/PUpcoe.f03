@@ -181,7 +181,7 @@ DO j=1,Jc-1
       end if
       aM(1,i,j)=aM(1,i,j)+((0.5d0+we)*Unk(i+1,j)*dy-(0.5d0-ww)*Unk(i,j)*dy+&
       (0.5d0+wn)*Vna(i,j+1)*dx-(0.5d0-ws)*Vna(i,j)*dx)/(R*T(i,j)/Ma)
-      if(isPseudo) aM(1,i,j)=aM(1,i,j)+Jg(i,j)*dx*dy/deltat/(R*T(i,j)/Ma)
+      if(isPseudo) aM(1,i,j)=aM(1,i,j)+Jg(i,j)*dx*dy/deltat(i,j)/(R*T(i,j)/Ma)
     end if
     dkc=dk(i,j)
     if(i==1) then
@@ -272,7 +272,7 @@ DO j=1,Jc-1
         Ps=(0.5d0-ws)*P(i,j)/(R*T(i,j)/Ma)+(0.5d0+ws)*P(i,j-1)/(R*T(i,j-1)/Ma)
       end if
       b(i,j)=b(i,j)+Pe*Unk(i+1,j)*dy-Pw*Unk(i,j)*dy+Pn*Vna(i,j+1)*dx-Ps*Vna(i,j)*dx
-      if(isPseudo) b(i,j)=b(i,j)+P(i,j)*Jg(i,j)*dx*dy/deltat/(R*T(i,j)/Ma) 
+      if(isPseudo) b(i,j)=b(i,j)+P(i,j)*Jg(i,j)*dx*dy/deltat(i,j)/(R*T(i,j)/Ma) 
     end if
   end DO
 end DO

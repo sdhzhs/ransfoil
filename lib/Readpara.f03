@@ -169,8 +169,14 @@ if(libmod=='S'.or.libmod=='M') then
   end if
   if(Evolve/='steady') then
    read(10,*) ch
-   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) deltat
-   if(stat>0) STOP 'global time step: '//ioerrmsg
+   read(10,*,IOSTAT=stat,IOMSG=ioerrmsg) Co
+   if(stat>0) STOP 'Courant number: '//ioerrmsg
+   read(10,*,IOSTAT=stat) ch
+   if(is_iostat_end(stat).or.stat>0) then
+    Tstype='global'
+   else
+    read(10,*) Tstype
+   end if
   end if
  close(10)
 else if(libmod=='I') then
@@ -314,9 +320,11 @@ else if(libmod=='I') then
  print *,'Set nonlinear iteration method(steady/pseudo):'
  read *,Evolve
  if(Evolve/='steady') then
-  print *,'Input global time step for pseudo-transient iteration(s):'
-  read(*,*,IOSTAT=stat,IOMSG=ioerrmsg) deltat
+  print *,'Input Courant number for global/local pseudo-transient iteration:'
+  read(*,*,IOSTAT=stat,IOMSG=ioerrmsg) Co
   if(stat>0) STOP ioerrmsg
+  print *,'Input type of time step method(global/local):'
+  read *,Tstype
  end if
 end if
 print *,'Read control parameters completed!'
@@ -450,6 +458,12 @@ else if(Evolve=='pseudo') then
  EvolveFlag=PSEUDO
 else if(Evolve=='unsteady') then
  EvolveFlag=UNSTEADY
+end if
+
+if(Tstype=='global') then
+ TstypeFlag=GTS
+else if(Tstype=='local') then
+ TstypeFlag=LTS
 end if
 
 !wallfunutype=ORIVEL

@@ -30,11 +30,11 @@ if(isSimp) then
      Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
      Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
      if(usePseudoRC) then
-      Up=Rau*rho0(i,j)*U0(i,j)*Jg(i,j)*dx*dy/deltat/auM(1,i,j)
-      Vp=Rau*rho0(i,j)*V0(i,j)*Jg(i,j)*dx*dy/deltat/auM(1,i,j)
+      Up=Rau*rho0(i,j)*U0(i,j)*Jg(i,j)*dx*dy/deltat(i,j)/auM(1,i,j)
+      Vp=Rau*rho0(i,j)*V0(i,j)*Jg(i,j)*dx*dy/deltat(i,j)/auM(1,i,j)
       Un0(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
       Vn0(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
-      d0(i,j)=Rau*rho0(i,j)*Jg(i,j)*dx*dy/deltat/auM(1,i,j)
+      d0(i,j)=Rau*rho0(i,j)*Jg(i,j)*dx*dy/deltat(i,j)/auM(1,i,j)
      end if
     end DO
   end DO
@@ -51,11 +51,11 @@ else if(isSimpC) then
      Unp(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
      Vnp(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
      if(usePseudoRC) then
-      Up=Rau*rho0(i,j)*U0(i,j)*Jg(i,j)*dx*dy/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
-      Vp=Rau*rho0(i,j)*V0(i,j)*Jg(i,j)*dx*dy/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
+      Up=Rau*rho0(i,j)*U0(i,j)*Jg(i,j)*dx*dy/deltat(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+      Vp=Rau*rho0(i,j)*V0(i,j)*Jg(i,j)*dx*dy/deltat(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
       Un0(i,j)=Up*Yga(i,j)-Vp*Xga(i,j)
       Vn0(i,j)=Vp*Xgk(i,j)-Up*Ygk(i,j)
-      d0(i,j)=Rau*rho0(i,j)*Jg(i,j)*dx*dy/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
+      d0(i,j)=Rau*rho0(i,j)*Jg(i,j)*dx*dy/deltat(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
      end if
     end DO
   end DO
@@ -276,7 +276,7 @@ DO j=1,Jc-1
      aN=aN+Rap*(0.5-wn)*Vna(i,j+1)*dx/(R*T(i,j+1)/Ma)
      aP=aP-Rap*(0.5+wn)*Vna(i,j+1)*dx/(R*T(i,j)/Ma)
     end if
-    if(isPseudo) aP=aP+Rap*Jg(i,j)*dx*dy/deltat/(R*T(i,j)/Ma)
+    if(isPseudo) aP=aP+Rap*Jg(i,j)*dx*dy/deltat(i,j)/(R*T(i,j)/Ma)
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW

@@ -540,8 +540,8 @@ if(isPseudo) then
  !$OMP DO PRIVATE(i)
  DO j=1,Jc-1
    DO i=Is,Ie
-    aM(1,i,j)=aM(1,i,j)+rho(i,j)*Jg(i,j)*dx*dy/deltat
-    b(i,j)=b(i,j)+rho0(i,j)*F0(i,j)*Jg(i,j)*dx*dy/deltat
+    aM(1,i,j)=aM(1,i,j)+rho(i,j)*Jg(i,j)*dx*dy/deltat(i,j)
+    b(i,j)=b(i,j)+rho0(i,j)*F0(i,j)*Jg(i,j)*dx*dy/deltat(i,j)
    end DO
  end DO
  !$OMP END DO
