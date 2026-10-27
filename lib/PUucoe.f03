@@ -3,7 +3,7 @@ use Aero2DCOM
 implicit none
 integer i,j
 real(8) Xgaw,Xgae,Ygaw,Ygae,Xgks,Xgkn,Ygks,Ygkn,DF,Sf,dkcw,dkce,dacs,dacn,Gxf,Gyf,dncx,dncy,Tfx,Tfy
-real(8) F(Ic,Jc),F0(Ic,Jc),Ga(Ic,Jc),Fx(Ic,Jc),Fy(Ic,Jc),Fwall(Ib1:Ib2)
+real(8) F(Ic,Jc),Ga(Ic,Jc),Fx(Ic,Jc),Fy(Ic,Jc),Fwall(Ib1:Ib2)
 real(8) Fw(Ic,Jc),Fe(Ic,Jc),Fs(Ic,Jc),Fn(Ic,Jc),Dw(Ic,Jc),De(Ic,Jc),Ds(Ic,Jc),Dn(Ic,Jc),bno(Ic,Jc),cor(Ic,Jc)
 integer scalar
 logical(1) isU,isV,isKe,isSst,isSa,isLam,isInv,isCom,isIncom,isWf,isLr,isPseudo,isParvel
@@ -32,14 +32,12 @@ if(isU) then
  F=U
  Fx=Ux
  Fy=Uy
- F0=U0
  !$OMP END WORKSHARE
 else if(isV) then
  !$OMP WORKSHARE
  F=V
  Fx=Vx
  Fy=Vy
- F0=V0
  !$OMP END WORKSHARE
 end if
 
@@ -235,8 +233,8 @@ if(isPseudo) then
  !$OMP DO PRIVATE(i)
  DO j=1,Jc-1
    DO i=Is,Ie
-    aM(1,i,j)=aM(1,i,j)+rho(i,j)*Vol(i,j)/deltat
-    b(i,j)=b(i,j)+rho0(i,j)*F0(i,j)*Vol(i,j)/deltat
+    aM(1,i,j)=aM(1,i,j)+rho(i,j)*Vol(i,j)/deltat(i,j)
+    b(i,j)=b(i,j)+rho0(i,j)*F(i,j)*Vol(i,j)/deltat(i,j)
    end DO
  end DO
  !$OMP END DO

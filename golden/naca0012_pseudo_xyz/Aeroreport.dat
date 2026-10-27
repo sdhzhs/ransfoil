@@ -9,18 +9,18 @@
  Spatial discretization scheme: Fromm   
  Initializing from a file? N       
  Initializing using stagnation values? N       
- Momentum relaxation factor:  0.80000000000000004     
+ Momentum relaxation factor:  0.69999999999999996     
  Pressure relaxation factor:  0.50000000000000000     
- Energy relaxation factor:  0.80000000000000004     
- Turbulence relaxation factor:  0.80000000000000004     
+ Energy relaxation factor:  0.69999999999999996     
+ Turbulence relaxation factor:  0.69999999999999996     
  ----------------------------------------------
  The aerodynamic parameters of this airfoil are:
  Reynolds number:   3208236.6833899114     
  Mach number:  0.23131933612515396     
  Angle of attack:   4.0000000000000000     
- Average Y+:   56.902991661384114     
- Lift coefficient:  0.40296630278824502     
- Drag coefficient:   3.6492623925709618E-003
- Friction coefficient:   6.2337470583989866E-003
- Pitching moment coefficient (1/4 chord):   6.4251485037449905E-003
- Pressure center (unit chord):  0.23419849771204779        0.0000000000000000     
+ Average Y+:   56.911238058173829     
+ Lift coefficient:  0.40496299719897721     
+ Drag coefficient:   3.5381802075703057E-003
+ Friction coefficient:   6.2309476844909324E-003
+ Pitching moment coefficient (1/4 chord):   6.4082015044462674E-003
+ Pressure center (unit chord):  0.23431794845048892        0.0000000000000000     

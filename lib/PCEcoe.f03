@@ -25,9 +25,9 @@ if(isSimp) then
      Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/auM(1,i,j)
      Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/auM(1,i,j)
      if(isPseudo) then
-      Up0(i,j)=Rau*rho0(i,j)*U0(i,j)*Vol(i,j)/deltat/auM(1,i,j)
-      Vp0(i,j)=Rau*rho0(i,j)*V0(i,j)*Vol(i,j)/deltat/auM(1,i,j)
-      d0(i,j)=Rau*rho0(i,j)*Vol(i,j)/deltat/auM(1,i,j)
+      Up0(i,j)=Rau*rho0(i,j)*U0(i,j)*Vol(i,j)/deltat(i,j)/auM(1,i,j)
+      Vp0(i,j)=Rau*rho0(i,j)*V0(i,j)*Vol(i,j)/deltat(i,j)/auM(1,i,j)
+      d0(i,j)=Rau*rho0(i,j)*Vol(i,j)/deltat(i,j)/auM(1,i,j)
      end if
     end DO
   end DO
@@ -41,9 +41,9 @@ else if(isSimpC) then
      Up(i,j)=U(i,j)+Rau*Px(i,j)*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
      Vp(i,j)=V(i,j)+Rau*Py(i,j)*Vol(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
      if(isPseudo) then
-      Up0(i,j)=Rau*rho0(i,j)*U0(i,j)*Vol(i,j)/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
-      Vp0(i,j)=Rau*rho0(i,j)*V0(i,j)*Vol(i,j)/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
-      d0(i,j)=Rau*rho0(i,j)*Vol(i,j)/deltat/(auM(1,i,j)-Rau*auM(2,i,j))
+      Up0(i,j)=Rau*rho0(i,j)*U0(i,j)*Vol(i,j)/deltat(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+      Vp0(i,j)=Rau*rho0(i,j)*V0(i,j)*Vol(i,j)/deltat(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
+      d0(i,j)=Rau*rho0(i,j)*Vol(i,j)/deltat(i,j)/(auM(1,i,j)-Rau*auM(2,i,j))
      end if
     end DO
   end DO
@@ -306,7 +306,7 @@ DO j=1,Jc-1
      aN=aN+Rap*(0.5-wn)*Vna(i,j+1)/(R*T(i,j+1)/Ma)
      aP=aP-Rap*(0.5+wn)*Vna(i,j+1)/(R*T(i,j)/Ma)
     end if
-    if(isPseudo) aP=aP+Rap*Vol(i,j)/deltat/(R*T(i,j)/Ma)
+    if(isPseudo) aP=aP+Rap*Vol(i,j)/deltat(i,j)/(R*T(i,j)/Ma)
    end if
    aM(1,i,j)=aP
    aM(2,i,j)=aW

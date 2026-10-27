@@ -29,13 +29,13 @@ Input maximum iteration steps:
 Input minimum residual of iteration:
 1e-4
 Input relaxation factor of velocity:
-8e-1
+7e-1
 Input relaxation factor of pressure:
 5e-1
 Input relaxation factor of temperature:
-8e-1
+7e-1
 Input relaxation factor of turbulence:
-8e-1
+7e-1
 Input dimensionless near wall mesh spacing:
 1e-3
 Input layers of uniform near wall mesh:
@@ -70,5 +70,7 @@ Is the materials of fluid air(Y/N)?
 Y
 Set nonlinear iteration method(steady/pseudo):
 pseudo
-Input global time step for pseudo-transient iteration(s):
-1e-3
+Input Courant number for global/local pseudo-transient iteration:
+1
+Input type of time step method(global/local):
+global
