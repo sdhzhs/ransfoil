@@ -221,6 +221,10 @@ open(unit=4,file=filename(8),status='replace',recl=256)
  if(TurmodFlag/=INV.and.TurmodFlag/=LAM) then
   write(4,*) 'Turbulence relaxation factor:',Rat
  end if
+ if(Evolve=='pseudo') then
+  write(4,*) 'Time step method: ',Tstype
+  write(4,*) 'Courant number:',Co
+ end if
  write(4,*) '----------------------------------------------'
  write(4,*) 'The aerodynamic parameters of this airfoil are:'
  write(4,*) 'Reynolds number:',Re

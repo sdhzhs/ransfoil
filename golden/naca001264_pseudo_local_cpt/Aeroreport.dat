@@ -1,0 +1,26 @@
+ File name of airfoil coordinates: cases/NACA001264.cpt                                            
+ Using control points based parametric spline? Y       
+ Property: incom   
+ Solving energy equation? Y       
+ Including viscous heating? N       
+ Turbulence model: sst     
+ Wall treatment method: lr      
+ Coupling algorithm: SIMPLE  
+ Spatial discretization scheme: 2upwind 
+ Initializing from a file? N       
+ Initializing using stagnation values? N       
+ Momentum relaxation factor:  0.80000000000000004     
+ Pressure relaxation factor:  0.40000000000000002     
+ Energy relaxation factor:  0.80000000000000004     
+ Turbulence relaxation factor:  0.80000000000000004     
+ ----------------------------------------------
+ The aerodynamic parameters of this airfoil are:
+ Reynolds number:   3183968.8478024611     
+ Mach number:  0.23083095345002311     
+ Angle of attack:   4.0000000000000000     
+ Average Y+:  0.70786713721489880     
+ Lift coefficient:  0.39060175902095196     
+ Drag coefficient:   3.4412296387083107E-003
+ Friction coefficient:   7.0017085125913250E-003
+ Pitching moment coefficient (1/4 chord):   7.0795041034369573E-003
+ Pressure center (unit chord):  0.23206772546489926        0.0000000000000000     
