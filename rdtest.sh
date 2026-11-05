@@ -14,4 +14,5 @@ rm -rf naca0012_far_cpt
 rm -rf naca0012_freebc_cpt
 rm -rf whitcomb_xyz_super
 rm -rf naca0012_pseudo_xyz
+rm -rf naca001264_pseudo_local_cpt
 rm src/*.txt

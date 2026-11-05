@@ -52,6 +52,7 @@ runIncomCase naca0012_far_cpt 0012.farboundist.cpt golden
 runIncomCase naca0012_freebc_cpt 0012.freebc.cpt golden
 runComCase whitcomb_xyz_super whitcomb.xyz.super golden
 runIncomCase naca0012_pseudo_xyz 0012.pseudo.xyz golden
+runIncomCase naca001264_pseudo_local_cpt 001264.pseudo.local.cpt golden
 
 cd src
 gfcompile.sh
