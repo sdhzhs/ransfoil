@@ -31,7 +31,7 @@ Input minimum residual of iteration:
 Input relaxation factor of velocity:
 8e-1
 Input relaxation factor of pressure:
-5e-1
+4e-1
 Input relaxation factor of temperature:
 8e-1
 Input relaxation factor of turbulence:

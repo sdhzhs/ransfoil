@@ -61,7 +61,7 @@ else if(isSimpC) then
   end DO
   !$OMP END DO
 end if
-!$OMP DO PRIVATE(i,Unpk,dwk,Pak,cor)
+!$OMP DO PRIVATE(i,Unpk,dwk,Pak,cor,df0,Unf0,Unk0)
 DO j=1,Jc-1
  DO i=Is,Ie+1
   if(i==1) then
@@ -159,7 +159,7 @@ DO j=1,Jc-1
  end DO
 end DO
 !$OMP END DO
-!$OMP DO PRIVATE(i,Vnpa,dwa,Pka,cor)
+!$OMP DO PRIVATE(i,Vnpa,dwa,Pka,cor,df0,Vnf0,Vna0)
 DO j=1,Jc
  DO i=Is,Ie
   Vna0=Vna(i,j)
