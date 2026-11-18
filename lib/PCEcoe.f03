@@ -49,7 +49,7 @@ else if(isSimpC) then
   end DO
   !$OMP END DO
 end if
-!$OMP DO PRIVATE(i,Sf,Uf,Vf,Unpk,cor,dncx,dncy,Tfx,Tfy,Pno)
+!$OMP DO PRIVATE(i,Sf,Uf,Vf,Unpk,cor,dncx,dncy,Tfx,Tfy,Pno,Unk0,Uf0,Vf0,Unf0,df0)
 DO j=1,Jc-1
  DO i=Is,Ie+1
   if(i==1) then
@@ -165,7 +165,7 @@ DO j=1,Jc-1
  end DO
 end DO
 !$OMP END DO
-!$OMP DO PRIVATE(i,Sf,Uf,Vf,Vnpa,cor,dncx,dncy,Tfx,Tfy,Pno)
+!$OMP DO PRIVATE(i,Sf,Uf,Vf,Vnpa,cor,dncx,dncy,Tfx,Tfy,Pno,Vna0,Uf0,Vf0,Vnf0,df0)
 DO j=1,Jc
  DO i=Is,Ie
   Vna0=Vna(i,j)
